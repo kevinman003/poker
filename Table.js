@@ -8,16 +8,18 @@ const CARD_RANKS = {
   TRIPS: 4,
   TWO_PAIR: 3,
   PAIR: 2,
-  HIGH_CARD: 1
+  HIGH_CARD: 1,
+  NONE: 0
 };
 
-// Contains array of players, community cards 
+// Contains array of total players, active players, community cards 
 class Table {
   constructor(id) {
     this.id = id;
     this.cards = [];
     this.hasAce = false;
     this.players = [];
+    this.activePlayers = [];
   }
 
   addCard(card) {
@@ -41,13 +43,31 @@ class Table {
 
   addPlayer(player) {
     this.players.push(player);
+    this.activePlayers.push(player);
   }
 
   findWinner() {
-    this.players.map(player => {
+    let bestHandRank = 'NONE';
+    let bestPlayers = [];
+    this.activePlayers.map(player => {
       player.cardRank = this.analyzeHand(player);
-      console.log(`${player.name} has ${player.cardRank}`);
+      let handRank = CARD_RANKS[player.cardRank];
+      if(handRank > CARD_RANKS[bestHandRank]) {
+        bestHandRank = player.cardRank;
+        bestPlayers = [player];
+      } else if (handRank === CARD_RANKS[bestHandRank]) {
+        bestPlayers.push(player);
+      }
     });
+    
+    // if(bestPlayers.length === 1) {
+    //   return bestPlayers[0];
+    // } else {
+    //   switch(bestHandRank) {
+    //     default: return {};
+    //   }
+    // }
+    console.log(bestPlayers);
   }
   
   analyzeHand(player){
@@ -62,15 +82,14 @@ class Table {
     const straight = this.findStraight(sortedCards);
     const groups   = this.createGroups(values);
     this.findGroups(player, groups);
-    console.log('player: ', player);
 
-    if(straight && flush)  return CARD_RANKS.STRAIGHT_FLUSH;
-    if(player.quads.length) return CARD_RANKS.QUADS;
-    if(player.trips.length && player.pair.length) return CARD_RANKS.FULL_HOUSE;
-    if(player.trips.length) return CARD_RANKS.TRIPS;
-    if(player.pair.length >= 2) return CARD_RANKS.TWO_PAIR;
-    if(player.pair.length) return CARD_RANKS.PAIR;
-    return CARD_RANKS.HIGH_CARD;
+    if(straight && flush)  return "STRAIGHT_FLUSH";
+    if(player.quads.length) return "QUADS";
+    if(player.trips.length && player.pair.length) return "FULL_HOUSE";
+    if(player.trips.length) return "TRIPS";
+    if(player.pair.length >= 2) return "TWO_PAIR";
+    if(player.pair.length) return "PAIR";
+    return "HIGH_CARD";
   }
 
   findFlush(suits) {
