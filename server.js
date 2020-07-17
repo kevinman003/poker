@@ -6,6 +6,8 @@ const http = require('http');
 
 const router = require('./router');
 const TableRooms  = require('./TableRooms');
+const Card = require('./Card');
+const Player = require('./Player');
 
 const app = express();
 const server = http.createServer(app);
@@ -20,8 +22,16 @@ io.on('connection', (socket) => {
   socket.on('join', ({ table }, callback) => {
     console.log(table);
     tableRooms.createTable(table);
-    tableRooms.tables.abc.addCards(['ac', '2d', '4c', '5c', '6c', '7c', '8c']);
-    tableRooms.tables.abc.analyzeHand();
+    const cards = [];
+    cards.push(new Card(2, 's'));
+    cards.push(new Card(3, 's'));
+    cards.push(new Card(4, 's'));
+    cards.push(new Card(5, 's'));
+    cards.push(new Card(6, 's'));
+    const player1 = new Player();
+    player1.addCards(new Card(9, 'h'), new Card(10, 'h'));
+    tableRooms.tables.abc.addPlayer(Player1);
+    tableRooms.tables.abc.findWinner();
     socket.join(table);
   })
 
