@@ -11,6 +11,7 @@ const CARD_RANKS = {
   HIGH_CARD: 1
 };
 
+// Contains array of players, community cards 
 class Table {
   constructor(id) {
     this.id = id;
@@ -31,7 +32,6 @@ class Table {
   sortCards(holeCards) {
     const result = this.cards.concat(holeCards);
     result.sort((a, b) => {a.value - b.value});
-    console.log('RESULT', result);
     return result;
   }
 
@@ -40,12 +40,13 @@ class Table {
   }
 
   addPlayer(player) {
-    this.players.concat(player);
+    this.players.push(player);
   }
 
   findWinner() {
     this.players.map(player => {
       player.cardRank = this.analyzeHand(player);
+      console.log(`${player.name} has ${player.cardRank}`);
     });
   }
   
@@ -55,25 +56,26 @@ class Table {
     values = values.concat(holeCards.map(card => card.value));
     let suits = this.cards.map( card => card.suit );
     suits = suits.concat(holeCards.map(card => card.suit));
-
     const sortedCards = this.sortCards(holeCards);
    
     const flush    = this.findFlush(suits);
     const straight = this.findStraight(sortedCards);
     const groups   = this.createGroups(values);
     this.findGroups(player, groups);
+    console.log('player: ', player);
+
     if(straight && flush)  return CARD_RANKS.STRAIGHT_FLUSH;
-    if(player.hasQuads) return player.cardRank = CARD_RANKS.QUADS;
-    if(player.hasTrips && player.hasPair) return player.cardRank = CARD_RANKS.FULL_HOUSE;
-    if(player.hasPair.length >= 2) return player.cardRank = CARD_RANKS.TWO_PAIR;
-    if(player.hasPair) return player.cardRank = CARD_RANKS.PAIR;
-    return player.cardRank = CARD_RANKS.HIGH_CARD;
+    if(player.quads.length) return CARD_RANKS.QUADS;
+    if(player.trips.length && player.pair.length) return CARD_RANKS.FULL_HOUSE;
+    if(player.trips.length) return CARD_RANKS.TRIPS;
+    if(player.pair.length >= 2) return CARD_RANKS.TWO_PAIR;
+    if(player.pair.length) return CARD_RANKS.PAIR;
+    return CARD_RANKS.HIGH_CARD;
   }
 
   findFlush(suits) {
     let suitSet = new Set(suits);
     for (let suit of suitSet) {
-      console.log(suit);
       if(this.cards.filter(card => card.suit == suit).length >= 5) {
         return true;
       }
@@ -82,7 +84,6 @@ class Table {
   }
 
   findStraight(cards) {
-    console.log('CARDS ', cards);
     let maxCount = 0;
     let count = 1;
     let connected = false;
@@ -102,14 +103,10 @@ class Table {
   findGroups(player, groups) {
     Object.keys(groups).map(value => {
       let repeats = groups[value];
-      player.hasQuads = repeats === 4 ? player.hasQuads.push(value) : player.hasQuads;
-      player.hasTrips = repeats === 3 ? player.hasTrips.push(value) : player.hasTrips;
-      player.hasPair = repeats === 3 ? player.hasPair.push(value) : player.hasPair;
+      player.quads = repeats === 4 ? player.quads.concat(value) : player.quads;
+      player.trips = repeats === 3 ? player.trips.concat(value) : player.trips;
+      player.pair = repeats === 2 ? player.pair.concat(value) : player.pair;
     });
-  }
-
-  getKeyByValue(object, value) {
-    return Object.keys(object).filter(key => object[key] === value);
   }
 
   createGroups(cards) {
