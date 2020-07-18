@@ -13,6 +13,7 @@ const CARD_RANKS = {
 };
 
 // Contains array of total players, active players, community cards 
+// TODO complete the switch case 
 class Table {
   constructor(id) {
     this.id = id;
@@ -60,14 +61,30 @@ class Table {
       }
     });
     
-    // if(bestPlayers.length === 1) {
-    //   return bestPlayers[0];
-    // } else {
-    //   switch(bestHandRank) {
-    //     default: return {};
-    //   }
-    // }
-    console.log(bestPlayers);
+    if(bestPlayers.length === 1) {
+      return bestPlayers[0];
+    } else {
+      switch(bestHandRank) {
+        case 'STRAIGHT_FLUSH':
+          break;
+        case 'QUADS':
+          break;
+        case 'FULL_HOUSE':
+          break;
+        case 'FLUSH':
+          break;
+        case 'STRAIGHT': 
+          break;
+        case 'TRIPS':
+          break;
+        case 'TWO_PAIR':
+          break;
+        case 'HIGH_CARD':
+          break;
+        default: return {};
+      }
+    }
+
   }
   
   analyzeHand(player){
@@ -79,7 +96,7 @@ class Table {
     const sortedCards = this.sortCards(holeCards);
    
     const flush    = this.findFlush(suits);
-    const straight = this.findStraight(sortedCards);
+    const straight = this.findStraight(sortedCards, player);
     const groups   = this.createGroups(values);
     this.findGroups(player, groups);
 
@@ -102,21 +119,34 @@ class Table {
     return false;
   }
 
-  findStraight(cards) {
+  findStraight(cards, player) {
     let maxCount = 0;
     let count = 1;
     let connected = false;
+    let end = 0;
     for(let i = 0; i < cards.length - 1; i++) {
-      if(cards[i + 1].value - cards[i].value == 1) {
+      if(cards[i + 1].value - cards[i].value === 1) {
         count++;
         connected = true;
+        end = i + 1;
+      } else if (cards[i + 1].value - cards[i].value === 0) {
+        end = i + 1;
+        continue;
       } else {
         count = 1;
         connected = false;
       }
       maxCount = Math.max(count, maxCount);
     }
-    return maxCount >= 5;
+    if(maxCount >= 5) {
+      let result = [];
+      for(let i = count; i > 0; i--) {
+        result.unshift(i);
+      }
+      player.bestCards(result);
+      return true
+    }
+    return false;
   }
 
   findGroups(player, groups) {
