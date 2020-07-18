@@ -70,7 +70,8 @@ class Table {
     } else {
       switch(bestHandRank) {
         case 'STRAIGHT_FLUSH':
-          break;
+        case 'STRAIGHT':
+
         case 'QUADS':
           break;
         case 'FULL_HOUSE':
@@ -91,6 +92,16 @@ class Table {
 
   }
   
+  breakTie(bestPlayers) {
+    let highCard = 0;
+    let index = bestPlayers[0].bestCards.length - 1;
+    while(index > 0) {
+      bestPlayers.map(player => {
+        player.bestCards
+      });
+    }
+
+  }
   analyzeHand(player){
     const holeCards = player.holeCards;
     let values = this.cards.map( card => card.value );

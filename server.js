@@ -22,18 +22,18 @@ io.on('connection', (socket) => {
   socket.on('join', ({ table }, callback) => {
     tableRooms.createTable(table);
     const cards = [];
-    cards.push(new Card(2, 's'));
+    cards.push(new Card(3, 's'));
     cards.push(new Card(3, 's'));
     cards.push(new Card(4, 's'));
     cards.push(new Card(5, 's'));
-    cards.push(new Card(9, 'h'));
+    cards.push(new Card(6, 'h'));
     const player1 = new Player('lmao');
-    player1.addCards([new Card(6, 'h'), new Card(10, 'h')]);
+    player1.addCards([new Card(2, 'h'), new Card(7, 'h')]);
     const player2 = new Player('xd');
     player2.addCards([new Card(7, 'c'), new Card(8, 'd')]);
     tableRooms.tables.abc.addCards(cards);
     tableRooms.tables.abc.addPlayer(player1);
-    //tableRooms.tables.abc.addPlayer(player2);
+    tableRooms.tables.abc.addPlayer(player2);
     tableRooms.tables.abc.findWinner();
     socket.join(table);
   });
