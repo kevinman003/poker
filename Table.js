@@ -34,7 +34,7 @@ class Table {
 
   sortCards(holeCards) {
     const result = this.cards.concat(holeCards);
-    result.sort((a, b) => {a.value - b.value});
+    result.sort((a, b) => (a.value > b.value) ? 1 : -1);
     return result;
   }
 
@@ -59,6 +59,10 @@ class Table {
       } else if (handRank === CARD_RANKS[bestHandRank]) {
         bestPlayers.push(player);
       }
+      bestPlayers.map(player => {
+        console.log(`${player.name} has ${player.bestCards}`);
+        console.log(typeof player.bestCards);
+      })
     });
     
     if(bestPlayers.length === 1) {
@@ -122,29 +126,33 @@ class Table {
   findStraight(cards, player) {
     let maxCount = 0;
     let count = 1;
-    let connected = false;
+    let connected = true;
     let end = 0;
+    console.log('cards: ', cards);
     for(let i = 0; i < cards.length - 1; i++) {
       if(cards[i + 1].value - cards[i].value === 1) {
         count++;
+        end = connected ? i + 1 : end;
         connected = true;
-        end = i + 1;
       } else if (cards[i + 1].value - cards[i].value === 0) {
-        end = i + 1;
+        end = connected ? i + 1 : end;
         continue;
       } else {
         count = 1;
         connected = false;
       }
       maxCount = Math.max(count, maxCount);
+      console.log('i :', i, ', end: ', end);
     }
+
     if(maxCount >= 5) {
+      const startValue = cards[end].value;
       let result = [];
-      for(let i = count; i > 0; i--) {
+      for(let i = startValue; i > startValue - 5; i--) {
         result.unshift(i);
       }
-      player.bestCards(result);
-      return true
+      player.bestCards = result;
+      return true;
     }
     return false;
   }
