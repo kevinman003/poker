@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
     tableRooms.tables.abc.addCards(cards);
     tableRooms.tables.abc.addPlayer(player1);
     tableRooms.tables.abc.addPlayer(player2);
-    tableRooms.tables.abc.findWinner();
+    console.log('winner: ', tableRooms.tables.abc.findWinner());
     socket.join(table);
   });
 

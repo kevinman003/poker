@@ -6,7 +6,6 @@ class TableRooms {
   }
   createTable(id) {
     this.tables[id] = new Table(id);
-    console.log(this.tables);
   }
 }
 

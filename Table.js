@@ -53,6 +53,7 @@ class Table {
     this.activePlayers.map(player => {
       player.cardRank = this.analyzeHand(player);
       let handRank = CARD_RANKS[player.cardRank];
+      console.log(`${player.name} has ${handRank}`);
       if(handRank > CARD_RANKS[bestHandRank]) {
         bestHandRank = player.cardRank;
         bestPlayers = [player];
@@ -61,17 +62,17 @@ class Table {
       }
       bestPlayers.map(player => {
         console.log(`${player.name} has ${player.bestCards}`);
-        console.log(typeof player.bestCards);
-      })
+      });
     });
-    
+
     if(bestPlayers.length === 1) {
+      console.log('one player');
       return bestPlayers[0];
     } else {
       switch(bestHandRank) {
         case 'STRAIGHT_FLUSH':
         case 'STRAIGHT':
-
+          return this.breakTie(bestPlayers);
         case 'QUADS':
           break;
         case 'FULL_HOUSE':
@@ -92,15 +93,44 @@ class Table {
 
   }
   
+  // Returns player with the highest cards
+  // returns null if equal
   breakTie(bestPlayers) {
     let highCard = 0;
+    let maxPlayer = bestPlayers[0]; 
     let index = bestPlayers[0].bestCards.length - 1;
     while(index > 0) {
-      bestPlayers.map(player => {
-        player.bestCards
-      });
+      for(let i = bestPlayers.length - 1; i >= 0; i--) {
+        let currBestCard = bestPlayers[i].bestCards[index];
+        let maxBestCard = maxPlayer.bestCards[index];
+        if(currBestCard > maxBestCard) {
+          maxPlayer = bestPlayers[i];
+        } else if(currBestCard < maxBestCard) {
+          bestPlayers.splice(i, 1);
+        }
+      }
+      if(bestPlayers.length === 1) {
+        console.log(bestPlayers);
+        return bestPlayers[0];
+      }
+      index--;
+      // checking.map(player => {
+      //   console.log(`${player.name} has ${player.bestCards[index]} at i = ${index}`);
+      //   if(player.bestCards[index] > maxPlayer.bestCards[index]) {
+      //     maxPlayer = player;
+      //     newChecking.push(player);
+      //   } else if(player.bestCards[index] === maxPlayer.bestCards[index]) {
+      //     newChecking.push(player);
+      //   }
+      //   console.log(newChecking)
+      // });
+      // if(newChecking.length === 1) {
+      //   return newChecking[0];
+      // }
+      // checking = newChecking;
+      // index--;
     }
-
+    return null;
   }
   analyzeHand(player){
     const holeCards = player.holeCards;
@@ -118,6 +148,8 @@ class Table {
     if(straight && flush)  return "STRAIGHT_FLUSH";
     if(player.quads.length) return "QUADS";
     if(player.trips.length && player.pair.length) return "FULL_HOUSE";
+    if(flush) return "FLUSH";
+    if(straight) return "STRAIGHT";
     if(player.trips.length) return "TRIPS";
     if(player.pair.length >= 2) return "TWO_PAIR";
     if(player.pair.length) return "PAIR";
@@ -139,7 +171,6 @@ class Table {
     let count = 1;
     let connected = true;
     let end = 0;
-    console.log('cards: ', cards);
     for(let i = 0; i < cards.length - 1; i++) {
       if(cards[i + 1].value - cards[i].value === 1) {
         count++;
@@ -153,7 +184,6 @@ class Table {
         connected = false;
       }
       maxCount = Math.max(count, maxCount);
-      console.log('i :', i, ', end: ', end);
     }
 
     if(maxCount >= 5) {
