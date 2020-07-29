@@ -11,7 +11,6 @@ const Table = ({ location }) => {
 
   useEffect(() => {
     const { table } = queryString.parse(location.search);
-    console.log(table);
     socket = io(ENDPOINT);
     socket.emit('join', { table });
     setHands(hands => [...hands, [5, 6]]);

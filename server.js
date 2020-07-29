@@ -5,9 +5,9 @@ const socketio = require('socket.io');
 const http = require('http');
 
 const router = require('./router');
-const TableRooms  = require('./TableRooms');
-const Card = require('./Card');
-const Player = require('./Player');
+const TableRooms  = require('./controllers/TableRooms');
+const Card = require('./controllers/Card');
+const Player = require('./controllers/Player');
 
 const app = express();
 const server = http.createServer(app);
@@ -22,19 +22,20 @@ io.on('connection', (socket) => {
   socket.on('join', ({ table }, callback) => {
     tableRooms.createTable(table);
     const cards = [];
-    cards.push(new Card(3, 's'));
+    cards.push(new Card(2, 's'));
     cards.push(new Card(3, 's'));
     cards.push(new Card(4, 's'));
     cards.push(new Card(5, 's'));
-    cards.push(new Card(6, 'h'));
+    cards.push(new Card(6, 's'));
     const player1 = new Player('lmao');
     player1.addCards([new Card(2, 'h'), new Card(7, 'h')]);
     const player2 = new Player('xd');
-    player2.addCards([new Card(7, 'c'), new Card(8, 'd')]);
+    player2.addCards([new Card(7, 's'), new Card(8, 'd')]);
     tableRooms.tables.abc.addCards(cards);
     tableRooms.tables.abc.addPlayer(player1);
     tableRooms.tables.abc.addPlayer(player2);
-    console.log('winner: ', tableRooms.tables.abc.findWinner());
+    tableRooms.tables.abc.findWinner();
+    //console.log('winner: ', tableRooms.tables.abc.findWinner());
     socket.join(table);
   });
 
