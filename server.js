@@ -32,10 +32,10 @@ io.on('connection', (socket) => {
     const player2 = new Player('xd');
     player2.addCards([new Card(7, 's'), new Card(8, 'd')]);
     tableRooms.tables.abc.addCards(cards);
-    tableRooms.tables.abc.addPlayer(player1);
+    //tableRooms.tables.abc.addPlayer(player1);
     tableRooms.tables.abc.addPlayer(player2);
-    tableRooms.tables.abc.findWinner();
-    //console.log('winner: ', tableRooms.tables.abc.findWinner());
+    const winner = tableRooms.tables.abc.findWinner();
+    console.log('WINNER: ', winner);
     socket.join(table);
   });
 
