@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const socketio = require('socket.io');
 const http = require('http');
 
-const router = require('./router');
-const TableRooms  = require('./controllers/TableRooms');
+const routes = require('./routes');
+const { join } = require('./socket');
 const Card = require('./controllers/Card');
 const Player = require('./controllers/Player');
 
@@ -13,39 +13,39 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-const tableRooms = new TableRooms();
 
 // Socket connections
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   console.log('New connection');
-
-  socket.on('join', ({ table }, callback) => {
-    tableRooms.createTable(table);
-    const cards = [];
-    cards.push(new Card(2, 's'));
-    cards.push(new Card(3, 's'));
-    cards.push(new Card(4, 's'));
-    cards.push(new Card(5, 's'));
-    cards.push(new Card(6, 's'));
-    const player1 = new Player('lmao');
-    player1.addCards([new Card(2, 'h'), new Card(7, 'h')]);
-    const player2 = new Player('xd');
-    player2.addCards([new Card(7, 's'), new Card(8, 'd')]);
-    tableRooms.tables.abc.addCards(cards);
-    //tableRooms.tables.abc.addPlayer(player1);
-    tableRooms.tables.abc.addPlayer(player2);
-    const winner = tableRooms.tables.abc.findWinner();
-    console.log('WINNER: ', winner);
-    socket.join(table);
+  socket.on('join', ({ table, id }, callback) => {
+    join(socket, table, id, callback);    
   });
-
   socket.on('disconnect', () => {
     console.log('User left'); 
   })
 });
+// const table = 'abc';
+// tableRooms.createTable(table);
+// const cards = [];
+// cards.push(new Card(3, 's'));
+// cards.push(new Card(3, 's'));
+// cards.push(new Card(8, 's'));
+// cards.push(new Card(7, 'd'));
+// cards.push(new Card(4, 'd'));
+// const player1 = new Player('lmao');
+// player1.addCards([new Card(8, 'h'), new Card(8, 'h')]);
+// const player2 = new Player('xd');
+// player2.addCards([new Card(7, 's'), new Card(7, 'h')]);
+// tableRooms.tables.abc.addCards(cards);
+// tableRooms.tables.abc.addPlayer(player1);
+// tableRooms.tables.abc.addPlayer(player2);
+// const winner = tableRooms.tables.abc.findWinner();
+// // console.log('WINNER: ', winner);
+// tableRooms.tables.abc.dealFlop();
+
 
 // Middleware 
-app.use(router);
+app.use(routes);
 
 app.use(cors());
 
