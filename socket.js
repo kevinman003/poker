@@ -1,3 +1,4 @@
+// delete file to have socket code in server.js
 const { addTable, getTable } = require('./controllers/TableRooms');
 const Player = require('./controllers/Player');
 

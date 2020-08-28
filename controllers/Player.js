@@ -4,10 +4,11 @@ const uuid = require('uuid');
 class Player {
   constructor(name, id) {
     this.name = name;
-    this.id = id ? id : uuid.v4();
+    this.id = id || uuid.v4();
     this.holeCards = [];
     this.cardRank = '';
     this.paired = {};
+    this.chips = 500;
   }
 
   addCards(cards) {

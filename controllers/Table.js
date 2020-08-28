@@ -20,6 +20,13 @@ class Table {
     this.currCard = 0;
   }
 
+  getPlayers() {
+    return this.players;
+  }
+  
+  getCards() {
+    return this.cards;
+  }
   printID() {
     console.log(this.id);
   }
@@ -31,9 +38,7 @@ class Table {
     this.currCard += 2;
   }
   
-  getPlayers() {
-    return this.players;
-  }
+
 
   findWinner() {
     const ranker = new CardRanker(this.activePlayers, this.cards);

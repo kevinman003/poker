@@ -5,25 +5,57 @@ const socketio = require('socket.io');
 const http = require('http');
 
 const routes = require('./routes');
-const { join } = require('./socket');
-const Card = require('./controllers/Card');
+const { addTable, getTable } = require('./controllers/TableRooms');
+
 const Player = require('./controllers/Player');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-
 // Socket connections
-io.on('connection', socket => {
+io.on('connection', (socket) => {
   console.log('New connection');
   socket.on('join', ({ table, id }, callback) => {
-    join(socket, table, id, callback);    
+    if (!getTable(table)) addTable(table);
+    const currTable = getTable(table);
+    const players = currTable.getPlayers();
+
+    if (!players.some((player) => player.id === id)) {
+      const currPlayer = new Player('player1', id);
+      currTable.addPlayer(currPlayer);
+      callback(currPlayer);
+    } else {
+      callback(players.find((player) => player.id === id));
+    }
+    const newPlayers = currTable.getPlayers();
+    io.to(table).emit('updatePlayer', { newPlayers });
+    socket.emit('updatePlayer', { newPlayers });
+    callback(newPlayers);
+    socket.join(table);
+  });
+
+  socket.on('start', ({ table }, callback) => {
+    const currTable = getTable(table);
+    currTable.dealFlop();
+    callback(currTable.getCards());
+  });
+
+  // dummy functions
+  socket.on('playerAction', ({ action, currPlayer }, callback) => {
+    console.log(action, currPlayer.name);
+    // switch (action) {
+    //   case "checkCall":
+    //   case "fold":
+    //   case "raise":
+    // }
+    callback();
   });
   socket.on('disconnect', () => {
-    console.log('User left'); 
-  })
+    console.log('User left');
+  });
 });
+
 // const table = 'abc';
 // tableRooms.createTable(table);
 // const cards = [];
@@ -43,17 +75,15 @@ io.on('connection', socket => {
 // // console.log('WINNER: ', winner);
 // tableRooms.tables.abc.dealFlop();
 
-
-// Middleware 
+// Middleware
 app.use(routes);
 
 app.use(cors());
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(bodyParser.json());
 
-// Starting server 
+// Starting server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-

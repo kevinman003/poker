@@ -3,60 +3,78 @@ import queryString from 'query-string';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
+import CardAction from './CardAction';
 
 const Table = ({ location }) => {
   const [cards, setCards] = useState([]);
   const [hands, setHands] = useState([]);
   const [players, setPlayers] = useState([]);
+  const [currPlayer, setCurrPlayer] = useState(null);
+  const [bigBlind, setBigBlind] = useState(0);
+  const [currAction, setCurrAction] = useState(0);
 
   const ENDPOINT = 'http://localhost:5000';
   let socket = io(ENDPOINT);
+  const { table } = queryString.parse(location.search);
 
-  // joining logic 
+  // joining logic
   useEffect(() => {
     let id;
-    const { table } = queryString.parse(location.search);
     if (localStorage.id) id = localStorage.id;
-    else { 
+    else {
       id = uuidv4();
       localStorage.setItem('id', id);
     }
-    socket.emit('join', { table, id }, players => setPlayers(players));
-    setHands(hands => [...hands, [5, 6]]);
-    return() => {
+    console.log('JOINING!!');
+    socket.emit('join', { table, id }, (player) => setCurrPlayer(player));
+    socket.on('updatePlayer', ({ newPlayers }) => {
+      setPlayers(...players, newPlayers);
+    });
+
+    setHands((hands) => [...hands, [5, 6]]);
+    return () => {
       socket.emit('disconnect');
       socket.off();
-    }
+    };
   }, [location.search]);
 
-  socket.on('updatePlayer', ({currPlayers}) => {
-    console.log('UPDATED: ', currPlayers);
-    setPlayers(...players, currPlayers);
-  });
-
-  const handlePlayerAction = e => {
+  const handlePlayerAction = (e) => {
     e.preventDefault();
-    console.log(e.target.id);
+    socket.emit('playerAction', { action: e.target.id, currPlayer }, () => {
+      setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
+      console.log('BING BLIND: ', bigBlind);
+    });
   };
 
-  return(
-    <div className='table'>
-      {players.map(player => {
-        return(
-          <div className="player">
-            {player.holeCards.map(card => {
-              return(
-                <p>{card.value} {card.suit}</p>
-              )
-            })}
-            <button id='checkCall' onClick={handlePlayerAction}> check/call </button>
-            <button id='fold' onClick={handlePlayerAction}> fold </button>
-            <button id='raise' onClick={handlePlayerAction}> raise </button>
-          </div>
+  const start = () => {
+    setBigBlind(Math.floor(Math.random() * players.length));
+    setCurrAction(bigBlind + 1 === players.length ? 0 : bigBlind + 1);
+    socket.emit('start', { table }, (cards) => setCards(cards));
+  };
+
+  return (
+    <div className="table">
+      <button onClick={start}> start </button>
+      {players.map((player) => {
+        return (
+          <CardAction
+            player={player}
+            disabled={players[currAction].id !== player.id}
+            handlePlayerAction={handlePlayerAction}
+          />
         );
       })}
+      <div className="cards">
+        {cards.map((card) => {
+          return (
+            <p>
+              {card.value} {card.suit}{' '}
+            </p>
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
 
 export default Table;
