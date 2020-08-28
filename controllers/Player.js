@@ -9,6 +9,7 @@ class Player {
     this.cardRank = '';
     this.paired = {};
     this.chips = 500;
+    this.playedChips = 0;
   }
 
   addCards(cards) {

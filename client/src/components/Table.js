@@ -7,12 +7,14 @@ import CardAction from './CardAction';
 
 const Table = ({ location }) => {
   const [cards, setCards] = useState([]);
-  const [hands, setHands] = useState([]);
   const [players, setPlayers] = useState([]);
   const [currPlayer, setCurrPlayer] = useState(null);
   const [bigBlind, setBigBlind] = useState(0);
   const [currAction, setCurrAction] = useState(0);
+  const [pot, setPot] = useState(0);
+  const [bigBlindAmnt, setBigBlindAmnt] = useState(10);
 
+  // change later
   const ENDPOINT = 'http://localhost:5000';
   let socket = io(ENDPOINT);
   const { table } = queryString.parse(location.search);
@@ -25,47 +27,72 @@ const Table = ({ location }) => {
       id = uuidv4();
       localStorage.setItem('id', id);
     }
-    console.log('JOINING!!');
-    socket.emit('join', { table, id }, (player) => setCurrPlayer(player));
-    socket.on('updatePlayer', ({ newPlayers }) => {
-      setPlayers(...players, newPlayers);
-    });
+    socket.emit('join', { table, id }, player => setCurrPlayer(player));
 
-    setHands((hands) => [...hands, [5, 6]]);
     return () => {
       socket.emit('disconnect');
       socket.off();
     };
   }, [location.search]);
 
-  const handlePlayerAction = (e) => {
+  useEffect(() => {
+    socket.on('updatePlayer', ({ newPlayers }) => {
+      setPlayers(...players, newPlayers);
+    });
+  }, [players]);
+  const handleCheckCall = e => {
     e.preventDefault();
-    socket.emit('playerAction', { action: e.target.id, currPlayer }, () => {
+    socket.emit('checkCall', { currPlayer }, () => {
       setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
-      console.log('BING BLIND: ', bigBlind);
+    });
+  };
+
+  const handleFold = e => {
+    e.preventDefault();
+    socket.emit('fold', { currPlayer }, () => {
+      setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
+    });
+  };
+
+  const handleRaise = (e, raise) => {
+    e.preventDefault();
+    socket.emit('raise', { currPlayer, raise }, () => {
+      setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
     });
   };
 
   const start = () => {
     setBigBlind(Math.floor(Math.random() * players.length));
+    const smallBlind = bigBlind - 1 === -1 ? players.length - 1 : bigBlind - 1;
+    socket.emit('raise', {
+      currPlayer: players[smallBlind],
+      raise: bigBlindAmnt / 2,
+    });
+    socket.emit('raise', {
+      currPlayer: players[bigBlind],
+      raise: bigBlindAmnt / 2,
+    });
     setCurrAction(bigBlind + 1 === players.length ? 0 : bigBlind + 1);
-    socket.emit('start', { table }, (cards) => setCards(cards));
+    socket.emit('start', { table, bigBlindAmnt }, cards => setCards(cards));
   };
 
   return (
     <div className="table">
       <button onClick={start}> start </button>
-      {players.map((player) => {
+      {players.map(player => {
         return (
           <CardAction
             player={player}
             disabled={players[currAction].id !== player.id}
-            handlePlayerAction={handlePlayerAction}
+            handleCheckCall={handleCheckCall}
+            handleFold={handleFold}
+            handleRaise={handleRaise}
           />
         );
       })}
+      POT: {pot}
       <div className="cards">
-        {cards.map((card) => {
+        {cards.map(card => {
           return (
             <p>
               {card.value} {card.suit}{' '}

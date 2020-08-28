@@ -1,14 +1,16 @@
-
 const CardRanker = require('./CardRanker');
 const Card = require('./Card');
-// Contains array of total players, active players, community cards 
-// TODO complete the switch case 
+const LinkedList = require('../client/src/data/LinkedList');
+
+// Contains array of total players, active players, community cards
+// TODO complete the switch case
 class Table {
   constructor(id) {
     this.id = id;
     this.cards = [];
     this.players = [];
     this.activePlayers = [];
+    this.toCall = 0;
     this.deck = [];
     const suits = ['s', 'c', 'h', 'd'];
     suits.forEach(suit => {
@@ -23,10 +25,11 @@ class Table {
   getPlayers() {
     return this.players;
   }
-  
+
   getCards() {
     return this.cards;
   }
+
   printID() {
     console.log(this.id);
   }
@@ -37,8 +40,6 @@ class Table {
     player.addCards(this.deck.slice(this.currCard, this.currCard + 2));
     this.currCard += 2;
   }
-  
-
 
   findWinner() {
     const ranker = new CardRanker(this.activePlayers, this.cards);
@@ -48,7 +49,7 @@ class Table {
   shuffle() {
     let i = this.deck.length;
     let j = 0;
-    let temp; 
+    let temp;
 
     while (i--) {
       j = Math.floor(Math.random() * (i + 1));
