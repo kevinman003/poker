@@ -12,13 +12,6 @@ class Table {
     this.activePlayers = [];
     this.toCall = 0;
     this.deck = [];
-    const suits = ['s', 'c', 'h', 'd'];
-    suits.forEach(suit => {
-      for (let i = 2; i <= 15; i++) {
-        this.deck.push(new Card(i, suit));
-      }
-    });
-    this.shuffle();
     this.currCard = 0;
   }
 
@@ -37,13 +30,29 @@ class Table {
   addPlayer(player) {
     this.players.push(player);
     this.activePlayers.push(player);
-    player.addCards(this.deck.slice(this.currCard, this.currCard + 2));
+  }
+
+  dealPlayerCards(player) {
+    const currPlayer = this.players.find(p => p.id === player.id);
+    currPlayer.addCards(this.deck.slice(this.currCard, this.currCard + 2));
     this.currCard += 2;
   }
 
   findWinner() {
     const ranker = new CardRanker(this.activePlayers, this.cards);
     return ranker.findWinner();
+  }
+
+  newDeck() {
+    this.currCard = 0;
+    const suits = ['s', 'c', 'h', 'd'];
+    this.deck = [];
+    suits.forEach(suit => {
+      for (let i = 2; i <= 15; i++) {
+        this.deck.push(new Card(i, suit));
+      }
+    });
+    this.shuffle();
   }
 
   shuffle() {

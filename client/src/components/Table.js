@@ -37,9 +37,17 @@ const Table = ({ location }) => {
 
   useEffect(() => {
     socket.on('updatePlayer', ({ newPlayers }) => {
-      setPlayers(...players, newPlayers);
+      console.log(newPlayers);
+      setPlayers(newPlayers);
     });
   }, [players]);
+
+  useEffect(() => {
+    socket.on('dealCards', ({ newCards }) => {
+      setCards(...cards, newCards);
+    });
+  }, [cards]);
+
   const handleCheckCall = e => {
     e.preventDefault();
     socket.emit('checkCall', { currPlayer }, () => {
@@ -64,14 +72,24 @@ const Table = ({ location }) => {
   const start = () => {
     setBigBlind(Math.floor(Math.random() * players.length));
     const smallBlind = bigBlind - 1 === -1 ? players.length - 1 : bigBlind - 1;
-    socket.emit('raise', {
-      currPlayer: players[smallBlind],
-      raise: bigBlindAmnt / 2,
-    });
-    socket.emit('raise', {
-      currPlayer: players[bigBlind],
-      raise: bigBlindAmnt / 2,
-    });
+    socket.emit(
+      'raise',
+      {
+        currPlayer: players[smallBlind],
+        table,
+        raise: bigBlindAmnt / 2,
+      },
+      newPlayers => setPlayers(newPlayers)
+    );
+    socket.emit(
+      'raise',
+      {
+        currPlayer: players[bigBlind],
+        table,
+        raise: bigBlindAmnt / 2,
+      },
+      newPlayers => setPlayers(newPlayers)
+    );
     setCurrAction(bigBlind + 1 === players.length ? 0 : bigBlind + 1);
     socket.emit('start', { table, bigBlindAmnt }, cards => setCards(cards));
   };

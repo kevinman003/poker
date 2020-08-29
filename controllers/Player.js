@@ -13,7 +13,8 @@ class Player {
   }
 
   addCards(cards) {
-    this.holeCards = this.holeCards.concat(cards);
+    this.holeCards = cards;
+    console.log('hole cards: ', this.holeCards);
   }
 }
 
