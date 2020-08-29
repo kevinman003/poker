@@ -11,6 +11,7 @@ class Table {
     this.players = [];
     this.activePlayers = [];
     this.toCall = 0;
+    this.chips = 0;
     this.deck = [];
     this.currCard = 0;
   }
@@ -36,6 +37,11 @@ class Table {
     const currPlayer = this.players.find(p => p.id === player.id);
     currPlayer.addCards(this.deck.slice(this.currCard, this.currCard + 2));
     this.currCard += 2;
+  }
+
+  raise(chips) {
+    this.toCall += chips;
+    this.chips += chips;
   }
 
   findWinner() {

@@ -13,12 +13,13 @@ const Table = ({ location }) => {
   const [currAction, setCurrAction] = useState(0);
   const [pot, setPot] = useState(0);
   const [bigBlindAmnt, setBigBlindAmnt] = useState(10);
+  const [lastAction, setLastAction] = useState(0);
 
   // change later
   const ENDPOINT = 'http://localhost:5000';
   let socket = io(ENDPOINT);
   const { table } = queryString.parse(location.search);
-
+  console.log('CURR PLAYER: ', currPlayer);
   // joining logic
   useEffect(() => {
     let id;
@@ -30,7 +31,8 @@ const Table = ({ location }) => {
     socket.emit('join', { table, id }, player => setCurrPlayer(player));
 
     return () => {
-      socket.emit('disconnect');
+      // TODO: implement functional disconnect
+      socket.emit('disconnect', { table, id: localStorage.id });
       socket.off();
     };
   }, [location.search]);
@@ -44,7 +46,7 @@ const Table = ({ location }) => {
 
   useEffect(() => {
     socket.on('dealCards', ({ newCards }) => {
-      setCards(...cards, newCards);
+      setCards(newCards);
     });
   }, [cards]);
 
@@ -71,6 +73,7 @@ const Table = ({ location }) => {
 
   const start = () => {
     setBigBlind(Math.floor(Math.random() * players.length));
+    setLastAction(bigBlind);
     const smallBlind = bigBlind - 1 === -1 ? players.length - 1 : bigBlind - 1;
     socket.emit(
       'raise',
