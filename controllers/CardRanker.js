@@ -1,21 +1,7 @@
-const Card = require("./Card");
-
-const CARD_RANKS = {
-  ROYAL_FLUSH: 10,
-  STRAIGHT_FLUSH: 9,
-  QUADS: 8,
-  FULL_HOUSE: 7,
-  FLUSH: 6,
-  STRAIGHT: 5,
-  TRIPS: 4,
-  TWO_PAIR: 3,
-  PAIR: 2,
-  HIGH_CARD: 1,
-  NONE: 0
-};
+const Card = require('./Card');
+const { CARD_RANKS } = require('./constants');
 
 class CardRanker {
-
   constructor(activePlayers, cards) {
     this.activePlayers = activePlayers;
     this.cards = cards;
@@ -23,7 +9,7 @@ class CardRanker {
 
   sortCards(holeCards) {
     const result = this.cards.concat(holeCards);
-    result.sort((a, b) => (a.value > b.value) ? 1 : -1);
+    result.sort((a, b) => (a.value > b.value ? 1 : -1));
     return result;
   }
 
@@ -60,19 +46,20 @@ class CardRanker {
           bestPlayers = this.breakPairedTie(bestPlayers, bestHandRank);
           if (bestPlayers.length === 1) return bestPlayers[0];
           return this.breakTie(bestPlayers);
-        default: return {};
+        default:
+          return {};
       }
     }
-
   }
 
   breakPairedTie(bestPlayers, type, times = 0) {
     const pairType = type !== 'FULL_HOUSE' ? type : 'TRIPS';
     let bestPaired = 0;
     let players = [];
-    
+
     bestPlayers.forEach(player => {
-      const paired = player.paired[pairType][player.paired[pairType].length - 1 - times];
+      const paired =
+        player.paired[pairType][player.paired[pairType].length - 1 - times];
       if (paired > bestPaired) {
         bestPaired = paired;
         players = [player];
@@ -123,34 +110,36 @@ class CardRanker {
     suits = suits.concat(holeCards.map(card => card.suit));
     const sortedCards = this.sortCards(holeCards);
 
-    const flush    = this.findFlush(suits, this.cards.concat(holeCards));
+    const flush = this.findFlush(suits, this.cards.concat(holeCards));
 
     const straight = this.findStraight(sortedCards, player);
-    const straightFlush = flush && straight ? this.newStraightFlush(sortedCards, player) : null;
+    const straightFlush =
+      flush && straight ? this.newStraightFlush(sortedCards, player) : null;
 
     const groups = this.createGroups(sortedCards);
     this.findGroups(player, groups);
 
     if (straightFlush) {
       if (player.bestCards[player.bestCards.length - 1] === 15) {
-        return "ROYAL_FLUSH";
+        return 'ROYAL_FLUSH';
       }
-      return "STRAIGHT_FLUSH";  
+      return 'STRAIGHT_FLUSH';
     }
-    if (player.paired['QUADS']) return'QUADS';
-    if (player.paired['TRIPS'] && player.paired['PAIR']) return "FULL_HOUSE";
-    if (flush) return "FLUSH";
-    if (straight) return "STRAIGHT";
-    if (player.paired['TRIPS']) return "TRIPS";
-    if (player.paired['PAIR'] && player.paired['PAIR'].length >= 2) return "TWO_PAIR";
-    if (player.paired['PAIR']) return "PAIR";
-    return "HIGH_CARD";
+    if (player.paired['QUADS']) return 'QUADS';
+    if (player.paired['TRIPS'] && player.paired['PAIR']) return 'FULL_HOUSE';
+    if (flush) return 'FLUSH';
+    if (straight) return 'STRAIGHT';
+    if (player.paired['TRIPS']) return 'TRIPS';
+    if (player.paired['PAIR'] && player.paired['PAIR'].length >= 2)
+      return 'TWO_PAIR';
+    if (player.paired['PAIR']) return 'PAIR';
+    return 'HIGH_CARD';
   }
 
   newStraightFlush(sortedCards, player) {
     const suits = {};
     sortedCards.forEach(card => {
-      if(suits[card.suit]) suits[card.suit].push(card);
+      if (suits[card.suit]) suits[card.suit].push(card);
       else suits[card.suit] = [card];
     });
     let straightFlushSuit = '';
@@ -159,7 +148,7 @@ class CardRanker {
       if (thisSuit.length >= 5 && this.findStraight(thisSuit, player)) {
         straightFlushSuit = suit;
         return;
-      } 
+      }
     });
     return !!straightFlushSuit.length;
   }
@@ -215,8 +204,14 @@ class CardRanker {
     Object.keys(groups).forEach(value => {
       let repeats = groups[value];
       if (repeats === 4) player.paired['QUADS'] = [value];
-      if (repeats === 3) player.paired['TRIPS'] = player.paired['TRIPS'] ? player.paired['TRIPS'].concat(value) : [value]
-      if (repeats === 2) player.paired['PAIR'] = player.paired['PAIR'] ?  player.paired['PAIR'].concat(value) : [value] 
+      if (repeats === 3)
+        player.paired['TRIPS'] = player.paired['TRIPS']
+          ? player.paired['TRIPS'].concat(value)
+          : [value];
+      if (repeats === 2)
+        player.paired['PAIR'] = player.paired['PAIR']
+          ? player.paired['PAIR'].concat(value)
+          : [value];
     });
   }
 
@@ -232,4 +227,4 @@ class CardRanker {
     return groups;
   }
 }
-module.exports = CardRanker
+module.exports = CardRanker;

@@ -14,7 +14,11 @@ class Player {
 
   addCards(cards) {
     this.holeCards = cards;
-    console.log('hole cards: ', this.holeCards);
+  }
+
+  addChips(addedChips) {
+    this.chips -= addedChips;
+    this.playedChips += addedChips;
   }
 }
 

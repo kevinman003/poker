@@ -1,5 +1,6 @@
 const { addTable, getTable } = require('./controllers/TableRooms');
 const Player = require('./controllers/Player');
+const STREETS = require('./controllers/constants');
 
 const socketConnection = io => {
   io.on('connection', socket => {
@@ -40,16 +41,53 @@ const socketConnection = io => {
       io.to(table).emit('dealCards', { newCards });
     });
 
-    socket.on('raise', ({ currPlayer, table, raise }, callback) => {
+    socket.on('nextStreet', ({ street, table }, callback) => {
       const currTable = getTable(table);
-      const toCall = currTable.toCall;
-      const players = currTable.getPlayers();
-      const player = players.find(player => player.id === currPlayer.id);
-      currTable.raise(raise);
-      player.chips -= toCall + raise;
-      player.playedChips += toCall + raise;
-      callback(currTable.getPlayers());
+      let nextStreet;
+      switch (street) {
+        case STREETS.PREFLOP:
+          currTable.dealFlop();
+          nextStreet = STREETS.FLOP;
+          io.to(table).emit('dealCards', { newCards });
+          break;
+        case STREETS.FLOP:
+          nextStreet = STREETS.TURN;
+
+          break;
+        case STREETS.TURN:
+          nextStreet = STREETS.RIVER;
+
+          break;
+        case STREETS.RIVER:
+          nextStreet = STREETS.NEXT;
+
+          break;
+      }
+      callback(nextStreet);
     });
+
+    socket.on('checkCall', ({ currPlayer, table }, callback) => {
+      const currTable = getTable(table);
+      const player = currTable.getPlayer(currPlayer.id);
+      console.log('TO CALL: ', currTable.toCall);
+      player.addChips(currTable.toCall);
+      const newPlayers = currTable.getPlayers();
+      io.to(table).emit('updatePlayer', { newPlayers });
+      callback();
+    });
+
+    socket.on('raise', ({ currPlayer, table, raise }) => {
+      raiseFn(currPlayer, table, raise);
+      const currTable = getTable(table);
+      const activePlayers = currTable.getActivePlayers();
+      io.to(table).emit('updateCurrAction', { currPlayer });
+    });
+
+    socket.on('blinds', ({ currPlayer, table, raise, currActionIdx }) => {
+      raiseFn(currPlayer, table, raise);
+      io.to(table).emit('updateCurrAction', { currActionIdx });
+    });
+
     socket.on('disconnect', ({ table, id }) => {
       // console.log('ID: ', id);
       // const currTable = getTable(table);
@@ -59,6 +97,15 @@ const socketConnection = io => {
       console.log('User left', socket.id);
     });
   });
+};
+
+const raiseFn = (currPlayer, table, raise) => {
+  const currTable = getTable(table);
+  const toCall = currTable.toCall;
+  const player = currTable.getPlayer(currPlayer.id);
+  currTable.raise(raise);
+  player.addChips(toCall + raise);
+  currTable.toCall = raise;
 };
 
 module.exports = socketConnection;

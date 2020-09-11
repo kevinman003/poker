@@ -20,6 +20,15 @@ class Table {
     return this.players;
   }
 
+  getPlayer(id) {
+    const players = this.getPlayers();
+    return players.find(player => player.id === id);
+  }
+
+  getActivePlayers() {
+    return this.activePlayers;
+  }
+
   getCards() {
     return this.cards;
   }
@@ -76,7 +85,6 @@ class Table {
   }
 
   dealFlop() {
-    this.shuffle();
     this.cards = this.deck.slice(this.currCard, this.currCard + 3);
     this.currCard += 3;
   }
