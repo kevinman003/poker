@@ -48,9 +48,8 @@ class Table {
     this.currCard += 2;
   }
 
-  raise(chips) {
-    this.toCall += chips;
-    this.chips += chips;
+  setToCall(toCall) {
+    this.toCall = toCall;
   }
 
   findWinner() {

@@ -18,11 +18,14 @@ const Table = ({ location }) => {
   const [players, setPlayers] = useState([]);
   const [currPlayer, setCurrPlayer] = useState(null);
   const [bigBlind, setBigBlind] = useState(0);
+  const [smallBlind, setSmallBlind] = useState(0);
   const [currAction, setCurrAction] = useState(0);
   const [pot, setPot] = useState(0);
   const [bigBlindAmnt, setBigBlindAmnt] = useState(10);
   const [lastAction, setLastAction] = useState(0);
   const [street, setStreet] = useState(STREETS.PREFLOP);
+
+  const nextAction = currAction + 1 === players.length ? 0 : currAction + 1;
   // change later
   const ENDPOINT = 'http://localhost:5000';
   let socket = io(ENDPOINT);
@@ -48,6 +51,7 @@ const Table = ({ location }) => {
     socket.on('updatePlayer', ({ newPlayers }) => {
       setPlayers(newPlayers);
     });
+    console.log('PLAYERS: ', players);
   }, [players]);
 
   useEffect(() => {
@@ -57,31 +61,36 @@ const Table = ({ location }) => {
   }, [cards]);
 
   useEffect(() => {
-    socket.on('updateCurrAction', ({ currActionIdx }) => {
-      // console.log('currplayer: ', currPlayer);
-      // console.log('players: ', players);
-      // const currPlayerIdx = players.findIndex(
-      //   player => player.id === currPlayer.id
-      // );
-      // console.log('CURR INDEX: ', currPlayerIdx);
-      // const actionPlayerIdx =
-      //   currPlayerIdx + 1 === players.length ? 0 : currPlayerIdx + 1;
-      // console.log('BEFORE: ', currAction, 'AFTER: ', actionPlayerIdx);
-      setCurrAction(currActionIdx);
+    socket.on('updateCurrAction', ({ nextAction }) => {
+      console.log('NEW CURR ACTION:', nextAction);
+      setCurrAction(nextAction);
     });
   }, [currAction]);
 
+  useEffect(() => {
+    socket.on('updateLastAction', ({ lastActionIdx }) => {
+      setLastAction(lastActionIdx);
+    });
+  });
+  useEffect(() => {
+    socket.on('pot', ({ newPot }) => {
+      setPot(newPot);
+    });
+  });
+
   const handleCheckCall = e => {
     e.preventDefault();
-    if (lastAction === currAction) {
-      socket.emit('nextStreet', { street, table }, nextStreet => {
-        console.log(nextStreet);
+    const lastToAct = lastAction === currAction;
+    console.log('LAST ACTIONS: ', lastAction, 'curr action:', currAction);
+    socket.emit('checkCall', { currPlayer, table, nextAction, lastToAct });
+    if (lastToAct) {
+      const lastActionIdx =
+        smallBlind - 1 < 0 ? players.length - 1 : smallBlind - 1;
+      setLastAction(lastActionIdx);
+      socket.emit('nextStreet', { street, table, pot }, nextStreet => {
         setStreet(STREETS[nextStreet]);
       });
     }
-    socket.emit('checkCall', { currPlayer, table }, () => {
-      setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
-    });
   };
 
   const handleFold = e => {
@@ -93,28 +102,38 @@ const Table = ({ location }) => {
 
   const handleRaise = (e, raise) => {
     e.preventDefault();
-    socket.emit('raise', { currPlayer, raise }, () => {
-      setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
+    const lastActionIdx =
+      currAction - 1 < 0 ? players.length - 1 : currAction - 1;
+    console.log('last action idx: ', lastActionIdx);
+    console.log('AST ACTION', players[lastActionIdx].name);
+    // const blind = street === STREETS.PREFLOP &&
+    socket.emit('raise', {
+      currPlayer,
+      table,
+      raise,
+      lastActionIdx,
+      nextAction,
     });
   };
 
   const start = () => {
     setBigBlind(Math.floor(Math.random() * players.length));
     setLastAction(bigBlind);
-    const smallBlind = bigBlind - 1 === -1 ? players.length - 1 : bigBlind - 1;
-    const currActionIdx = bigBlind + 1 === players.length ? 0 : bigBlind + 1;
-    console.log('BEFORE RAISE: ', players);
+    const smallBlindIdx =
+      bigBlind - 1 === -1 ? players.length - 1 : bigBlind - 1;
+    setSmallBlind(smallBlindIdx);
+    const nextAction = bigBlind + 1 === players.length ? 0 : bigBlind + 1;
     socket.emit('blinds', {
-      currPlayer: players[smallBlind],
+      currPlayer: players[smallBlindIdx],
       table,
       raise: bigBlindAmnt / 2,
-      currActionIdx,
+      nextAction,
     });
     socket.emit('blinds', {
       currPlayer: players[bigBlind],
       table,
-      raise: bigBlindAmnt / 2,
-      currActionIdx,
+      raise: bigBlindAmnt,
+      nextAction,
     });
     socket.emit('start', { table, bigBlindAmnt }, cards => setCards(cards));
   };

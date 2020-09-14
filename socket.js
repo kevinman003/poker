@@ -1,6 +1,6 @@
 const { addTable, getTable } = require('./controllers/TableRooms');
 const Player = require('./controllers/Player');
-const STREETS = require('./controllers/constants');
+const { STREETS } = require('./controllers/constants');
 
 const socketConnection = io => {
   io.on('connection', socket => {
@@ -11,7 +11,7 @@ const socketConnection = io => {
       const players = currTable.getPlayers();
 
       if (!players.some(player => player.id === id)) {
-        const currPlayer = new Player('player1', id);
+        const currPlayer = new Player(`player${id}`, id);
         currTable.addPlayer(currPlayer);
         callback(currPlayer);
       } else {
@@ -41,51 +41,83 @@ const socketConnection = io => {
       io.to(table).emit('dealCards', { newCards });
     });
 
-    socket.on('nextStreet', ({ street, table }, callback) => {
+    const handlePot = (table, currTable, pot) => {
+      const players = currTable.getPlayers();
+      let newPot = pot;
+      players.forEach(player => {
+        newPot += player.playedChips;
+        player.playedChips = 0;
+      });
+      const newPlayers = currTable.getPlayers();
+      io.to(table).emit('updatePlayer', { newPlayers });
+      io.to(table).emit('pot', { newPot });
+    };
+    socket.on('nextStreet', ({ street, table, pot }, callback) => {
       const currTable = getTable(table);
+      handlePot(table, currTable, pot);
+      currTable.toCall = 0;
       let nextStreet;
+      console.log(STREETS.PREFLOP);
       switch (street) {
         case STREETS.PREFLOP:
           currTable.dealFlop();
           nextStreet = STREETS.FLOP;
-          io.to(table).emit('dealCards', { newCards });
           break;
         case STREETS.FLOP:
           nextStreet = STREETS.TURN;
-
+          currTable.dealOneCard();
           break;
         case STREETS.TURN:
           nextStreet = STREETS.RIVER;
-
+          currTable.dealOneCard();
           break;
         case STREETS.RIVER:
           nextStreet = STREETS.NEXT;
-
           break;
       }
+      const newCards = currTable.getCards();
+      io.to(table).emit('dealCards', { newCards });
       callback(nextStreet);
     });
 
-    socket.on('checkCall', ({ currPlayer, table }, callback) => {
+    socket.on('checkCall', ({ currPlayer, table, nextAction }) => {
       const currTable = getTable(table);
       const player = currTable.getPlayer(currPlayer.id);
-      console.log('TO CALL: ', currTable.toCall);
-      player.addChips(currTable.toCall);
-      const newPlayers = currTable.getPlayers();
-      io.to(table).emit('updatePlayer', { newPlayers });
-      callback();
+      const moreChips = currTable.toCall - player.playedChips;
+      console.log('MORE CHIPS: ', currTable.toCall, player.playedChips);
+      if (moreChips) {
+        player.addChips(moreChips);
+        const newPlayers = currTable.getActivePlayers();
+        io.to(table).emit('updatePlayer', { newPlayers });
+      }
+      io.to(table).emit('updateCurrAction', { nextAction });
     });
 
-    socket.on('raise', ({ currPlayer, table, raise }) => {
-      raiseFn(currPlayer, table, raise);
+    socket.on(
+      'raise',
+      ({ currPlayer, table, raise, lastActionIdx, nextAction }) => {
+        const currTable = getTable(table);
+        const player = currTable.getPlayer(currPlayer.id);
+        const raiseInt = parseInt(raise);
+        currTable.setToCall(raiseInt);
+        player.addChips(raiseInt - player.playedChips);
+        const newPlayers = currTable.getActivePlayers();
+        io.to(table).emit('updatePlayer', { newPlayers });
+        console.log('last action: ', lastActionIdx);
+        io.to(table).emit('updateLastAction', { lastActionIdx });
+        io.to(table).emit('updateCurrAction', { nextAction });
+      }
+    );
+
+    socket.on('fold', ({ currPlayer, table, nextAction }) => {});
+    socket.on('blinds', ({ currPlayer, table, raise, nextAction }) => {
+      // raiseFn(currPlayer, table, raise);
       const currTable = getTable(table);
-      const activePlayers = currTable.getActivePlayers();
-      io.to(table).emit('updateCurrAction', { currPlayer });
-    });
-
-    socket.on('blinds', ({ currPlayer, table, raise, currActionIdx }) => {
-      raiseFn(currPlayer, table, raise);
-      io.to(table).emit('updateCurrAction', { currActionIdx });
+      const player = currTable.getPlayer(currPlayer.id);
+      currTable.setToCall(raise);
+      player.addChips(raise);
+      currTable.activePlayers = currTable.players;
+      io.to(table).emit('updateCurrAction', { nextAction });
     });
 
     socket.on('disconnect', ({ table, id }) => {
@@ -97,15 +129,6 @@ const socketConnection = io => {
       console.log('User left', socket.id);
     });
   });
-};
-
-const raiseFn = (currPlayer, table, raise) => {
-  const currTable = getTable(table);
-  const toCall = currTable.toCall;
-  const player = currTable.getPlayer(currPlayer.id);
-  currTable.raise(raise);
-  player.addChips(toCall + raise);
-  currTable.toCall = raise;
 };
 
 module.exports = socketConnection;
