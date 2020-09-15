@@ -17,13 +17,14 @@ const Table = ({ location }) => {
   const [cards, setCards] = useState([]);
   const [players, setPlayers] = useState([]);
   const [currPlayer, setCurrPlayer] = useState(null);
-  const [bigBlind, setBigBlind] = useState(0);
+  const [bigBlind, setBigBlind] = useState();
   const [smallBlind, setSmallBlind] = useState(0);
   const [currAction, setCurrAction] = useState(0);
   const [pot, setPot] = useState(0);
   const [bigBlindAmnt, setBigBlindAmnt] = useState(10);
   const [lastAction, setLastAction] = useState(0);
   const [street, setStreet] = useState(STREETS.PREFLOP);
+  const [winner, setWinner] = useState();
 
   const nextAction = currAction + 1 === players.length ? 0 : currAction + 1;
   // change later
@@ -49,9 +50,9 @@ const Table = ({ location }) => {
 
   useEffect(() => {
     socket.on('updatePlayer', ({ newPlayers }) => {
+      console.log('update player bb: ', bigBlind);
       setPlayers(newPlayers);
     });
-    console.log('PLAYERS: ', players);
   }, [players]);
 
   useEffect(() => {
@@ -62,7 +63,7 @@ const Table = ({ location }) => {
 
   useEffect(() => {
     socket.on('updateCurrAction', ({ nextAction }) => {
-      console.log('NEW CURR ACTION:', nextAction);
+      console.log('CURR ACTION: ', bigBlind);
       setCurrAction(nextAction);
     });
   }, [currAction]);
@@ -76,12 +77,29 @@ const Table = ({ location }) => {
     socket.on('pot', ({ newPot }) => {
       setPot(newPot);
     });
-  });
+  }, [pot]);
+
+  useEffect(() => {
+    socket.on('winner', ({ newWinner, newPlayers }) => {
+      console.log('winner big: ', bigBlind);
+      const bigBlindIdx = bigBlind + 1 === newPlayers.length ? 0 : bigBlind + 1;
+      setBigBlind(bigBlindIdx);
+      console.log('winner big idx: ', bigBlindIdx);
+      setWinner(newWinner);
+    });
+  }, [winner]);
+
+  useEffect(() => {
+    if (players.length >= 2) {
+      console.log('TEST:', players[currAction].id);
+      console.log('USEEFFECT:', bigBlind);
+      start();
+    }
+  }, [bigBlind]);
 
   const handleCheckCall = e => {
     e.preventDefault();
     const lastToAct = lastAction === currAction;
-    console.log('LAST ACTIONS: ', lastAction, 'curr action:', currAction);
     socket.emit('checkCall', { currPlayer, table, nextAction, lastToAct });
     if (lastToAct) {
       const lastActionIdx =
@@ -95,18 +113,23 @@ const Table = ({ location }) => {
 
   const handleFold = e => {
     e.preventDefault();
-    socket.emit('fold', { currPlayer }, () => {
-      setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
-    });
+    const activePlayers = players.filter(player => player.playing);
+    if (activePlayers.length === 2) {
+      const winner = activePlayers.find(player => player.id !== currPlayer.id);
+      console.log(winner);
+      socket.emit('winner', { table, winner });
+      // TODO: finish else
+    } else {
+      socket.emit('fold', { currPlayer, table, nextAction }, () => {
+        setCurrAction(currAction + 1 === players.length ? 0 : currAction + 1);
+      });
+    }
   };
 
   const handleRaise = (e, raise) => {
     e.preventDefault();
     const lastActionIdx =
       currAction - 1 < 0 ? players.length - 1 : currAction - 1;
-    console.log('last action idx: ', lastActionIdx);
-    console.log('AST ACTION', players[lastActionIdx].name);
-    // const blind = street === STREETS.PREFLOP &&
     socket.emit('raise', {
       currPlayer,
       table,
@@ -116,13 +139,18 @@ const Table = ({ location }) => {
     });
   };
 
+  const initialStart = () => {
+    setBigBlind(1);
+  };
+
   const start = () => {
-    setBigBlind(Math.floor(Math.random() * players.length));
     setLastAction(bigBlind);
+    const nextAction = bigBlind + 1 === players.length ? 0 : bigBlind + 1;
     const smallBlindIdx =
       bigBlind - 1 === -1 ? players.length - 1 : bigBlind - 1;
+    console.log('SMALL:', smallBlindIdx, 'big:', bigBlind);
+
     setSmallBlind(smallBlindIdx);
-    const nextAction = bigBlind + 1 === players.length ? 0 : bigBlind + 1;
     socket.emit('blinds', {
       currPlayer: players[smallBlindIdx],
       table,
@@ -135,12 +163,14 @@ const Table = ({ location }) => {
       raise: bigBlindAmnt,
       nextAction,
     });
-    socket.emit('start', { table, bigBlindAmnt }, cards => setCards(cards));
+    console.log('SMALL:', smallBlindIdx, 'big:', bigBlind);
+
+    socket.emit('start', { table, bigBlind });
   };
 
   return (
     <div className="table">
-      <button onClick={start}> start </button>
+      <button onClick={initialStart}> start </button>
       {players.map(player => {
         return (
           <CardAction
@@ -162,6 +192,7 @@ const Table = ({ location }) => {
           );
         })}
       </div>
+      WINNER: {winner && `${winner.name} WITH ${winner.cardRank}`}
     </div>
   );
 };

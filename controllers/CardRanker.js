@@ -81,7 +81,6 @@ class CardRanker {
   // Returns player with the highest cards
   // returns all players if equal
   breakTie(bestPlayers) {
-    let highCard = 0;
     let maxPlayer = bestPlayers[0];
     let index = bestPlayers[0].bestCards.length - 1;
     while (index > 0) {

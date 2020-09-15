@@ -9,7 +9,6 @@ class Table {
     this.id = id;
     this.cards = [];
     this.players = [];
-    this.activePlayers = [];
     this.toCall = 0;
     this.chips = 0;
     this.deck = [];
@@ -20,13 +19,17 @@ class Table {
     return this.players;
   }
 
-  getPlayer(id) {
-    const players = this.getPlayers();
-    return players.find(player => player.id === id);
+  // for testing
+  addCards(cards) {
+    this.cards = cards;
   }
 
   getActivePlayers() {
-    return this.activePlayers;
+    return this.players.filter(player => player.playing);
+  }
+
+  getPlayer(id) {
+    return this.players.find(player => player.id === id);
   }
 
   getCards() {
@@ -39,7 +42,6 @@ class Table {
 
   addPlayer(player) {
     this.players.push(player);
-    this.activePlayers.push(player);
   }
 
   dealPlayerCards(player) {
@@ -53,7 +55,7 @@ class Table {
   }
 
   findWinner() {
-    const ranker = new CardRanker(this.activePlayers, this.cards);
+    const ranker = new CardRanker(this.getActivePlayers(), this.cards);
     return ranker.findWinner();
   }
 
@@ -92,6 +94,15 @@ class Table {
   dealOneCard() {
     this.cards.push(this.deck[this.currCard]);
     this.currCard += 1;
+  }
+
+  reset() {
+    this.currCard = 0;
+    this.chips = 0;
+    this.shuffle();
+    this.players.forEach(player => {
+      this.dealPlayerCards(player);
+    });
   }
 }
 
