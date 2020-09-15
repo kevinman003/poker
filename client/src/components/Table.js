@@ -146,6 +146,10 @@ const Table = ({ location }) => {
     socket.emit('start', { table });
   };
 
+  console.log(
+    'curr action: ',
+    pokerTable && pokerTable.players[pokerTable.currAction].name
+  );
   return (
     <div className="table">
       <button onClick={start}> start </button>

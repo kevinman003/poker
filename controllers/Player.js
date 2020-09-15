@@ -11,6 +11,7 @@ class Player {
     this.chips = 500;
     this.playedChips = 0;
     this.playing = true;
+    this.bestCards = [];
   }
 
   addCards(cards) {

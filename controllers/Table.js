@@ -87,14 +87,16 @@ class Table {
 
   checkCall(id) {
     const player = this.getPlayer(id);
+    console.log('PLAYER:', player.name);
     const moreChips = this.toCall - player.playedChips;
     if (moreChips) {
       player.addChips(moreChips);
     }
-    if (this.lastAction === this.currAction) {
+    const beforeNextAction = this.currAction;
+    this.nextAction();
+    if (this.lastAction === beforeNextAction) {
       this.nextStreet();
     }
-    this.nextAction();
   }
 
   nextStreet() {
@@ -121,7 +123,7 @@ class Table {
         break;
       case STREETS.RIVER:
         console.log('AFTER RIVER');
-        this.street = STREETS.FLOP;
+        this.street = STREETS.PREFLOP;
         const winner = this.findWinner();
         this.won(winner);
         break;
@@ -155,6 +157,8 @@ class Table {
     this.players.forEach(player => {
       this.deck.dealPlayerCards(player);
     });
+    this.bigBlind =
+      this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
     this.resetBlinds();
   }
 
