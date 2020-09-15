@@ -1,8 +1,9 @@
 const CardRanker = require('./CardRanker');
-const Card = require('./Card');
+const Deck = require('./Deck');
+const { STREETS } = require('./constants');
 const LinkedList = require('../client/src/data/LinkedList');
 
-// Contains array of total players, active players, community cards
+// Contains array of total players, community cards
 // TODO complete the switch case
 class Table {
   constructor(id) {
@@ -11,17 +12,18 @@ class Table {
     this.players = [];
     this.toCall = 0;
     this.chips = 0;
-    this.deck = [];
-    this.currCard = 0;
+    this.deck = new Deck();
+    this.bigBlind = 0;
+    this.smallBlind = 0;
+    this.lastAction = 0;
+    this.currAction = 0;
+    this.street = STREETS.PREFLOP;
+    this.winner = null;
+    this.blind = 10;
   }
 
   getPlayers() {
     return this.players;
-  }
-
-  // for testing
-  addCards(cards) {
-    this.cards = cards;
   }
 
   getActivePlayers() {
@@ -36,8 +38,13 @@ class Table {
     return this.cards;
   }
 
-  printID() {
-    console.log(this.id);
+  nextAction() {
+    this.currAction =
+      this.currAction + 1 === this.players.length ? 0 : this.currAction + 1;
+  }
+
+  setToCall(toCall) {
+    this.toCall = toCall;
   }
 
   addPlayer(player) {
@@ -46,63 +53,114 @@ class Table {
 
   dealPlayerCards(player) {
     const currPlayer = this.players.find(p => p.id === player.id);
-    currPlayer.addCards(this.deck.slice(this.currCard, this.currCard + 2));
-    this.currCard += 2;
+    this.deck.dealPlayerCards(currPlayer);
   }
 
-  setToCall(toCall) {
-    this.toCall = toCall;
+  start() {
+    this.players.forEach(player => {
+      this.dealPlayerCards(player);
+    });
+    this.toCall = this.blind;
+
+    this.bigBlind = Math.floor(Math.random() * this.players.length);
+    this.resetBlinds();
+  }
+
+  resetBlinds() {
+    this.smallBlind =
+      this.bigBlind - 1 < 0 ? this.players.length - 1 : this.bigBlind - 1;
+    this.lastAction = this.bigBlind;
+    this.currAction =
+      this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
+    this.players[this.smallBlind].addChips(this.blind / 2);
+    this.players[this.bigBlind].addChips(this.blind);
+  }
+
+  raise(id, amount) {
+    const player = this.getPlayer(id);
+    this.toCall = amount;
+    player.addChips(amount - player.playedChips);
+    this.lastAction =
+      this.currAction - 1 < 0 ? this.players.length - 1 : this.currAction - 1;
+    this.nextAction();
+  }
+
+  checkCall(id) {
+    const player = this.getPlayer(id);
+    const moreChips = this.toCall - player.playedChips;
+    if (moreChips) {
+      player.addChips(moreChips);
+    }
+    if (this.lastAction === this.currAction) {
+      this.nextStreet();
+    }
+    this.nextAction();
+  }
+
+  nextStreet() {
+    this.handlePot();
+    this.toCall = 0;
+    switch (this.street) {
+      case STREETS.PREFLOP:
+        this.cards = this.deck.dealFlop();
+        this.street = STREETS.FLOP;
+        this.lastAction =
+          this.getActivePlayers() == 2
+            ? this.smallBlind
+            : this.smallBlind - 1 < 0
+            ? this.players.length - 1
+            : this.smallBlind - 1;
+        break;
+      case STREETS.FLOP:
+        this.street = STREETS.TURN;
+        this.cards.push(this.deck.dealOneCard());
+        break;
+      case STREETS.TURN:
+        this.street = STREETS.RIVER;
+        this.cards.push(this.deck.dealOneCard());
+        break;
+      case STREETS.RIVER:
+        console.log('AFTER RIVER');
+        this.street = STREETS.FLOP;
+        const winner = this.findWinner();
+        this.won(winner);
+        break;
+    }
+  }
+
+  handlePot() {
+    this.players.forEach(player => {
+      this.chips += player.playedChips;
+      player.playedChips = 0;
+    });
+  }
+
+  fold(id) {
+    const activePlayers = this.getActivePlayers();
+    if (activePlayers.length === 2) {
+      const winner = activePlayers.filter(player => player.id !== id);
+      this.won(winner);
+    } else {
+      this.getPlayer(id).playing = false;
+      this.nextAction();
+    }
+  }
+
+  won(player) {
+    this.winner = player;
+    player.chips += this.chips;
+    this.deck.reset();
+    this.chips = 0;
+    this.cards = [];
+    this.players.forEach(player => {
+      this.deck.dealPlayerCards(player);
+    });
+    this.resetBlinds();
   }
 
   findWinner() {
     const ranker = new CardRanker(this.getActivePlayers(), this.cards);
     return ranker.findWinner();
-  }
-
-  newDeck() {
-    this.currCard = 0;
-    const suits = ['s', 'c', 'h', 'd'];
-    this.deck = [];
-    suits.forEach(suit => {
-      for (let i = 2; i <= 15; i++) {
-        this.deck.push(new Card(i, suit));
-      }
-    });
-    this.shuffle();
-  }
-
-  shuffle() {
-    let i = this.deck.length;
-    let j = 0;
-    let temp;
-
-    while (i--) {
-      j = Math.floor(Math.random() * (i + 1));
-
-      temp = this.deck[i];
-      this.deck[i] = this.deck[j];
-      this.deck[j] = temp;
-    }
-  }
-
-  dealFlop() {
-    this.cards = this.deck.slice(this.currCard, this.currCard + 3);
-    this.currCard += 3;
-  }
-
-  // for turn and river
-  dealOneCard() {
-    this.cards.push(this.deck[this.currCard]);
-    this.currCard += 1;
-  }
-
-  reset() {
-    this.currCard = 0;
-    this.chips = 0;
-    this.shuffle();
-    this.players.forEach(player => {
-      this.dealPlayerCards(player);
-    });
   }
 }
 

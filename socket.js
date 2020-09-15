@@ -17,23 +17,19 @@ const socketConnection = io => {
       } else {
         callback(players.find(player => player.id === id));
       }
-      const newPlayers = currTable.getPlayers();
-      io.to(table).emit('updatePlayer', { newPlayers });
-      socket.emit('updatePlayer', { newPlayers });
-      callback(newPlayers);
+      // const newPlayers = currTable.getPlayers();
+      // io.to(table).emit('updatePlayer', { newPlayers });
+      // socket.emit('updatePlayer', { newPlayers });
+      // callback(newPlayers);
       socket.join(table);
+      io.to(table).emit('updateTable', { currTable });
     });
 
-    socket.on('start', ({ table, bigBlind }) => {
+    // TODO: put some code here in table object
+    socket.on('start', ({ table }) => {
       const currTable = getTable(table);
-      currTable.newDeck();
-      currTable.players.forEach(player => {
-        currTable.dealPlayerCards(player);
-      });
-      const newCards = currTable.getCards();
-      const newPlayers = currTable.getPlayers();
-      io.to(table).emit('bigBlind', { newBigBlind: bigBlind });
-      io.to(table).emit('updatePlayer', { newPlayers });
+      currTable.start();
+      io.to(table).emit('updateTable', { currTable });
     });
 
     socket.on('flop', ({ table }) => {
@@ -41,18 +37,6 @@ const socketConnection = io => {
       currTable.dealFlop();
       io.to(table).emit('dealCards', { newCards });
     });
-
-    const handlePot = (table, currTable, pot) => {
-      const players = currTable.getPlayers();
-      let newPot = pot;
-      players.forEach(player => {
-        newPot += player.playedChips;
-        player.playedChips = 0;
-      });
-      const newPlayers = currTable.getPlayers();
-      io.to(table).emit('updatePlayer', { newPlayers });
-      io.to(table).emit('pot', { newPot });
-    };
 
     const won = (table, winner) => {
       const currTable = getTable(table);
@@ -70,70 +54,52 @@ const socketConnection = io => {
       io.to(table).emit('winner', { newWinner: winner, newPlayers });
     };
 
-    socket.on('nextStreet', ({ street, table, pot }, callback) => {
+    // socket.on('nextStreet', ({ street, table, pot }, callback) => {
+    //   const currTable = getTable(table);
+    //   handlePot(table, currTable, pot);
+    //   currTable.toCall = 0;
+    //   let nextStreet;
+    //   switch (street) {
+    //     case STREETS.PREFLOP:
+    //       currTable.dealFlop();
+    //       nextStreet = STREETS.FLOP;
+    //       break;
+    //     case STREETS.FLOP:
+    //       nextStreet = STREETS.TURN;
+    //       currTable.dealOneCard();
+    //       break;
+    //     case STREETS.TURN:
+    //       nextStreet = STREETS.RIVER;
+    //       currTable.dealOneCard();
+    //       break;
+    //     case STREETS.RIVER:
+    //       console.log('AFTER RIVER');
+    //       nextStreet = STREETS.FLOP;
+    //       const winner = currTable.findWinner();
+    //       won(table, winner);
+    //       break;
+    //   }
+    //   const newCards = currTable.getCards();
+    //   io.to(table).emit('dealCards', { newCards });
+    //   callback(nextStreet);
+    // });
+
+    socket.on('checkCall', ({ currPlayer, table }) => {
       const currTable = getTable(table);
-      handlePot(table, currTable, pot);
-      currTable.toCall = 0;
-      let nextStreet;
-      switch (street) {
-        case STREETS.PREFLOP:
-          currTable.dealFlop();
-          nextStreet = STREETS.FLOP;
-          break;
-        case STREETS.FLOP:
-          nextStreet = STREETS.TURN;
-          currTable.dealOneCard();
-          break;
-        case STREETS.TURN:
-          nextStreet = STREETS.RIVER;
-          currTable.dealOneCard();
-          break;
-        case STREETS.RIVER:
-          console.log('AFTER RIVER');
-          nextStreet = STREETS.FLOP;
-          const winner = currTable.findWinner();
-          won(table, winner);
-          break;
-      }
-      const newCards = currTable.getCards();
-      io.to(table).emit('dealCards', { newCards });
-      callback(nextStreet);
+      currTable.checkCall(currPlayer.id);
+      io.to(table).emit('updateTable', { currTable });
     });
 
-    socket.on('checkCall', ({ currPlayer, table, nextAction }) => {
+    socket.on('raise', ({ currPlayer, table, raise }) => {
       const currTable = getTable(table);
-      const player = currTable.getPlayer(currPlayer.id);
-      const moreChips = currTable.toCall - player.playedChips;
-      if (moreChips) {
-        player.addChips(moreChips);
-        const newPlayers = currTable.getActivePlayers();
-        io.to(table).emit('updatePlayer', { newPlayers });
-      }
-      io.to(table).emit('updateCurrAction', { nextAction });
+      currTable.raise(currPlayer.id, parseInt(raise));
+      io.to(table).emit('updateTable', { currTable });
     });
 
-    socket.on(
-      'raise',
-      ({ currPlayer, table, raise, lastActionIdx, nextAction }) => {
-        const currTable = getTable(table);
-        const player = currTable.getPlayer(currPlayer.id);
-        const raiseInt = parseInt(raise);
-        currTable.setToCall(raiseInt);
-        currTable.chips += raiseInt;
-        player.addChips(raiseInt - player.playedChips);
-        const newPlayers = currTable.getActivePlayers();
-        io.to(table).emit('updatePlayer', { newPlayers });
-        io.to(table).emit('updateLastAction', { lastActionIdx });
-        io.to(table).emit('updateCurrAction', { nextAction });
-      }
-    );
-
-    socket.on('fold', ({ currPlayer, table, nextAction }) => {
+    socket.on('fold', ({ currPlayer, table }) => {
       const currTable = getTable(table);
-      const foldPlayer = currTable
-        .getPlayers()
-        .find(player => player.id === currPlayer.id);
-      io.to(table).emit('updateCurrAction', { nextAction });
+      currTable.fold(currPlayer.id);
+      io.to(table).emit('updateTable', { currTable });
     });
 
     socket.on('winner', ({ table, winner }) => {

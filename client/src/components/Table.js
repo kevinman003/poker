@@ -21,10 +21,10 @@ const Table = ({ location }) => {
   const [smallBlind, setSmallBlind] = useState(0);
   const [currAction, setCurrAction] = useState(0);
   const [pot, setPot] = useState(0);
-  const [bigBlindAmnt, setBigBlindAmnt] = useState(10);
   const [lastAction, setLastAction] = useState(0);
   const [street, setStreet] = useState(STREETS.PREFLOP);
   const [winner, setWinner] = useState();
+  const [pokerTable, setPokerTable] = useState();
 
   const nextAction = currAction + 1 === players.length ? 0 : currAction + 1;
   // change later
@@ -80,6 +80,12 @@ const Table = ({ location }) => {
   }, [pot]);
 
   useEffect(() => {
+    socket.on('updateTable', ({ currTable }) => {
+      setPokerTable(currTable);
+    });
+  });
+
+  useEffect(() => {
     socket.on('winner', ({ newWinner, newPlayers }) => {
       console.log('winner big: ', bigBlind);
       const bigBlindIdx = bigBlind + 1 === newPlayers.length ? 0 : bigBlind + 1;
@@ -99,16 +105,17 @@ const Table = ({ location }) => {
 
   const handleCheckCall = e => {
     e.preventDefault();
-    const lastToAct = lastAction === currAction;
-    socket.emit('checkCall', { currPlayer, table, nextAction, lastToAct });
-    if (lastToAct) {
-      const lastActionIdx =
-        smallBlind - 1 < 0 ? players.length - 1 : smallBlind - 1;
-      setLastAction(lastActionIdx);
-      socket.emit('nextStreet', { street, table, pot }, nextStreet => {
-        setStreet(STREETS[nextStreet]);
-      });
-    }
+    socket.emit('checkCall', { currPlayer, table });
+    // const lastToAct = lastAction === currAction;
+    // socket.emit('checkCall', { currPlayer, table, nextAction, lastToAct });
+    // if (lastToAct) {
+    //   const lastActionIdx =
+    //     smallBlind - 1 < 0 ? players.length - 1 : smallBlind - 1;
+    //   setLastAction(lastActionIdx);
+    //   socket.emit('nextStreet', { street, table, pot }, nextStreet => {
+    //     setStreet(STREETS[nextStreet]);
+    //   });
+    // }
   };
 
   const handleFold = e => {
@@ -128,71 +135,49 @@ const Table = ({ location }) => {
 
   const handleRaise = (e, raise) => {
     e.preventDefault();
-    const lastActionIdx =
-      currAction - 1 < 0 ? players.length - 1 : currAction - 1;
     socket.emit('raise', {
       currPlayer,
       table,
       raise,
-      lastActionIdx,
-      nextAction,
     });
-  };
-
-  const initialStart = () => {
-    setBigBlind(1);
   };
 
   const start = () => {
-    setLastAction(bigBlind);
-    const nextAction = bigBlind + 1 === players.length ? 0 : bigBlind + 1;
-    const smallBlindIdx =
-      bigBlind - 1 === -1 ? players.length - 1 : bigBlind - 1;
-    console.log('SMALL:', smallBlindIdx, 'big:', bigBlind);
-
-    setSmallBlind(smallBlindIdx);
-    socket.emit('blinds', {
-      currPlayer: players[smallBlindIdx],
-      table,
-      raise: bigBlindAmnt / 2,
-      nextAction,
-    });
-    socket.emit('blinds', {
-      currPlayer: players[bigBlind],
-      table,
-      raise: bigBlindAmnt,
-      nextAction,
-    });
-    console.log('SMALL:', smallBlindIdx, 'big:', bigBlind);
-
-    socket.emit('start', { table, bigBlind });
+    socket.emit('start', { table });
   };
 
   return (
     <div className="table">
-      <button onClick={initialStart}> start </button>
-      {players.map(player => {
-        return (
-          <CardAction
-            player={player}
-            disabled={players[currAction].id !== player.id}
-            handleCheckCall={handleCheckCall}
-            handleFold={handleFold}
-            handleRaise={handleRaise}
-          />
-        );
-      })}
-      POT: {pot}
-      <div className="cards">
-        {cards.map(card => {
+      <button onClick={start}> start </button>
+      {pokerTable &&
+        pokerTable.players.map(player => {
           return (
-            <p>
-              {card.value} {card.suit}{' '}
-            </p>
+            <CardAction
+              player={player}
+              disabled={
+                pokerTable.players[pokerTable.currAction].id !== player.id
+              }
+              handleCheckCall={handleCheckCall}
+              handleFold={handleFold}
+              handleRaise={handleRaise}
+            />
           );
         })}
+      POT: {pokerTable && pokerTable.chips}
+      <div className="cards">
+        {pokerTable &&
+          pokerTable.cards.map(card => {
+            return (
+              <p>
+                {card.value} {card.suit}{' '}
+              </p>
+            );
+          })}
       </div>
-      WINNER: {winner && `${winner.name} WITH ${winner.cardRank}`}
+      WINNER:{' '}
+      {pokerTable &&
+        pokerTable.winner &&
+        `${pokerTable.winner.name} WITH ${pokerTable.winner.cardRank}`}
     </div>
   );
 };
