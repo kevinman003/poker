@@ -109,14 +109,14 @@ class CardRanker {
     suits = suits.concat(holeCards.map(card => card.suit));
     const sortedCards = this.sortCards(holeCards);
 
-    const flush = this.findFlush(suits, this.cards.concat(holeCards));
+    const flush = this.findFlush(suits, sortedCards, player);
 
     const straight = this.findStraight(sortedCards, player);
     const straightFlush =
       flush && straight ? this.newStraightFlush(sortedCards, player) : null;
 
     const groups = this.createGroups(sortedCards);
-    this.findGroups(player, groups);
+    this.findGroups(player, groups, sortedCards);
 
     if (straightFlush) {
       if (player.bestCards[player.bestCards.length - 1] === 15) {
@@ -152,10 +152,16 @@ class CardRanker {
     return !!straightFlushSuit.length;
   }
 
-  findFlush(suits, cards) {
+  findFlush(suits, cards, player) {
     let suitSet = new Set(suits);
     for (let suit of suitSet) {
-      if (cards.filter(card => card.suit == suit).length >= 5) {
+      const suitedCards = cards.filter(card => card.suit == suit);
+      if (suitedCards.length >= 5) {
+        const bestCards = suitedCards.slice(
+          suitedCards.length - 5,
+          suitedCards.length
+        );
+        player.bestCards = bestCards.map(card => card.value);
         return true;
       }
     }
@@ -199,7 +205,8 @@ class CardRanker {
     return false;
   }
 
-  findGroups(player, groups) {
+  findGroups(player, groups, sortedCards) {
+    let bestCards = [];
     Object.keys(groups).forEach(value => {
       let repeats = groups[value];
       if (repeats === 4) player.paired['QUADS'] = [value];
@@ -211,7 +218,19 @@ class CardRanker {
         player.paired['PAIR'] = player.paired['PAIR']
           ? player.paired['PAIR'].concat(value)
           : [value];
+      if (repeats > 1) {
+        for (var i = 0; i < repeats; i++) {
+          bestCards.push(value);
+        }
+      }
     });
+
+    let addCards = sortedCards.slice(
+      sortedCards.length - 5 + bestCards.length,
+      sortedCards.length
+    );
+    addCards = addCards.map(card => card.value);
+    player.bestCards = bestCards.concat(addCards);
   }
 
   createGroups(cards) {

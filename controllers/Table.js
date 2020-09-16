@@ -26,6 +26,10 @@ class Table {
     return this.players;
   }
 
+  // for testing
+  addCards(cards) {
+    this.cards = cards;
+  }
   getActivePlayers() {
     return this.players.filter(player => player.playing);
   }
@@ -72,6 +76,7 @@ class Table {
     this.lastAction = this.bigBlind;
     this.currAction =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
+    this.toCall = this.blind;
     this.players[this.smallBlind].addChips(this.blind / 2);
     this.players[this.bigBlind].addChips(this.blind);
   }
