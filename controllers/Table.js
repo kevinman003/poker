@@ -145,7 +145,8 @@ class Table {
   fold(id) {
     const activePlayers = this.getActivePlayers();
     if (activePlayers.length === 2) {
-      const winner = activePlayers.filter(player => player.id !== id);
+      const winner = activePlayers.filter(player => player.id !== id)[0];
+      this.handlePot();
       this.won(winner);
     } else {
       this.getPlayer(id).playing = false;
