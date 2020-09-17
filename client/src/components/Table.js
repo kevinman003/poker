@@ -5,15 +5,15 @@ import { v4 as uuidv4 } from 'uuid';
 
 import CardAction from './CardAction';
 
+let socket;
+
 const Table = ({ location }) => {
   const [currPlayer, setCurrPlayer] = useState(null);
   const [pokerTable, setPokerTable] = useState();
 
-  // change later
-  const ENDPOINT = 'http://localhost:5000';
-  let socket = io(ENDPOINT);
+  const ENDPOINT = 'localhost:5000';
   const { table } = queryString.parse(location.search);
-  // joining logic
+
   useEffect(() => {
     let id;
     if (localStorage.id) id = localStorage.id;
@@ -21,6 +21,7 @@ const Table = ({ location }) => {
       id = uuidv4();
       localStorage.setItem('id', id);
     }
+    let socket = io(ENDPOINT);
     socket.emit('join', { table, id }, player => setCurrPlayer(player));
 
     return () => {
@@ -58,7 +59,6 @@ const Table = ({ location }) => {
   const start = () => {
     socket.emit('start', { table });
   };
-
   return (
     <div className="table">
       <button onClick={start}> start </button>
