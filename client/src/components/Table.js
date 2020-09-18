@@ -21,7 +21,7 @@ const Table = ({ location }) => {
       id = uuidv4();
       localStorage.setItem('id', id);
     }
-    let socket = io(ENDPOINT);
+    socket = io(ENDPOINT);
     socket.emit('join', { table, id }, player => setCurrPlayer(player));
 
     return () => {
