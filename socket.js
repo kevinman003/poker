@@ -32,6 +32,14 @@ const socketConnection = io => {
       io.to(table).emit('updateTable', { currTable });
     });
 
+    socket.on('sit', ({ table, currPlayer, seatNumber }) => {
+      console.log('TABLE', table);
+      const currTable = getTable(table);
+      console.log('CURRTABLE', currTable);
+      currTable.playerPositions[seatNumber] = currPlayer;
+      io.to(table).emit('updateTable', { currTable });
+    });
+
     socket.on('checkCall', ({ currPlayer, table }) => {
       const currTable = getTable(table);
       currTable.checkCall(currPlayer.id);

@@ -20,6 +20,7 @@ class Table {
     this.street = STREETS.PREFLOP;
     this.winner = null;
     this.blind = 10;
+    this.playerPositions = {};
   }
 
   getPlayers() {
