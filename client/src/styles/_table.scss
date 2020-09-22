@@ -1,0 +1,43 @@
+.disabled {
+  color: #f00;
+}
+
+.seat-outer-container {
+  position: relative;
+  height: 60%;
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // get rid of all below when combining table and table page
+  background-color: $light-blue;
+  z-index: -1;
+}
+
+.table {
+  position: relative;
+  background-color: #000;
+  height: 60%;
+  width: $table-border-width;
+  border-radius: 99999999px;
+  padding: 20px;
+  filter: drop-shadow(10px 10px 10px rgba(0, 0, 0, 0.7));
+}
+
+.table-middle {
+  height: 100%;
+  background-color: $dark-blue;
+  border-radius: 99999999px;
+  box-shadow: inset 5px 5px 18px 0 rgba(0, 0, 0, 0.7);
+}

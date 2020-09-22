@@ -1,0 +1,73 @@
+.seat {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  align-items: center;
+  justify-content: center;
+  height: 4.5em;
+  width: $player-card-width;
+  font-size: 0.75em;
+  font-weight: 700;
+  border-radius: 10px;
+  border: 2px solid $dark-blue;
+  filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.5));
+}
+
+.seat-0 {
+  top: 0;
+  left: 30%;
+}
+
+.seat-1 {
+  top: 0;
+  right: 30%;
+}
+
+.seat-2 {
+  justify-self: start;
+}
+
+.seat-3 {
+  justify-self: end;
+}
+
+.seat-container {
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
+}
+
+.seat-container-0 {
+  top: 0;
+  width: 40%;
+}
+
+.seat-container-1 {
+  top: 20%;
+  width: calc(#{$table-border-width} + 2 * #{$player-card-width} - 2em);
+}
+
+.seat-container-2 {
+  top: 50%;
+  width: calc(#{$table-border-width} + 2 * #{$player-card-width});
+}
+
+.seat-container-3 {
+  top: 80%;
+  width: calc(#{$table-border-width} + #{$player-card-width});
+}
+
+.seat-container-4 {
+  top: 90%;
+}
+.player-chips {
+  margin-top: 0.5em;
+  border-top: 2px solid $dark-blue;
+  padding: 0.25em;
+  width: 20%;
+  text-align: center;
+}
+
+.player-name {
+  margin-top: 0.25em;
+}
