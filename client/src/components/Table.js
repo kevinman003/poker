@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import Player from './Player';
+import Chips from './Chips';
 
 const Table = props => {
   const { pokerTable } = props;
@@ -27,6 +28,7 @@ const Table = props => {
   return (
     <div>
       <div className="table-container">
+        <Chips value={42} position={0} />
         <div className="seat-outer-container">
           <div className="table">
             <div className="table-middle"></div>
