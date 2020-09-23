@@ -17,27 +17,27 @@
   @include chipColorBorder(#11f);
 }
 
-.chip-5 {
+.chip-2 {
   background-color: #f00;
   @include chipColorBorder(#fff);
 }
 
-.chip-10 {
+.chip-3 {
   background-color: #11f;
   @include chipColorBorder(#fff);
 }
 
-.chip-25 {
+.chip-4 {
   background-color: #17cd64;
   @include chipColorBorder(#fff);
 }
 
-.chip-50 {
-  background-color: #ff5e13;
+.chip-5 {
+  background-color: #ff6f13;
   @include chipColorBorder(#fff);
 }
 
-.chip-100 {
+.chip-6 {
   background-color: #000;
   @include chipColorBorder(#fff);
 }

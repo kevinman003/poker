@@ -11,23 +11,29 @@ const CardAction = props => {
 
   return (
     <div className="card-actions">
-      <div class="action-button" id="fold" onClick={handleFold}>
+      <div className="action-button" id="fold" onClick={handleFold}>
         <p>{display.fold} </p>
       </div>
-      <div class="action-button" id="checkCall" onClick={handleCheckCall}>
+      <div className="action-button" id="checkCall" onClick={handleCheckCall}>
         {display.check}
       </div>
       <div
-        class="action-button"
+        className="action-button"
         id="raise"
         onClick={e => handleRaise(e, raise)}
       >
         {display.raise}
       </div>
       <div className="raise-choose">
-        <input type="range" min="1" max="100" value="50" class="raise-slider" />
         <input
-          class="raise-input"
+          type="range"
+          min="1"
+          max="100"
+          value="50"
+          className="raise-slider"
+        />
+        <input
+          className="raise-input"
           onChange={e => setRaise(e.target.value)}
           type="text"
         />
