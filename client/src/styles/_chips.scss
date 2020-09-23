@@ -1,0 +1,43 @@
+@mixin chipColorBorder($color) {
+  width: 1.25em;
+  height: 1em;
+  border-radius: 50%;
+  border: 0.16em dashed $color;
+  box-shadow: 1px -1px 5px #333;
+  margin-bottom: -1.05em;
+}
+
+.chips-container {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.chip-1 {
+  background-color: #fff;
+  @include chipColorBorder(#11f);
+}
+
+.chip-5 {
+  background-color: #f00;
+  @include chipColorBorder(#fff);
+}
+
+.chip-10 {
+  background-color: #11f;
+  @include chipColorBorder(#fff);
+}
+
+.chip-25 {
+  background-color: #17cd64;
+  @include chipColorBorder(#fff);
+}
+
+.chip-50 {
+  background-color: #ff5e13;
+  @include chipColorBorder(#fff);
+}
+
+.chip-100 {
+  background-color: #000;
+  @include chipColorBorder(#fff);
+}
