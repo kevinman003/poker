@@ -25,11 +25,12 @@ const Chips = props => {
       const num = Math.floor(chips / currChip);
       chips %= currChip;
       for (let i = 0; i < num; i++) {
-        result.push(currChip);
+        result.unshift(currChip);
       }
       index -= 1;
     }
     setTotalChips(result);
+    console.log('result:', result);
   }, [chipValues]);
 
   const findChipValues = blind => {
@@ -45,11 +46,12 @@ const Chips = props => {
   };
 
   return (
-    <div className="chips-container">
+    <div className={`chips-container chip-position-${position}`}>
       {totalChips.map(chip => {
         const index = chipValues.findIndex(value => value === chip) + 1;
         return <div className={`chip-${index}`}></div>;
       })}
+      <p className="chip-label"> {value} </p>
     </div>
   );
 };

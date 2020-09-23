@@ -7,6 +7,15 @@
   margin-bottom: -1.05em;
 }
 
+@mixin chip-position($top, $right, $bottom, $left) {
+  position: absolute;
+  z-index: 50;
+  top: $top;
+  right: $right;
+  bottom: $bottom;
+  left: $left;
+}
+
 .chips-container {
   display: flex;
   flex-direction: column-reverse;
@@ -40,4 +49,46 @@
 .chip-6 {
   background-color: #000;
   @include chipColorBorder(#fff);
+}
+
+.chip-position-0 {
+  @include chip-position(33%, auto, auto, 40%);
+}
+
+.chip-position-1 {
+  @include chip-position(33%, 40%, auto, auto);
+}
+
+.chip-position-2 {
+  @include chip-position(37%, 33%, auto, auto);
+}
+
+.chip-position-3 {
+  @include chip-position(47%, 30%, auto, auto);
+}
+
+.chip-position-4 {
+  @include chip-position(auto, 35%, 40%, auto);
+}
+
+.chip-position-5 {
+  @include chip-position(auto, 49%, 37%, auto);
+}
+
+.chip-position-6 {
+  @include chip-position(auto, auto, 40%, 35%);
+}
+
+.chip-position-7 {
+  @include chip-position(47%, auto, auto, 30%);
+}
+
+.chip-position-8 {
+  @include chip-position(37%, auto, auto, 33%);
+}
+
+.chip-label {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 5px;
 }
