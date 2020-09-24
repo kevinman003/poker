@@ -5,6 +5,7 @@ import {
   updatePokerTableAction,
   addSocketAction,
   setCurrPlayerAction,
+  addHoleCardsAction,
 } from '../actions/pokerTableActions';
 
 import queryString from 'query-string';
@@ -24,6 +25,7 @@ const TablePage = props => {
     updatePokerTable,
     currPlayer,
     setCurrPlayer,
+    addHoleCards,
     location,
   } = props;
   const ENDPOINT = 'localhost:5000';
@@ -53,6 +55,16 @@ const TablePage = props => {
     });
   }, [pokerTable]);
 
+  useEffect(() => {
+    socket.on('dealCards', ({ currTable }) => {
+      if (currPlayer) {
+        const player = currTable.players.find(
+          player => player.id === currPlayer.id
+        );
+        player && addHoleCards(player.holeCards);
+      }
+    });
+  }, [currPlayer]);
   const handleCheckCall = e => {
     e.preventDefault();
     socket.emit('checkCall', { currPlayer, table });
@@ -131,6 +143,7 @@ const mapDispatchToProps = dispatch => {
       updatePokerTable: updatePokerTableAction,
       addSocket: addSocketAction,
       setCurrPlayer: setCurrPlayerAction,
+      addHoleCards: addHoleCardsAction,
     },
     dispatch
   );

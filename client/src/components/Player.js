@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import Card from './Card';
+
 const Player = props => {
   const { seatNumber, currPlayer, socket, pokerTable } = props;
 
@@ -15,20 +17,18 @@ const Player = props => {
   let selected =
     pokerTable &&
     Object.keys(pokerTable.playerPositions).some(p => p === seatNumber);
-  return selected ? (
+  return currPlayer ? (
     <div>
       <div className={`seat seat-${seatNumber}`}>
         <p className="player-name"> {currPlayer.name} </p>
         <div className="player-chips">
-          <p> {currPlayer.playedChips} </p>
+          <p> {currPlayer.chips} </p>
         </div>
-        {currPlayer.holeCards.map(card => {
-          return (
-            <p key={`${currPlayer.id}-${card.value}-${card.suit}`}>
-              {card.value} {card.suit}
-            </p>
-          );
-        })}
+        <div className="card-container">
+          {currPlayer.holeCards.map(card => {
+            return <Card card={card} />;
+          })}
+        </div>
       </div>
     </div>
   ) : (

@@ -33,7 +33,6 @@ const Table = props => {
         {test.map(position => (
           <Chips value={60} position={position} />
         ))}
-        {/* <Chips value={60} position={6} /> */}
         <div className="seat-outer-container">
           <div className="table">
             <div className="table-middle"></div>

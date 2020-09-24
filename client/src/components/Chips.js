@@ -30,7 +30,6 @@ const Chips = props => {
       index -= 1;
     }
     setTotalChips(result);
-    console.log('result:', result);
   }, [chipValues]);
 
   const findChipValues = blind => {

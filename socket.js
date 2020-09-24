@@ -11,7 +11,7 @@ const socketConnection = io => {
       const players = currTable.getPlayers();
 
       if (!players.some(player => player.id === id)) {
-        const currPlayer = new Player(`player${id}`, id);
+        const currPlayer = new Player(`lmao`, id);
         currTable.addPlayer(currPlayer);
         callback(currPlayer);
       } else {
@@ -30,6 +30,7 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.start();
       io.to(table).emit('updateTable', { currTable });
+      io.to(table).emit('dealCards', { currTable });
     });
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {

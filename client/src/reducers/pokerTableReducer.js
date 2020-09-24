@@ -20,6 +20,8 @@ const currPlayerReducer = (state = null, action) => {
   switch (action.type) {
     case 'SET':
       return action.data;
+    case 'ADD_CARDS':
+      return { ...state, holeCards: action.data };
     default:
       return state;
   }
