@@ -50,7 +50,7 @@ const Chips = props => {
         const index = chipValues.findIndex(value => value === chip) + 1;
         return <div className={`chip-${index}`}></div>;
       })}
-      <p className="chip-label"> {value} </p>
+      <p className="chip-label"> {value > 0 && value} </p>
     </div>
   );
 };

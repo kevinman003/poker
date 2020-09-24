@@ -4,8 +4,8 @@
   background-color: #fff;
   align-items: center;
   justify-content: center;
-  height: 4.5em;
-  width: $player-card-width;
+  height: 5em;
+  width: 100%;
   font-size: 0.75em;
   font-weight: 700;
   border-radius: 10px;
@@ -13,9 +13,27 @@
   filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.5));
 }
 
+.seat-inner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: $player-card-width;
+  font-size: 0.75em;
+  font-weight: 700;
+  border-radius: 10px;
+  filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.5));
+}
+
 .seat-0 {
-  top: 0;
-  left: 30%;
+  position: absolute;
+}
+
+.seat-container {
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
 }
 
 .seat-1 {
@@ -29,12 +47,6 @@
 
 .seat-3 {
   justify-self: end;
-}
-
-.seat-container {
-  display: flex;
-  position: absolute;
-  justify-content: space-between;
 }
 
 .seat-container-0 {
@@ -61,16 +73,19 @@
   top: 93%;
 }
 .player-chips {
-  margin-top: 0.5em;
+  // margin-top: 0.5em;
   border-top: 2px solid $dark-blue;
-  padding: 0.25em;
+  // padding: 0.25em;
   width: 20%;
   text-align: center;
+  font-size: 1.5em;
 }
 
 .player-name {
+  text-align: center;
+  font-size: 1.5em;
   text-overflow: ellipsis;
-  margin: 0.25em 0.3em 0 0.3em;
+  // margin: 0.25em 0.3em 0 0.3em;
   width: 90%;
   overflow: hidden;
   white-space: nowrap;

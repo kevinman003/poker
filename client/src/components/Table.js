@@ -3,9 +3,28 @@ import { connect } from 'react-redux';
 
 import Player from './Player';
 import Chips from './Chips';
+import { currPlayerReducer } from '../reducers/pokerTableReducer';
 
 const Table = props => {
-  const { pokerTable } = props;
+  const { pokerTable, currPlayer } = props;
+  const [seats, setSeats] = React.useState([]);
+  const [selectedPlayer, setSelectedPlayer] = React.useState(null);
+
+  React.useEffect(() => {
+    if (pokerTable) {
+      const player = pokerTable.players.find(
+        player => player.id === currPlayer.id
+      );
+      setSelectedPlayer(player);
+    }
+  }, [pokerTable]);
+
+  React.useEffect(() => {
+    if (pokerTable) {
+      setSeats(Object.keys(pokerTable.playerPositions));
+      console.log(Object.keys(pokerTable.playerPositions));
+    }
+  }, [pokerTable]);
 
   const createSeats = seats => {
     const seatComponents = [];
@@ -26,17 +45,22 @@ const Table = props => {
     return seatComponents;
   };
 
-  const test = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  console.log('curr', currPlayer);
   return (
     <div>
       <div className="table-container">
-        {test.map(position => (
-          <Chips value={60} position={position} />
+        {seats.map(position => (
+          <Chips
+            value={selectedPlayer && selectedPlayer.playedChips}
+            position={selectedPlayer && selectedPlayer.seated}
+          />
         ))}
+
         <div className="seat-outer-container">
           <div className="table">
             <div className="table-middle"></div>
           </div>
+          {/* <Player seatNumber={0} /> */}
           {createSeats(9)}
         </div>
       </div>
@@ -47,6 +71,7 @@ const Table = props => {
 const mapStateToProps = state => {
   return {
     pokerTable: state.pokerTable,
+    currPlayer: state.currPlayer,
   };
 };
 export default connect(mapStateToProps, null)(Table);

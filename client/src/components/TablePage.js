@@ -98,22 +98,7 @@ const TablePage = props => {
   return (
     <div className="tablePage">
       <button onClick={start}> start </button>
-      {/* {pokerTable &&
-        pokerTable.players.map(player => {
-          return (
-            <Player
-              player={player}
-              disabled={
-                pokerTable.players[pokerTable.currAction].id !== player.id ||
-                localStorage.id !== player.id
-              }
-              handleCheckCall={handleCheckCall}
-              handleFold={handleFold}
-              handleRaise={handleRaise}
-            />
-          );
-        })} */}
-      POT: {pokerTable && pokerTable.chips}
+      {/* POT: {pokerTable && pokerTable.chips}
       <div className="cards">
         {pokerTable &&
           pokerTable.cards.map(card => {
@@ -127,7 +112,7 @@ const TablePage = props => {
       WINNER:{' '}
       {pokerTable &&
         pokerTable.winner &&
-        `${pokerTable.winner.name} WITH ${pokerTable.winner.cardRank}`}
+        `${pokerTable.winner.name} WITH ${pokerTable.winner.cardRank}`} */}
       <Table />
       <CardAction
         handleCheckCall={handleCheckCall}
