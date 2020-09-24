@@ -11,7 +11,7 @@ const socketConnection = io => {
       const players = currTable.getPlayers();
 
       if (!players.some(player => player.id === id)) {
-        const currPlayer = new Player(`player${id}`, id);
+        const currPlayer = new Player('lmao', id);
         currTable.addPlayer(currPlayer);
         callback(currPlayer);
       } else {
