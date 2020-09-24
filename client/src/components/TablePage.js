@@ -61,7 +61,7 @@ const TablePage = props => {
         const player = currTable.players.find(
           player => player.id === currPlayer.id
         );
-        player && addHoleCards(player.holeCards);
+        addHoleCards(player.holeCards);
       }
     });
   }, [currPlayer]);
@@ -90,7 +90,7 @@ const TablePage = props => {
   return (
     <div className="tablePage">
       <button onClick={start}> start </button>
-      {pokerTable &&
+      {/* {pokerTable &&
         pokerTable.players.map(player => {
           return (
             <Player
@@ -104,7 +104,7 @@ const TablePage = props => {
               handleRaise={handleRaise}
             />
           );
-        })}
+        })} */}
       POT: {pokerTable && pokerTable.chips}
       <div className="cards">
         {pokerTable &&
