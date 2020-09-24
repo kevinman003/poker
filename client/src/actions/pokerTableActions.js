@@ -19,4 +19,16 @@ const setCurrPlayerAction = currPlayer => {
   };
 };
 
-export { updatePokerTableAction, addSocketAction, setCurrPlayerAction };
+const addHoleCardsAction = holeCards => {
+  return {
+    type: 'ADD_CARDS',
+    data: holeCards,
+  };
+};
+
+export {
+  updatePokerTableAction,
+  addSocketAction,
+  setCurrPlayerAction,
+  addHoleCardsAction,
+};

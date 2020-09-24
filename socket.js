@@ -30,6 +30,7 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.start();
       io.to(table).emit('updateTable', { currTable });
+      io.to(table).emit('dealCards', { currTable });
     });
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {
