@@ -6,6 +6,7 @@ import {
   addSocketAction,
   setCurrPlayerAction,
   addHoleCardsAction,
+  sitPlayerAction,
 } from '../actions/pokerTableActions';
 
 import queryString from 'query-string';
@@ -26,6 +27,7 @@ const TablePage = props => {
     currPlayer,
     setCurrPlayer,
     addHoleCards,
+    sitPlayer,
     location,
   } = props;
   const ENDPOINT = 'localhost:5000';
@@ -64,7 +66,12 @@ const TablePage = props => {
         addHoleCards(player.holeCards);
       }
     });
+
+    socket.on('sit', ({ seatNumber, id }) => {
+      if (currPlayer && currPlayer.id === id) sitPlayer(seatNumber);
+    });
   }, [currPlayer]);
+
   const handleCheckCall = e => {
     e.preventDefault();
     socket.emit('checkCall', { currPlayer, table });
@@ -87,6 +94,7 @@ const TablePage = props => {
   const start = () => {
     socket.emit('start', { table });
   };
+
   return (
     <div className="tablePage">
       <button onClick={start}> start </button>
@@ -144,6 +152,7 @@ const mapDispatchToProps = dispatch => {
       addSocket: addSocketAction,
       setCurrPlayer: setCurrPlayerAction,
       addHoleCards: addHoleCardsAction,
+      sitPlayer: sitPlayerAction,
     },
     dispatch
   );

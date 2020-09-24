@@ -11,7 +11,7 @@ const socketConnection = io => {
       const players = currTable.getPlayers();
 
       if (!players.some(player => player.id === id)) {
-        const currPlayer = new Player('lmao', id);
+        const currPlayer = new Player(`player-${id}`, id);
         currTable.addPlayer(currPlayer);
         callback(currPlayer);
       } else {
@@ -34,11 +34,13 @@ const socketConnection = io => {
     });
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {
-      console.log('TABLE', table);
       const currTable = getTable(table);
-      console.log('CURRTABLE', currTable);
-      currTable.playerPositions[seatNumber] = currPlayer;
+      currTable.playerPositions[seatNumber] = currPlayer.id;
+      const player = currTable.getPlayer(currPlayer.id);
+      player.seated = seatNumber;
+      console.log('player:', player);
       io.to(table).emit('updateTable', { currTable });
+      io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
     });
 
     socket.on('checkCall', ({ currPlayer, table }) => {

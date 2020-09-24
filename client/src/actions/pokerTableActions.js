@@ -26,9 +26,17 @@ const addHoleCardsAction = holeCards => {
   };
 };
 
+const sitPlayerAction = sit => {
+  console.log('actions,', sit);
+  return {
+    type: 'SIT',
+    data: sit,
+  };
+};
 export {
   updatePokerTableAction,
   addSocketAction,
   setCurrPlayerAction,
   addHoleCardsAction,
+  sitPlayerAction,
 };

@@ -12,6 +12,7 @@ class Player {
     this.playedChips = 0;
     this.playing = true;
     this.bestCards = [];
+    this.seated = -1;
   }
 
   addCards(cards) {

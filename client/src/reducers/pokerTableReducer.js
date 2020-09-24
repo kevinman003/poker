@@ -22,8 +22,11 @@ const currPlayerReducer = (state = null, action) => {
       return action.data;
     case 'ADD_CARDS':
       return { ...state, holeCards: action.data };
+    case 'SIT':
+      return { ...state, seated: action.data };
     default:
       return state;
   }
 };
+
 export { pokerTableReducer, socketReducer, currPlayerReducer };
