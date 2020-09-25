@@ -93,7 +93,6 @@ class Table {
 
   checkCall(id) {
     const player = this.getPlayer(id);
-    console.log('PLAYER:', player.name);
     const moreChips = this.toCall - player.playedChips;
     if (moreChips) {
       player.addChips(moreChips);
@@ -128,7 +127,6 @@ class Table {
         this.cards.push(this.deck.dealOneCard());
         break;
       case STREETS.RIVER:
-        console.log('AFTER RIVER');
         this.street = STREETS.PREFLOP;
         const winner = this.findWinner();
         this.won(winner);

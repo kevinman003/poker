@@ -52,8 +52,9 @@ const TablePage = props => {
   }, [location.search]);
 
   useEffect(() => {
-    socket.on('updateTable', ({ currTable }) => {
+    socket.on('updateTable', ({ currTable, cb }) => {
       updatePokerTable(currTable);
+      console.log(typeof cb);
     });
   }, [pokerTable]);
 
@@ -71,25 +72,6 @@ const TablePage = props => {
       if (currPlayer && currPlayer.id === id) sitPlayer(seatNumber);
     });
   }, [currPlayer]);
-
-  const handleCheckCall = e => {
-    e.preventDefault();
-    socket.emit('checkCall', { currPlayer, table });
-  };
-
-  const handleFold = e => {
-    e.preventDefault();
-    socket.emit('fold', { currPlayer, table });
-  };
-
-  const handleRaise = (e, raise) => {
-    e.preventDefault();
-    socket.emit('raise', {
-      currPlayer,
-      table,
-      raise,
-    });
-  };
 
   const start = () => {
     socket.emit('start', { table });
@@ -120,9 +102,7 @@ const TablePage = props => {
           currPlayer &&
           pokerTable.players[pokerTable.currAction].id === currPlayer.id
         }
-        handleCheckCall={handleCheckCall}
-        handleFold={handleFold}
-        handleRaise={handleRaise}
+        table={table}
       />
     </div>
   );

@@ -38,7 +38,6 @@ const socketConnection = io => {
       currTable.playerPositions[seatNumber] = currPlayer.id;
       const player = currTable.getPlayer(currPlayer.id);
       player.seated = seatNumber;
-      console.log('player:', player);
       io.to(table).emit('updateTable', { currTable });
       io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
     });
@@ -47,18 +46,28 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.checkCall(currPlayer.id);
       io.to(table).emit('updateTable', { currTable });
+      io.to(table).emit('nextTurn', {
+        id: currTable.players[currTable.currAction].id,
+      });
     });
 
     socket.on('raise', ({ currPlayer, table, raise }) => {
       const currTable = getTable(table);
       currTable.raise(currPlayer.id, parseInt(raise));
       io.to(table).emit('updateTable', { currTable });
+      io.to(table).emit('nextTurn', {
+        id: currTable.players[currTable.currAction].id,
+        currTable,
+      });
     });
 
     socket.on('fold', ({ currPlayer, table }) => {
       const currTable = getTable(table);
       currTable.fold(currPlayer.id);
       io.to(table).emit('updateTable', { currTable });
+      io.to(table).emit('nextTurn', {
+        id: currTable.players[currTable.currAction].id,
+      });
     });
 
     socket.on('disconnect', ({ table, id }) => {
