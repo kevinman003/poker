@@ -28,9 +28,25 @@ const CardAction = props => {
   }, [enabled]);
 
   React.useEffect(() => {
+    const activeButtons = (currTable, selectedPlayer) => {
+      if (
+        (active.check && !(currTable.toCall - selectedPlayer.playedChips)) ||
+        active.raise
+      ) {
+        socket.emit('checkCall', { currPlayer, table });
+      }
+      if (active.fold && !(currTable.toCall - selectedPlayer.playedChips)) {
+        socket.emit('fold', { currPlayer, table });
+      }
+      const result = {};
+      Object.keys(active).map(key => (result[key] = false));
+      setActive(result);
+    };
+
     socket &&
       socket.on('nextTurn', ({ id, currTable }) => {
         if (currPlayer.id === id) {
+          console.log('curr:', currTable);
           const selectedPlayer = currTable.players.find(
             player => player.id === currPlayer.id
           );
@@ -38,21 +54,6 @@ const CardAction = props => {
         }
       });
   }, [active]);
-
-  const activeButtons = (currTable, selectedPlayer) => {
-    if (
-      (active.check && !(currTable.toCall - selectedPlayer.playedChips)) ||
-      active.raise
-    ) {
-      socket.emit('checkCall', { currPlayer, table });
-    }
-    if (active.fold && !(currTable.toCall - selectedPlayer.playedChips)) {
-      socket.emit('fold', { currPlayer, table });
-    }
-    const result = {};
-    Object.keys(active).map(key => (result[key] = false));
-    setActive(result);
-  };
 
   const handleCheckCall = e => {
     if (enabled) {
@@ -100,6 +101,23 @@ const CardAction = props => {
     setRaise(raiseAmount);
   };
 
+  const handleTextRaise = e => {
+    const selectedPlayer =
+      pokerTable &&
+      pokerTable.players.find(player => player.id === currPlayer.id);
+    const maxChips = selectedPlayer.chips + selectedPlayer.playedChips;
+    const raiseAmount = e.target.value > maxChips ? maxChips : e.target.value;
+    setRaise(raiseAmount);
+  };
+
+  const maxRange = () => {
+    const selectedPlayer =
+      pokerTable &&
+      pokerTable.players.find(player => player.id === currPlayer.id);
+    const maxChips = selectedPlayer && selectedPlayer.chips;
+    return maxChips;
+  };
+
   return (
     currPlayer &&
     currPlayer.seated >= 0 && (
@@ -137,14 +155,14 @@ const CardAction = props => {
             <input
               type="range"
               min={pokerTable && pokerTable.blind}
-              max={currPlayer && currPlayer.chips}
+              max={maxRange()}
               value={raise}
               onChange={handleSlider}
               className="raise-slider"
             />
             <input
               className="raise-input"
-              onChange={e => setRaise(e.target.value)}
+              onChange={handleTextRaise}
               type="text"
               value={raise}
             />

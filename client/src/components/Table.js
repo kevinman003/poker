@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
 import Player from './Player';
@@ -31,15 +31,15 @@ const Table = props => {
     const seatComponents = [];
     for (var i = 0; i < 8 / 2; i++) {
       seatComponents.push(
-        <div className={`seat-container seat-container-${i}`}>
-          <Player seatNumber={i * 2} />
-          <Player seatNumber={i * 2 + 1} />
+        <div className={`seat-container seat-container-${i}`} key={`seat-${i}`}>
+          <Player seatNumber={i * 2} key={`player-${i * 2}`} />
+          <Player seatNumber={i * 2 + 1} key={`player-${i * 2 + 1}`} />
         </div>
       );
     }
     seatComponents.push(
-      <div className="seat-container seat-container-4">
-        <Player seatNumber={9} />
+      <div className="seat-container seat-container-4" key="seat-9">
+        <Player seatNumber={9} key="player-9" />
       </div>
     );
     return seatComponents;

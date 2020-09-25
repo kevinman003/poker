@@ -38,7 +38,7 @@ const Player = props => {
     <div>
       {selectedPlayer && (
         <div className={`seat-inner-container`}>
-          <div className={`seat ${enabled ? 'player-active' : undefined}`}>
+          <div className={`seat ${enabled ? 'player-active' : ''}`}>
             <p className="player-name"> {selectedPlayer.name} </p>
             <div className="player-chips">
               <p> {selectedPlayer.chips} </p>
@@ -46,7 +46,14 @@ const Player = props => {
           </div>
           <div className="card-container">
             {selectedPlayer.holeCards.map(card => {
-              return <Card card={card} />;
+              return (
+                <Card
+                  key={`${selectedPlayer.id}-${selectedPlayer.holeCards.indexOf(
+                    card
+                  )}`}
+                  card={card}
+                />
+              );
             })}
           </div>
         </div>

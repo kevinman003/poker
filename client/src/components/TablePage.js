@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
@@ -14,7 +14,6 @@ import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
 import CardAction from './CardAction';
-import Player from './Player';
 import Table from './Table';
 let socket;
 
@@ -33,7 +32,7 @@ const TablePage = props => {
   const ENDPOINT = 'localhost:5000';
   const { table } = queryString.parse(location.search);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let id;
     if (localStorage.id) id = localStorage.id;
     else {
@@ -51,14 +50,13 @@ const TablePage = props => {
     };
   }, [location.search]);
 
-  useEffect(() => {
-    socket.on('updateTable', ({ currTable, cb }) => {
+  React.useEffect(() => {
+    socket.on('updateTable', ({ currTable }) => {
       updatePokerTable(currTable);
-      console.log(typeof cb);
     });
   }, [pokerTable]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     socket.on('dealCards', ({ currTable }) => {
       if (currPlayer) {
         const player = currTable.players.find(

@@ -48,6 +48,7 @@ const socketConnection = io => {
       io.to(table).emit('updateTable', { currTable });
       io.to(table).emit('nextTurn', {
         id: currTable.players[currTable.currAction].id,
+        currTable,
       });
     });
 
@@ -55,6 +56,7 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.raise(currPlayer.id, parseInt(raise));
       io.to(table).emit('updateTable', { currTable });
+      console.log('curr:', currTable);
       io.to(table).emit('nextTurn', {
         id: currTable.players[currTable.currAction].id,
         currTable,
