@@ -6,6 +6,7 @@ import Card from './Card';
 const Player = props => {
   const { seatNumber, currPlayer, socket, pokerTable } = props;
   const [selectedPlayer, setSelectedPlayer] = React.useState(null);
+  const [enabled, setEnabled] = React.useState(false);
 
   React.useEffect(() => {
     if (pokerTable) {
@@ -16,6 +17,11 @@ const Player = props => {
           player => player.id === selected
         );
         setSelectedPlayer(seatedPlayer);
+        setEnabled(
+          pokerTable &&
+            currPlayer &&
+            pokerTable.players[pokerTable.currAction].id === seatedPlayer.id
+        );
       }
     }
   }, [pokerTable]);
@@ -32,7 +38,7 @@ const Player = props => {
     <div>
       {selectedPlayer && (
         <div className={`seat-inner-container`}>
-          <div className={`seat`}>
+          <div className={`seat ${enabled ? 'player-active' : undefined}`}>
             <p className="player-name"> {selectedPlayer.name} </p>
             <div className="player-chips">
               <p> {selectedPlayer.chips} </p>

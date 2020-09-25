@@ -115,6 +115,11 @@ const TablePage = props => {
         `${pokerTable.winner.name} WITH ${pokerTable.winner.cardRank}`} */}
       <Table />
       <CardAction
+        enabled={
+          pokerTable &&
+          currPlayer &&
+          pokerTable.players[pokerTable.currAction].id === currPlayer.id
+        }
         handleCheckCall={handleCheckCall}
         handleFold={handleFold}
         handleRaise={handleRaise}

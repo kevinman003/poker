@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 
 import Player from './Player';
 import Chips from './Chips';
+import CommunityCards from './CommunityCards';
+
 import { currPlayerReducer } from '../reducers/pokerTableReducer';
 
 const Table = props => {
@@ -37,13 +39,11 @@ const Table = props => {
     }
     seatComponents.push(
       <div className="seat-container seat-container-4">
-        {' '}
         <Player seatNumber={9} />
       </div>
     );
     return seatComponents;
   };
-  console.log('seats', seats);
   return (
     <div>
       <div className="table-container">
@@ -56,10 +56,14 @@ const Table = props => {
             );
           }
         })}
-
         <div className="seat-outer-container">
           <div className="table">
-            <div className="table-middle"></div>
+            <div className="table-middle">
+              <div className="pot-container">
+                <Chips value={pokerTable && pokerTable.chips} />
+              </div>
+              <CommunityCards />
+            </div>
           </div>
           {/* <Player seatNumber={0} /> */}
           {createSeats(9)}

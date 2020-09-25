@@ -23,6 +23,11 @@
   filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.5));
 }
 
+.raise-container {
+  display: flex;
+  flex-direction: row;
+}
+
 .raise-choose {
   display: flex;
   flex-direction: column;
