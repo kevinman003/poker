@@ -94,7 +94,11 @@ const CardAction = props => {
     }
   };
 
-  const handleSlider = () => {};
+  const handleSlider = e => {
+    const raiseAmount =
+      Math.floor(e.target.value / pokerTable.blind) * pokerTable.blind;
+    setRaise(raiseAmount);
+  };
 
   return (
     currPlayer &&
@@ -132,9 +136,9 @@ const CardAction = props => {
           <div className="raise-choose">
             <input
               type="range"
-              min="1"
-              max="100"
-              value="50"
+              min={pokerTable && pokerTable.blind}
+              max={currPlayer && currPlayer.chips}
+              value={raise}
               onChange={handleSlider}
               className="raise-slider"
             />
@@ -142,6 +146,7 @@ const CardAction = props => {
               className="raise-input"
               onChange={e => setRaise(e.target.value)}
               type="text"
+              value={raise}
             />
           </div>
         </div>
