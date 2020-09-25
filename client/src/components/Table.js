@@ -22,7 +22,6 @@ const Table = props => {
   React.useEffect(() => {
     if (pokerTable) {
       setSeats(Object.keys(pokerTable.playerPositions));
-      console.log(Object.keys(pokerTable.playerPositions));
     }
   }, [pokerTable]);
 
@@ -44,17 +43,19 @@ const Table = props => {
     );
     return seatComponents;
   };
-
-  console.log('curr', currPlayer);
+  console.log('seats', seats);
   return (
     <div>
       <div className="table-container">
-        {seats.map(position => (
-          <Chips
-            value={selectedPlayer && selectedPlayer.playedChips}
-            position={selectedPlayer && selectedPlayer.seated}
-          />
-        ))}
+        {seats.map(position => {
+          if (pokerTable) {
+            const playerId = pokerTable.playerPositions[position];
+            const player = pokerTable.players.find(p => p.id === playerId);
+            return (
+              <Chips value={player.playedChips} position={player.seated} />
+            );
+          }
+        })}
 
         <div className="seat-outer-container">
           <div className="table">

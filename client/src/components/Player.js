@@ -33,9 +33,9 @@ const Player = props => {
       {selectedPlayer && (
         <div className={`seat-inner-container`}>
           <div className={`seat`}>
-            <p className="player-name"> {'lel'} </p>
+            <p className="player-name"> {selectedPlayer.name} </p>
             <div className="player-chips">
-              <p> {'lel'} </p>
+              <p> {selectedPlayer.chips} </p>
             </div>
           </div>
           <div className="card-container">
@@ -51,31 +51,6 @@ const Player = props => {
         </div>
       )}
     </div>
-
-    // <div>
-    //   {selectedPlayer && (
-    //     <div>
-    //       <div className="player-container">
-    //         <div className={`seat seat-${seatNumber}`}>
-    //           <p className="player-name"> {selectedPlayer.name} </p>
-    //           <div className="player-chips">
-    //             <p> {selectedPlayer.chips} </p>
-    //           </div>
-    //           <div className="card-container">
-    //             {selectedPlayer.holeCards.map(card => {
-    //               return <Card card={card} />;
-    //             })}
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   )}
-    //   {currPlayer && !selectedPlayer && currPlayer.seated < 0 && (
-    //     <div className="no-seat" onClick={handleSit}>
-    //       SIT
-    //     </div>
-    //   )}
-    // </div>
   );
 };
 
