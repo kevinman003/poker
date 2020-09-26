@@ -7,7 +7,7 @@ class Deck {
     const suits = ['s', 'c', 'h', 'd'];
     this.deck = [];
     suits.forEach(suit => {
-      for (let i = 2; i <= 15; i++) {
+      for (let i = 2; i <= 14; i++) {
         this.deck.push(new Card(i, suit));
       }
     });

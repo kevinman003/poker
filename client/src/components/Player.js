@@ -51,6 +51,7 @@ const Player = props => {
                   key={`${selectedPlayer.id}-${selectedPlayer.holeCards.indexOf(
                     card
                   )}`}
+                  shown={selectedPlayer.id === currPlayer.id}
                   card={card}
                 />
               );
