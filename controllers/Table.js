@@ -103,9 +103,7 @@ class Table {
     this.nextAction();
     if (this.lastAction === beforeNextAction) {
       this.nextStreet();
-      return true;
     }
-    return false;
   }
 
   nextStreet() {

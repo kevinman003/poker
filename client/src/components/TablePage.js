@@ -71,14 +71,8 @@ const TablePage = props => {
     });
   }, [currPlayer]);
 
-  const start = () => {
-    socket.emit('start', { table });
-  };
-
-  console.log('table: ', pokerTable);
   return (
-    <div className="tablePage">
-      <button onClick={start}> start </button>
+    <div className="table-page">
       <Table />
       <CardAction
         thisTurn={

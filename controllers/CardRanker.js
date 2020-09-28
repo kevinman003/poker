@@ -26,6 +26,7 @@ class CardRanker {
         bestPlayers.push(player);
       }
     });
+    console.log('best:', bestPlayers);
     if (bestPlayers.length === 1) {
       return bestPlayers[0];
     } else {
@@ -119,7 +120,7 @@ class CardRanker {
     this.findGroups(player, groups, sortedCards);
 
     if (straightFlush) {
-      if (player.bestCards[player.bestCards.length - 1] === 15) {
+      if (player.bestCards[player.bestCards.length - 1] === 14) {
         return 'ROYAL_FLUSH';
       }
       return 'STRAIGHT_FLUSH';
@@ -196,7 +197,7 @@ class CardRanker {
       player.bestCards = result;
       return true;
     }
-    if (cards.some(card => card.value === 15) && cards[0].value !== 1) {
+    if (cards.some(card => card.value === 14) && cards[0].value !== 1) {
       let newCards = JSON.parse(JSON.stringify(cards)); // preventing pop affecting var cards
       const ace = newCards.pop();
       newCards = [new Card(1, ace.suit), ...cards];

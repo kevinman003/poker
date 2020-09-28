@@ -21,21 +21,17 @@ const socketConnection = io => {
       io.to(table).emit('updateTable', { currTable });
     });
 
-    // TODO: put some code here in table object
-    socket.on('start', ({ table }) => {
-      const currTable = getTable(table);
-      currTable.start();
-      io.to(table).emit('updateTable', { currTable });
-      io.to(table).emit('dealCards', { currTable });
-    });
-
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {
       const currTable = getTable(table);
       currTable.playerPositions[seatNumber] = currPlayer.id;
       const player = currTable.getPlayer(currPlayer.id);
       player.seated = seatNumber;
 
-      if (currTable.getActivePlayers().length === 2) {
+      const seatedPlayers = currTable.players.filter(
+        player => player.seated >= 0
+      );
+      console.log(currTable.players);
+      if (seatedPlayers.length === 2) {
         currTable.start();
         io.to(table).emit('dealCards', { currTable });
       }
@@ -46,22 +42,9 @@ const socketConnection = io => {
 
     socket.on('checkCall', ({ currPlayer, table }) => {
       const currTable = getTable(table);
-      let isNextStreet;
       if (currPlayer.id === currTable.players[currTable.currAction].id) {
-        isNextStreet = currTable.checkCall(currPlayer.id);
+        currTable.checkCall(currPlayer.id);
         io.to(table).emit('updateTable', { currTable });
-      }
-      const nextPlayer =
-        currTable.currAction + 1 === currTable.players.length
-          ? 0
-          : currTable.currAction + 1;
-      if (isNextStreet) {
-        io.to(table).emit('nextStreet', { currTable });
-      } else if (currPlayer.id === currTable.players[nextPlayer].id) {
-        io.to(table).emit('nextTurn', {
-          id: currTable.players[currTable.currAction].id,
-          currTable,
-        });
       }
     });
 
