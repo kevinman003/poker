@@ -171,7 +171,9 @@ class Table {
 
   findWinner() {
     const ranker = new CardRanker(this.getActivePlayers(), this.cards);
-    return ranker.findWinner();
+    const winner = ranker.findWinner();
+    console.log('winner:', winner);
+    return winner;
   }
 }
 
