@@ -160,15 +160,18 @@ class Table {
     this.winner = player;
     player.chips += this.chips;
     this.deck.reset();
-    this.chips = 0;
-    this.cards = [];
+
     this.players.forEach(player => {
       player.showCards = true;
     });
     this.disabled = true;
+    console.log('won');
   }
 
   resetGame() {
+    console.log('reset');
+    this.chips = 0;
+    this.cards = [];
     this.players.forEach(player => {
       player.showCards = false;
       this.deck.dealPlayerCards(player);
@@ -176,8 +179,8 @@ class Table {
     this.bigBlind =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
     this.winner = null;
-    this.disabled = false;
     this.resetBlinds();
+    this.disabled = false;
   }
 
   findWinner() {

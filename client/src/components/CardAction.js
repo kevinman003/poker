@@ -12,6 +12,8 @@ const CardAction = props => {
     raise: false,
   });
 
+  const [selectedPlayer, setSelectedPlayer] = React.useState();
+
   React.useEffect(() => {
     if (thisTurn) {
       setDisplay({
@@ -34,24 +36,39 @@ const CardAction = props => {
       Object.keys(active).map(key => (result[key] = false));
       setActive(result);
     };
-    if (
-      pokerTable &&
-      pokerTable.players[pokerTable.currAction].id === currPlayer.id
-    ) {
-      const selectedPlayer = pokerTable.players.find(
+    if (pokerTable) {
+      if (
+        pokerTable.players[pokerTable.currAction].id === currPlayer.id &&
+        selectedPlayer
+      ) {
+        const selectedPlayer = pokerTable.players.find(
+          player => player.id === currPlayer.id
+        );
+        if (!pokerTable.winner) {
+          if (
+            (selectedPlayer.premove.check &&
+              !(pokerTable.toCall - selectedPlayer.playedChips)) ||
+            selectedPlayer.premove.raise
+          ) {
+            socket.emit('checkCall', { currPlayer, table });
+          }
+          if (
+            selectedPlayer.premove.fold &&
+            pokerTable.toCall - selectedPlayer.playedChips
+          ) {
+            socket.emit('fold', { currPlayer, table });
+          }
+        }
+
+        socket.emit('stopPremove', { currPlayer, table }, player => {
+          setSelectedPlayer(player);
+        });
+      }
+      const player = pokerTable.players.find(
         player => player.id === currPlayer.id
       );
-      if (
-        (active.check && !(pokerTable.toCall - selectedPlayer.playedChips)) ||
-        active.raise
-      ) {
-        socket.emit('checkCall', { currPlayer, table });
-      }
-      if (active.fold && pokerTable.toCall - selectedPlayer.playedChips) {
-        socket.emit('fold', { currPlayer, table });
-      }
+      setSelectedPlayer(player);
     }
-    deactivate();
   }, [pokerTable]);
 
   const handleCheckCall = e => {
@@ -59,11 +76,12 @@ const CardAction = props => {
       if (thisTurn) {
         socket.emit('checkCall', { currPlayer, table });
       } else {
-        const result = { check: !active.check };
-        Object.keys(active).map(key => {
-          if (key !== 'check') result[key] = false;
-        });
-        setActive(result);
+        socket.emit('premove', { currPlayer, table, move: 'check' });
+        // const result = { check: !active.check };
+        // Object.keys(active).map(key => {
+        //   if (key !== 'check') result[key] = false;
+        // });
+        // setActive(result);
       }
     }
   };
@@ -107,18 +125,12 @@ const CardAction = props => {
   };
 
   const handleTextRaise = e => {
-    const selectedPlayer =
-      pokerTable &&
-      pokerTable.players.find(player => player.id === currPlayer.id);
     const maxChips = selectedPlayer.chips + selectedPlayer.playedChips;
     const raiseAmount = e.target.value > maxChips ? maxChips : e.target.value;
     setRaise(raiseAmount);
   };
 
   const maxRange = () => {
-    const selectedPlayer =
-      pokerTable &&
-      pokerTable.players.find(player => player.id === currPlayer.id);
     const maxChips = selectedPlayer && selectedPlayer.chips;
     return maxChips;
   };
@@ -130,7 +142,9 @@ const CardAction = props => {
       <div className="card-actions">
         <div
           className={`action-button ${
-            active.fold ? 'action-button-active' : ''
+            selectedPlayer && selectedPlayer.premove.fold
+              ? 'action-button-active'
+              : ''
           }`}
           id="fold"
           onClick={handleFold}
@@ -139,7 +153,9 @@ const CardAction = props => {
         </div>
         <div
           className={`action-button ${
-            active.check ? 'action-button-active' : ''
+            selectedPlayer && selectedPlayer.premove.check
+              ? 'action-button-active'
+              : ''
           }`}
           id="checkCall"
           onClick={handleCheckCall}
@@ -150,7 +166,9 @@ const CardAction = props => {
         <div className="raise-container">
           <div
             className={`action-button ${
-              active.raise ? 'action-button-active' : ''
+              selectedPlayer && selectedPlayer.premove.raise
+                ? 'action-button-active'
+                : ''
             }`}
             id="raise"
             onClick={e => handleRaise(e, raise)}

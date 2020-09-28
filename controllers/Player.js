@@ -14,6 +14,11 @@ class Player {
     this.bestCards = [];
     this.seated = -1;
     this.showCards = false;
+    this.premove = {
+      check: false,
+      fold: false,
+      raise: false,
+    };
   }
 
   addCards(cards) {
