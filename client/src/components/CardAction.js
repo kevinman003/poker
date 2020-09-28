@@ -55,42 +55,48 @@ const CardAction = props => {
   }, [pokerTable]);
 
   const handleCheckCall = e => {
-    if (thisTurn) {
-      socket.emit('checkCall', { currPlayer, table });
-    } else {
-      const result = { check: !active.check };
-      Object.keys(active).map(key => {
-        if (key !== 'check') result[key] = false;
-      });
-      setActive(result);
+    if (pokerTable && !pokerTable.disabled) {
+      if (thisTurn) {
+        socket.emit('checkCall', { currPlayer, table });
+      } else {
+        const result = { check: !active.check };
+        Object.keys(active).map(key => {
+          if (key !== 'check') result[key] = false;
+        });
+        setActive(result);
+      }
     }
   };
 
   const handleFold = e => {
-    if (thisTurn) {
-      socket.emit('fold', { currPlayer, table });
-    } else {
-      const result = { fold: !active.fold };
-      Object.keys(active).map(key => {
-        if (key !== 'fold') result[key] = false;
-      });
-      setActive(result);
+    if (pokerTable && !pokerTable.disabled) {
+      if (thisTurn) {
+        socket.emit('fold', { currPlayer, table });
+      } else {
+        const result = { fold: !active.fold };
+        Object.keys(active).map(key => {
+          if (key !== 'fold') result[key] = false;
+        });
+        setActive(result);
+      }
     }
   };
 
   const handleRaise = (e, raise) => {
-    if (thisTurn) {
-      socket.emit('raise', {
-        currPlayer,
-        table,
-        raise,
-      });
-    } else {
-      const result = { raise: !active.raise };
-      Object.keys(active).map(key => {
-        if (key !== 'raise') result[key] = false;
-      });
-      setActive(result);
+    if (pokerTable && !pokerTable.disabled) {
+      if (thisTurn) {
+        socket.emit('raise', {
+          currPlayer,
+          table,
+          raise,
+        });
+      } else {
+        const result = { raise: !active.raise };
+        Object.keys(active).map(key => {
+          if (key !== 'raise') result[key] = false;
+        });
+        setActive(result);
+      }
     }
   };
 

@@ -22,6 +22,7 @@ class Table {
     this.blind = 10;
     this.playerPositions = {};
     this.isStarted = false;
+    this.disabled = false;
   }
 
   getPlayers() {
@@ -164,7 +165,7 @@ class Table {
     this.players.forEach(player => {
       player.showCards = true;
     });
-    // this.resetGame();
+    this.disabled = true;
   }
 
   resetGame() {
@@ -175,6 +176,7 @@ class Table {
     this.bigBlind =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
     this.winner = null;
+    this.disabled = false;
     this.resetBlinds();
   }
 
