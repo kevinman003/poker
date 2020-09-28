@@ -75,31 +75,18 @@ const TablePage = props => {
     socket.emit('start', { table });
   };
 
+  console.log('table: ', pokerTable);
   return (
     <div className="tablePage">
       <button onClick={start}> start </button>
-      {/* POT: {pokerTable && pokerTable.chips}
-      <div className="cards">
-        {pokerTable &&
-          pokerTable.cards.map(card => {
-            return (
-              <p>
-                {card.value} {card.suit}{' '}
-              </p>
-            );
-          })}
-      </div>
-      WINNER:{' '}
-      {pokerTable &&
-        pokerTable.winner &&
-        `${pokerTable.winner.name} WITH ${pokerTable.winner.cardRank}`} */}
       <Table />
       <CardAction
-        enabled={
+        thisTurn={
           pokerTable &&
           currPlayer &&
           pokerTable.players[pokerTable.currAction].id === currPlayer.id
         }
+        enabled={pokerTable && pokerTable.isStarted}
         table={table}
       />
     </div>

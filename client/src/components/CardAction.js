@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { useStateWithCallbackLazy } from 'use-state-with-callback';
 
 const CardAction = props => {
-  const { enabled, socket, currPlayer, table, pokerTable } = props;
+  const { enabled, thisTurn, socket, currPlayer, table, pokerTable } = props;
   const [raise, setRaise] = React.useState(0);
   const [display, setDisplay] = React.useState({});
   const [active, setActive] = useStateWithCallbackLazy({
@@ -13,7 +13,7 @@ const CardAction = props => {
   });
 
   React.useEffect(() => {
-    if (enabled) {
+    if (thisTurn) {
       setDisplay({
         check: 'check',
         fold: 'fold',
@@ -26,7 +26,7 @@ const CardAction = props => {
         raise: 'check any',
       });
     }
-  }, [enabled]);
+  }, [thisTurn]);
 
   React.useEffect(() => {
     const deactivate = () => {
@@ -55,7 +55,7 @@ const CardAction = props => {
   }, [pokerTable]);
 
   const handleCheckCall = e => {
-    if (enabled) {
+    if (thisTurn) {
       console.log('checked');
       socket.emit('checkCall', { currPlayer, table });
     } else {
@@ -68,7 +68,7 @@ const CardAction = props => {
   };
 
   const handleFold = e => {
-    if (enabled) {
+    if (thisTurn) {
       socket.emit('fold', { currPlayer, table });
     } else {
       const result = { fold: !active.fold };
@@ -80,7 +80,7 @@ const CardAction = props => {
   };
 
   const handleRaise = (e, raise) => {
-    if (enabled) {
+    if (thisTurn) {
       socket.emit('raise', {
         currPlayer,
         table,
@@ -120,7 +120,8 @@ const CardAction = props => {
 
   return (
     currPlayer &&
-    currPlayer.seated >= 0 && (
+    currPlayer.seated >= 0 &&
+    enabled && (
       <div className="card-actions">
         <div
           className={`action-button ${

@@ -17,10 +17,6 @@ const socketConnection = io => {
       } else {
         callback(players.find(player => player.id === id));
       }
-      // const newPlayers = currTable.getPlayers();
-      // io.to(table).emit('updatePlayer', { newPlayers });
-      // socket.emit('updatePlayer', { newPlayers });
-      // callback(newPlayers);
       socket.join(table);
       io.to(table).emit('updateTable', { currTable });
     });
@@ -38,6 +34,12 @@ const socketConnection = io => {
       currTable.playerPositions[seatNumber] = currPlayer.id;
       const player = currTable.getPlayer(currPlayer.id);
       player.seated = seatNumber;
+
+      if (currTable.getActivePlayers().length === 2) {
+        currTable.start();
+        io.to(table).emit('dealCards', { currTable });
+      }
+
       io.to(table).emit('updateTable', { currTable });
       io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
     });
@@ -67,7 +69,6 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.raise(currPlayer.id, parseInt(raise));
       io.to(table).emit('updateTable', { currTable });
-      console.log('curr:', currTable);
       io.to(table).emit('nextTurn', {
         id: currTable.players[currTable.currAction].id,
         currTable,

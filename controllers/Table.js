@@ -21,6 +21,7 @@ class Table {
     this.winner = null;
     this.blind = 10;
     this.playerPositions = {};
+    this.isStarted = false;
   }
 
   getPlayers() {
@@ -62,6 +63,7 @@ class Table {
   }
 
   start() {
+    this.isStarted = true;
     this.players.forEach(player => {
       this.dealPlayerCards(player);
     });
