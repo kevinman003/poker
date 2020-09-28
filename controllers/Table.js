@@ -162,18 +162,25 @@ class Table {
     this.chips = 0;
     this.cards = [];
     this.players.forEach(player => {
+      player.showCards = true;
+    });
+    // this.resetGame();
+  }
+
+  resetGame() {
+    this.players.forEach(player => {
+      player.showCards = false;
       this.deck.dealPlayerCards(player);
     });
     this.bigBlind =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
+    this.winner = null;
     this.resetBlinds();
   }
 
   findWinner() {
     const ranker = new CardRanker(this.getActivePlayers(), this.cards);
-    const winner = ranker.findWinner();
-    console.log('winner:', winner);
-    return winner;
+    return ranker.findWinner();
   }
 }
 

@@ -30,7 +30,6 @@ const socketConnection = io => {
       const seatedPlayers = currTable.players.filter(
         player => player.seated >= 0
       );
-      console.log(currTable.players);
       if (seatedPlayers.length === 2) {
         currTable.start();
         io.to(table).emit('dealCards', { currTable });
@@ -42,10 +41,18 @@ const socketConnection = io => {
 
     socket.on('checkCall', ({ currPlayer, table }) => {
       const currTable = getTable(table);
-      if (currPlayer.id === currTable.players[currTable.currAction].id) {
-        currTable.checkCall(currPlayer.id);
-        io.to(table).emit('updateTable', { currTable });
+      currTable.checkCall(currPlayer.id);
+      io.to(table).emit('updateTable', { currTable });
+      console.log(currPlayer.id, 'checkcall');
+      if (currTable.winner) {
+        setTimeout(() => {
+          currTable.resetGame();
+          io.to(table).emit('updateTable', { currTable });
+        }, 2000);
       }
+      // } else {
+      //   io.to(table).emit('updateTable', { currTable });
+      // }
     });
 
     socket.on('raise', ({ currPlayer, table, raise }) => {

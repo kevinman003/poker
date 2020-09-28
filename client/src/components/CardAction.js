@@ -56,7 +56,6 @@ const CardAction = props => {
 
   const handleCheckCall = e => {
     if (thisTurn) {
-      console.log('checked');
       socket.emit('checkCall', { currPlayer, table });
     } else {
       const result = { check: !active.check };

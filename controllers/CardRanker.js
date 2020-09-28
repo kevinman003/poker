@@ -26,7 +26,6 @@ class CardRanker {
         bestPlayers.push(player);
       }
     });
-    console.log('best:', bestPlayers);
     if (bestPlayers.length === 1) {
       return bestPlayers[0];
     } else {
