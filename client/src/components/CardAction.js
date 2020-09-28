@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { useStateWithCallbackLazy } from 'use-state-with-callback';
 
 const CardAction = props => {
   const { enabled, socket, currPlayer, table, pokerTable } = props;
   const [raise, setRaise] = React.useState(0);
   const [display, setDisplay] = React.useState({});
-  const [active, setActive] = React.useState({
+  const [active, setActive] = useStateWithCallbackLazy({
     check: false,
     fold: false,
     raise: false,
@@ -28,35 +29,34 @@ const CardAction = props => {
   }, [enabled]);
 
   React.useEffect(() => {
-    const activeButtons = (currTable, selectedPlayer) => {
-      if (
-        (active.check && !(currTable.toCall - selectedPlayer.playedChips)) ||
-        active.raise
-      ) {
-        socket.emit('checkCall', { currPlayer, table });
-      }
-      if (active.fold && !(currTable.toCall - selectedPlayer.playedChips)) {
-        socket.emit('fold', { currPlayer, table });
-      }
+    const deactivate = () => {
       const result = {};
       Object.keys(active).map(key => (result[key] = false));
       setActive(result);
     };
-
-    socket &&
-      socket.on('nextTurn', ({ id, currTable }) => {
-        if (currPlayer.id === id) {
-          console.log('curr:', currTable);
-          const selectedPlayer = currTable.players.find(
-            player => player.id === currPlayer.id
-          );
-          activeButtons(currTable, selectedPlayer);
-        }
-      });
-  }, [active]);
+    if (
+      pokerTable &&
+      pokerTable.players[pokerTable.currAction].id === currPlayer.id
+    ) {
+      const selectedPlayer = pokerTable.players.find(
+        player => player.id === currPlayer.id
+      );
+      if (
+        (active.check && !(pokerTable.toCall - selectedPlayer.playedChips)) ||
+        active.raise
+      ) {
+        socket.emit('checkCall', { currPlayer, table });
+      }
+      if (active.fold && pokerTable.toCall - selectedPlayer.playedChips) {
+        socket.emit('fold', { currPlayer, table });
+      }
+    }
+    deactivate();
+  }, [pokerTable]);
 
   const handleCheckCall = e => {
     if (enabled) {
+      console.log('checked');
       socket.emit('checkCall', { currPlayer, table });
     } else {
       const result = { check: !active.check };

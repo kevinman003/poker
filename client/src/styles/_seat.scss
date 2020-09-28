@@ -94,7 +94,7 @@
 .no-seat {
   display: flex;
   flex-direction: column;
-  background-color: rgb(24, 228, 116);
+  background-color: $active;
   align-items: center;
   justify-content: center;
   height: 4.5em;

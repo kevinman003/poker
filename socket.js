@@ -44,12 +44,23 @@ const socketConnection = io => {
 
     socket.on('checkCall', ({ currPlayer, table }) => {
       const currTable = getTable(table);
-      currTable.checkCall(currPlayer.id);
-      io.to(table).emit('updateTable', { currTable });
-      io.to(table).emit('nextTurn', {
-        id: currTable.players[currTable.currAction].id,
-        currTable,
-      });
+      let isNextStreet;
+      if (currPlayer.id === currTable.players[currTable.currAction].id) {
+        isNextStreet = currTable.checkCall(currPlayer.id);
+        io.to(table).emit('updateTable', { currTable });
+      }
+      const nextPlayer =
+        currTable.currAction + 1 === currTable.players.length
+          ? 0
+          : currTable.currAction + 1;
+      if (isNextStreet) {
+        io.to(table).emit('nextStreet', { currTable });
+      } else if (currPlayer.id === currTable.players[nextPlayer].id) {
+        io.to(table).emit('nextTurn', {
+          id: currTable.players[currTable.currAction].id,
+          currTable,
+        });
+      }
     });
 
     socket.on('raise', ({ currPlayer, table, raise }) => {

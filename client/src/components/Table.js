@@ -27,6 +27,18 @@ const Table = props => {
     }
   }, [pokerTable]);
 
+  const findWinner = () => {
+    let result;
+    if (pokerTable && pokerTable.winner) {
+      const name = pokerTable.winner.name;
+      if (name.length > 20) {
+        result = name.substring(0, 21) + '...';
+      } else result = name;
+      result += `with a ${pokerTable.winner.cardRank}`;
+    }
+    return result;
+  };
+
   const createSeats = seats => {
     const seatComponents = [];
     for (var i = 0; i < 8 / 2; i++) {
@@ -59,9 +71,13 @@ const Table = props => {
         <div className="seat-outer-container">
           <div className="table">
             <div className="table-middle">
-              <div className="pot-container">
-                <Chips value={pokerTable && pokerTable.chips} />
+              <div className="winner-container">
+                {findWinner()}
+                <div className="pot-container">
+                  <Chips value={pokerTable && pokerTable.chips} />
+                </div>
               </div>
+
               <CommunityCards />
             </div>
           </div>
