@@ -1,0 +1,37 @@
+.lobby-background {
+  background-color: rgba(0, 0, 0, 0.7);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 100;
+}
+
+.lobby-modal {
+  height: 60%;
+  width: 500px;
+  top: 20%;
+  left: calc(50% - 250px);
+  background-color: #fff;
+  position: absolute;
+  z-index: 101;
+}
+
+.lobby-title {
+  background-color: $dark-blue;
+  height: 50px;
+  line-height: 50px;
+  padding-left: 15px;
+  color: #fff;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.lobby-info {
+  padding: 25px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.lobby-item {
+  border-bottom: 1px solid #000;
+}
