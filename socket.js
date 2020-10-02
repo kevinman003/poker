@@ -1,4 +1,8 @@
-const { addTable, getTable } = require('./controllers/TableRooms');
+const {
+  addTable,
+  getTable,
+  getAllTables,
+} = require('./controllers/TableRooms');
 const Player = require('./controllers/Player');
 const { STREETS } = require('./controllers/constants');
 
@@ -9,15 +13,20 @@ const socketConnection = io => {
       if (!getTable(table)) addTable(table);
       const currTable = getTable(table);
       const players = currTable.getPlayers();
+      const tables = getAllTables();
 
       if (!players.some(player => player.id === id)) {
         const currPlayer = new Player(`player-${id}`, id);
         currTable.addPlayer(currPlayer);
-        callback(currPlayer);
+        callback(currPlayer, tables);
       } else {
-        callback(players.find(player => player.id === id));
+        callback(
+          players.find(player => player.id === id),
+          tables
+        );
       }
       socket.join(table);
+      console.log('join');
       io.to(table).emit('updateTable', { currTable });
     });
 

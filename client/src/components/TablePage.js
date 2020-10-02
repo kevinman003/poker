@@ -13,7 +13,9 @@ import queryString from 'query-string';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
+import Lobby from './Lobby';
 import CardAction from './CardAction';
+import Nav from './Nav';
 import Table from './Table';
 let socket;
 
@@ -31,6 +33,8 @@ const TablePage = props => {
   } = props;
   const ENDPOINT = 'localhost:5000';
   const { table } = queryString.parse(location.search);
+  const [modal, setModal] = React.useState(false);
+  const [allTables, setAllTables] = React.useState();
 
   React.useEffect(() => {
     let id;
@@ -41,7 +45,10 @@ const TablePage = props => {
     }
     socket = io(ENDPOINT);
     addSocket(socket);
-    socket.emit('join', { table, id }, player => setCurrPlayer(player));
+    socket.emit('join', { table, id }, (player, tables) => {
+      setCurrPlayer(player);
+      setAllTables(tables);
+    });
 
     return () => {
       // TODO: implement functional disconnect
@@ -52,6 +59,7 @@ const TablePage = props => {
 
   React.useEffect(() => {
     socket.on('updateTable', ({ currTable }) => {
+      console.log('curr:', currTable);
       updatePokerTable(currTable);
     });
   }, [pokerTable]);
@@ -71,8 +79,14 @@ const TablePage = props => {
     });
   }, [currPlayer]);
 
+  const toggleModal = () => {
+    setModal(!modal);
+  };
+
   return (
     <div className="table-page">
+      <Lobby tables={allTables} shown={modal} toggleModal={toggleModal} />
+      <Nav toggleModal={toggleModal} />
       <Table />
       <CardAction
         thisTurn={

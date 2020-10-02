@@ -10,7 +10,12 @@ const getTable = id => {
   return tables[id];
 };
 
-module.exports = { 
-  addTable, 
-  getTable 
-}
+const getAllTables = () => {
+  return tables;
+};
+
+module.exports = {
+  addTable,
+  getTable,
+  getAllTables,
+};
