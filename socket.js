@@ -1,4 +1,8 @@
-const { addTable, getTable } = require('./controllers/TableRooms');
+const {
+  addTable,
+  getTable,
+  getAllTables,
+} = require('./controllers/TableRooms');
 const Player = require('./controllers/Player');
 const { STREETS } = require('./controllers/constants');
 
@@ -19,6 +23,11 @@ const socketConnection = io => {
       }
       socket.join(table);
       io.to(table).emit('updateTable', { currTable });
+    });
+
+    socket.on('getTables', ({}, callback) => {
+      console.log('get tables');
+      callback(getAllTables());
     });
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {

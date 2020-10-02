@@ -33,7 +33,7 @@ const TablePage = props => {
   } = props;
   const ENDPOINT = 'localhost:5000';
   const { table } = queryString.parse(location.search);
-  const [toggleLobby, setToggleLobby] = React.useState();
+  const [toggleLobby, setToggleLobby] = React.useState(false);
 
   React.useEffect(() => {
     let id;
@@ -80,8 +80,8 @@ const TablePage = props => {
 
   return (
     <div className="table-page">
-      <Lobby handleToggle={hanldeToggle} shown={toggleLobby} />
-      <Nav handleToggle={hanldeToggle} />
+      <Lobby handleToggle={handleToggle} shown={toggleLobby} />
+      <Nav handleToggle={handleToggle} />
       <Table />
       <CardAction
         thisTurn={
