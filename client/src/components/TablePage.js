@@ -13,6 +13,8 @@ import queryString from 'query-string';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
+import Nav from './Nav';
+import Lobby from './Lobby';
 import CardAction from './CardAction';
 import Table from './Table';
 let socket;
@@ -31,6 +33,7 @@ const TablePage = props => {
   } = props;
   const ENDPOINT = 'localhost:5000';
   const { table } = queryString.parse(location.search);
+  const [toggleLobby, setToggleLobby] = React.useState();
 
   React.useEffect(() => {
     let id;
@@ -71,8 +74,14 @@ const TablePage = props => {
     });
   }, [currPlayer]);
 
+  const handleToggle = () => {
+    setToggleLobby(!toggleLobby);
+  };
+
   return (
     <div className="table-page">
+      <Lobby handleToggle={hanldeToggle} shown={toggleLobby} />
+      <Nav handleToggle={hanldeToggle} />
       <Table />
       <CardAction
         thisTurn={

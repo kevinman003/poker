@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Lobby = props => {
-  const { shown, toggleModal, tables } = props;
+  const { shown, handleToggle, tables } = props;
 
   return (
     shown && (
