@@ -8,21 +8,22 @@ const router = require('./routes');
 // const TableRooms = require('./controllers/TableRooms');
 
 const app = express();
+
+// Middleware
+app.use(cors());
+
+app.use(router);
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(bodyParser.json());
+
 const server = http.createServer(app);
 const io = socketio(server);
 
 const socketConnection = require('./socket');
 
 socketConnection(io);
-
-// Middleware
-app.use(router);
-
-app.use(cors());
-
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(bodyParser.json());
 
 // Starting server
 const PORT = process.env.PORT || 5000;

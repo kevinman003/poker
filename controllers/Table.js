@@ -36,7 +36,7 @@ class Table {
 
         res.on('end', () => {
           const result = JSON.parse(data);
-          this.name = result[0].replace('_', '');
+          this.name = result[0].split('_').join('');
         });
       }
     );

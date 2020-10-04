@@ -1,10 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-const Lobby = props => {
-  const { shown, handleToggle, socket } = props;
-  const [tables, setTables] = React.useState();
+import CreateTable from './CreateTable';
 
+const Lobby = props => {
+  const { shown, handleToggle, handleTableToggle, socket } = props;
+  const [tables, setTables] = React.useState();
+  const [createShown, setCreateShown] = React.useState(false);
   React.useEffect(() => {
     socket &&
       socket.emit('getTables', {}, tables => {
@@ -12,42 +14,50 @@ const Lobby = props => {
       });
   }, [shown]);
 
-  return shown ? (
-    <div className="lobby">
-      <div className="lobby-background" onClick={handleToggle}></div>
-      <div className="lobby-modal">
-        <div className="lobby-title">
-          Lobby
-          <div className="lobby-close" onClick={handleToggle}>
-            x
+  return (
+    <div>
+      {shown ? (
+        <div className="lobby">
+          <div className="modal-background" onClick={handleToggle}></div>
+          <div className="modal-content">
+            <div className="modal-title">
+              Lobby
+              <div className="lobby-close" onClick={handleToggle}>
+                x
+              </div>
+            </div>
+
+            <div className="lobby-info">
+              <div className="lobby-name"> Name </div>
+              <span className="lobby-players"> Players </span>
+              {tables &&
+                Object.keys(tables).map(table => {
+                  return [
+                    <div className="lobby-item" id={tables[table].name}>
+                      {tables[table].name}
+                    </div>,
+                    <div
+                      className="lobby-item"
+                      id={`${tables[table].name}-players`}
+                    >
+                      {
+                        tables[table].players.filter(
+                          player => player.seated >= 0
+                        ).length
+                      }
+                      /9
+                    </div>,
+                  ];
+                })}
+            </div>
+            <div onClick={handleTableToggle} className="create-table">
+              + Create Table
+            </div>
           </div>
         </div>
-
-        <div className="lobby-info">
-          <div className="lobby-name"> Name </div>
-          <span className="lobby-players"> Players </span>
-          {tables &&
-            Object.keys(tables).map(table => {
-              return [
-                <div className="lobby-item" id={tables[table].name}>
-                  {tables[table].name}
-                </div>,
-                <div
-                  className="lobby-item"
-                  id={`${tables[table].name}-players`}
-                >
-                  {
-                    tables[table].players.filter(player => player.seated >= 0)
-                      .length
-                  }
-                  /9
-                </div>,
-              ];
-            })}
-        </div>
-      </div>
+      ) : null}
     </div>
-  ) : null;
+  );
 };
 
 const mapStateToProps = state => {

@@ -15,6 +15,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import Nav from './Nav';
 import Lobby from './Lobby';
+import CreateTable from './CreateTable';
+
 import CardAction from './CardAction';
 import Table from './Table';
 let socket;
@@ -30,10 +32,12 @@ const TablePage = props => {
     addHoleCards,
     sitPlayer,
     location,
+    history,
   } = props;
   const ENDPOINT = 'localhost:5000';
   const { table } = queryString.parse(location.search);
   const [toggleLobby, setToggleLobby] = React.useState(false);
+  const [toggleTable, setToggleTable] = React.useState(false);
 
   const makeid = length => {
     var result = '';
@@ -55,24 +59,20 @@ const TablePage = props => {
     }
     socket = io(ENDPOINT);
     addSocket(socket);
-    let redirect;
-    socket.emit('getTables', {}, tables => {
-      if (table) {
-        socket.emit('join', { table, id }, player => setCurrPlayer(player));
-      } else {
+    socket.emit('join', { table, id }, player => setCurrPlayer(player));
+    if (!table) {
+      socket.emit('getTables', {}, tables => {
         if (Object.keys(tables).length > 0) {
-          console.log('ength:', Object.keys(tables).length);
           const joinTableIdx = Math.floor(
             Math.random() * Object.keys(tables).length
           );
-          console.log('all:', tables);
-          console.log('selected:', tables[Object.keys(tables)[joinTableIdx]]);
-          redirect = tables[Object.keys(tables)[joinTableIdx]].id;
+          const redirect = tables[Object.keys(tables)[joinTableIdx]].id;
+          history.push(`/?table=${redirect}`);
         } else {
-          props.history.push(`/?table=${makeid(4)}`);
+          history.push(`/?table=${makeid(4)}`);
         }
-      }
-    });
+      });
+    }
 
     return () => {
       // TODO: implement functional disconnect
@@ -106,9 +106,19 @@ const TablePage = props => {
     setToggleLobby(!toggleLobby);
   };
 
+  const handleTableToggle = () => {
+    setToggleLobby(!toggleLobby);
+    setToggleTable(!toggleTable);
+  };
+
   return (
     <div className="table-page">
-      <Lobby handleToggle={handleToggle} shown={toggleLobby} />
+      <Lobby
+        handleToggle={handleToggle}
+        handleTableToggle={handleTableToggle}
+        shown={toggleLobby}
+      />
+      <CreateTable handleTableToggle={handleTableToggle} shown={toggleTable} />
       <Nav handleToggle={handleToggle} />
       <Table />
       <CardAction
