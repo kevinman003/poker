@@ -35,6 +35,17 @@ const TablePage = props => {
   const { table } = queryString.parse(location.search);
   const [toggleLobby, setToggleLobby] = React.useState(false);
 
+  const makeid = length => {
+    var result = '';
+    var characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
+
   React.useEffect(() => {
     let id;
     if (localStorage.id) id = localStorage.id;
@@ -44,7 +55,24 @@ const TablePage = props => {
     }
     socket = io(ENDPOINT);
     addSocket(socket);
-    socket.emit('join', { table, id }, player => setCurrPlayer(player));
+    let redirect;
+    socket.emit('getTables', {}, tables => {
+      if (table) {
+        socket.emit('join', { table, id }, player => setCurrPlayer(player));
+      } else {
+        if (Object.keys(tables).length > 0) {
+          console.log('ength:', Object.keys(tables).length);
+          const joinTableIdx = Math.floor(
+            Math.random() * Object.keys(tables).length
+          );
+          console.log('all:', tables);
+          console.log('selected:', tables[Object.keys(tables)[joinTableIdx]]);
+          redirect = tables[Object.keys(tables)[joinTableIdx]].id;
+        } else {
+          props.history.push(`/?table=${makeid(4)}`);
+        }
+      }
+    });
 
     return () => {
       // TODO: implement functional disconnect

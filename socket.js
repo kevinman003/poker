@@ -26,7 +26,6 @@ const socketConnection = io => {
     });
 
     socket.on('getTables', ({}, callback) => {
-      console.log('get tables');
       callback(getAllTables());
     });
 
