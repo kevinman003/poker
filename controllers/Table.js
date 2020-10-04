@@ -1,3 +1,4 @@
+const http = require('http');
 const CardRanker = require('./CardRanker');
 const Deck = require('./Deck');
 const { STREETS } = require('./constants');
@@ -23,6 +24,22 @@ class Table {
     this.playerPositions = {};
     this.isStarted = false;
     this.disabled = false;
+    this.name;
+    http.get(
+      'http://names.drycodes.com/1?nameOptions=objects&combine=%202',
+      res => {
+        let data = '';
+
+        res.on('data', chunk => {
+          data += chunk;
+        });
+
+        res.on('end', () => {
+          const result = JSON.parse(data);
+          this.name = result[0].replace('_', '');
+        });
+      }
+    );
   }
 
   getPlayers() {
