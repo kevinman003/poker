@@ -2,12 +2,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import Card from './Card';
+import Timer from './Timer';
 
 const Player = props => {
   const { seatNumber, currPlayer, socket, pokerTable } = props;
   const [selectedPlayer, setSelectedPlayer] = React.useState(null);
   const [enabled, setEnabled] = React.useState(false);
 
+  // Display player on seat if it is taken
   React.useEffect(() => {
     if (pokerTable) {
       const selected = pokerTable && pokerTable.playerPositions[seatNumber];
@@ -16,12 +18,15 @@ const Player = props => {
         const seatedPlayer = pokerTable.players.find(
           player => player.id === selected
         );
+
         setSelectedPlayer(seatedPlayer);
         setEnabled(
           pokerTable &&
             currPlayer &&
             pokerTable.players[pokerTable.currAction].id === seatedPlayer.id
         );
+      } else {
+        setSelectedPlayer(null);
       }
     }
   }, [pokerTable]);
@@ -38,6 +43,7 @@ const Player = props => {
     <div>
       {selectedPlayer && (
         <div className={`seat-inner-container`}>
+          {enabled && <Timer selectedPlayer={selectedPlayer} />}
           <div className={`seat ${enabled ? 'player-active' : ''}`}>
             <p className="player-name"> {selectedPlayer.name} </p>
             <div className="player-chips">

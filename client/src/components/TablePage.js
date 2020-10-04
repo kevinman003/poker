@@ -109,11 +109,7 @@ const TablePage = props => {
         handleTableToggle={handleTableToggle}
         shown={toggleLobby}
       />
-      <CreateTable
-        handleToggle={handleToggle}
-        handleTableToggle={handleTableToggle}
-        shown={toggleTable}
-      />
+      <CreateTable handleTableToggle={handleTableToggle} shown={toggleTable} />
       <Nav handleToggle={handleToggle} />
       <Table />
       <CardAction

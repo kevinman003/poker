@@ -1,12 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
-
-import CreateTable from './CreateTable';
+import queryString from 'query-string';
+import { withRouter } from 'react-router-dom';
 
 const Lobby = props => {
-  const { shown, handleToggle, handleTableToggle, socket } = props;
+  const {
+    currPlayer,
+    shown,
+    handleToggle,
+    handleTableToggle,
+    socket,
+    location,
+    history,
+  } = props;
   const [tables, setTables] = React.useState();
-  const [createShown, setCreateShown] = React.useState(false);
+  const { table } = queryString.parse(location.search);
+
   React.useEffect(() => {
     socket &&
       socket.emit('getTables', {}, tables => {
@@ -17,6 +26,16 @@ const Lobby = props => {
   const handleCreateTable = () => {
     handleToggle();
     handleTableToggle();
+  };
+
+  const handleLobby = e => {
+    socket.emit('joinTable', {
+      table: e.target.id,
+      leaveTable: table,
+      currPlayer,
+    });
+    history.push(`/?table=${table}`);
+    handleToggle();
   };
 
   return (
@@ -38,12 +57,19 @@ const Lobby = props => {
               {tables &&
                 Object.keys(tables).map(table => {
                   return [
-                    <div className="lobby-item" id={tables[table].name}>
+                    <div
+                      className="lobby-item"
+                      id={tables[table].id}
+                      onClick={handleLobby}
+                      key={tables[table].name}
+                    >
                       {tables[table].name}
                     </div>,
                     <div
+                      onClick={handleLobby}
+                      id={tables[table].id}
                       className="lobby-item"
-                      id={`${tables[table].name}-players`}
+                      key={`${tables[table].name}-players`}
                     >
                       {
                         tables[table].players.filter(
@@ -68,7 +94,8 @@ const Lobby = props => {
 const mapStateToProps = state => {
   return {
     socket: state.socket,
+    currPlayer: state.currPlayer,
   };
 };
 
-export default connect(mapStateToProps, null)(Lobby);
+export default connect(mapStateToProps, null)(withRouter(Lobby));

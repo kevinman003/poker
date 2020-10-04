@@ -24,6 +24,7 @@ class Table {
     this.playerPositions = {};
     this.isStarted = false;
     this.disabled = false;
+    this.time = 1;
     this.name;
     if (name) {
       this.name = name;
@@ -40,7 +41,7 @@ class Table {
 
             res.on('end', () => {
               const result = JSON.parse(data);
-              this.name = result[0].split('_').join('');
+              this.name = result[0].replace('Hnad', 'Hand').split('_').join('');
               resolve(this);
             });
 

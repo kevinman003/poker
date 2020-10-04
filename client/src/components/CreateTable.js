@@ -2,14 +2,16 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { makeid } from '../utils/utils';
+import queryString from 'query-string';
 
 const CreateTable = props => {
-  const { shown, handleToggle, handleTableToggle, history, socket } = props;
+  const { shown, handleTableToggle, location, history, socket } = props;
   const [tableName, setTableName] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [passwordShown, setPasswordShown] = React.useState(false);
   const [errors, setErrors] = React.useState([]);
   const handlePasswordShown = () => setPasswordShown(!passwordShown);
+  const { table: leaveTable } = queryString.parse(location.search);
 
   React.useEffect(() => {
     setErrors([]);
@@ -27,7 +29,7 @@ const CreateTable = props => {
     setErrors(createErrors);
     if (!createErrors.length) {
       const table = makeid(4);
-      socket.emit('addTable', { table, name: tableName }, () => {
+      socket.emit('addTable', { table, leaveTable, name: tableName }, () => {
         history.push(`/?table=${table}`);
         handleTableToggle();
       });

@@ -27,11 +27,12 @@ const socketConnection = io => {
       io.to(table).emit('updateTable', { currTable });
     });
 
-    socket.on('joinTable', ({ table, currPlayer }, callback) => {
+    socket.on('joinTable', ({ table, leaveTable, currPlayer }) => {
       const currTable = getTable(table);
       currTable.addPlayer(currPlayer);
+      socket.leave(leaveTable);
       socket.join(table);
-      callback(currTable);
+      io.to(table).emit('updateTable', { currTable });
     });
 
     socket.on('disconnect', ({ table, id }) => {
@@ -48,7 +49,9 @@ const socketConnection = io => {
       callback(getAllTables());
     });
 
-    socket.on('addTable', ({ table, name }, callback) => {
+    socket.on('addTable', ({ table, leaveTable, name }, callback) => {
+      socket.leave(leaveTable);
+      socket.join(table);
       addTable(table, name);
       callback();
     });

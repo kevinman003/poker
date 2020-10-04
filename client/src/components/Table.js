@@ -64,7 +64,9 @@ const Table = props => {
             const playerId = pokerTable.playerPositions[position];
             const player = pokerTable.players.find(p => p.id === playerId);
             return (
-              <Chips value={player.playedChips} position={player.seated} />
+              player && (
+                <Chips value={player.playedChips} position={player.seated} />
+              )
             );
           }
         })}
