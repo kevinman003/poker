@@ -14,6 +14,11 @@ const Lobby = props => {
       });
   }, [shown]);
 
+  const handleCreateTable = () => {
+    handleToggle();
+    handleTableToggle();
+  };
+
   return (
     <div>
       {shown ? (
@@ -50,7 +55,7 @@ const Lobby = props => {
                   ];
                 })}
             </div>
-            <div onClick={handleTableToggle} className="create-table">
+            <div onClick={handleCreateTable} className="create-table">
               + Create Table
             </div>
           </div>

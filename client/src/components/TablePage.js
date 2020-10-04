@@ -13,6 +13,7 @@ import queryString from 'query-string';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
+import TableInfo from './TableInfo';
 import Nav from './Nav';
 import Lobby from './Lobby';
 import CreateTable from './CreateTable';
@@ -22,7 +23,6 @@ import Table from './Table';
 let socket;
 
 const TablePage = props => {
-  // const [pokerTable, setPokerTable] = useState();
   const {
     pokerTable,
     addSocket,
@@ -39,17 +39,6 @@ const TablePage = props => {
   const [toggleLobby, setToggleLobby] = React.useState(false);
   const [toggleTable, setToggleTable] = React.useState(false);
 
-  const makeid = length => {
-    var result = '';
-    var characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for (var i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  };
-
   React.useEffect(() => {
     let id;
     if (localStorage.id) id = localStorage.id;
@@ -59,7 +48,7 @@ const TablePage = props => {
     }
     socket = io(ENDPOINT);
     addSocket(socket);
-    socket.emit('join', { table, id }, player => setCurrPlayer(player));
+    // redirect to another existing table if user goes to /
     if (!table) {
       socket.emit('getTables', {}, tables => {
         if (Object.keys(tables).length > 0) {
@@ -68,10 +57,10 @@ const TablePage = props => {
           );
           const redirect = tables[Object.keys(tables)[joinTableIdx]].id;
           history.push(`/?table=${redirect}`);
-        } else {
-          history.push(`/?table=${makeid(4)}`);
         }
       });
+    } else {
+      socket.emit('join', { table, id }, player => setCurrPlayer(player));
     }
 
     return () => {
@@ -85,7 +74,7 @@ const TablePage = props => {
     socket.on('updateTable', ({ currTable }) => {
       updatePokerTable(currTable);
     });
-  }, [pokerTable]);
+  }, [socket, pokerTable]);
 
   React.useEffect(() => {
     socket.on('dealCards', ({ currTable }) => {
@@ -103,22 +92,28 @@ const TablePage = props => {
   }, [currPlayer]);
 
   const handleToggle = () => {
+    console.log('toggle lobyy');
     setToggleLobby(!toggleLobby);
   };
 
   const handleTableToggle = () => {
-    setToggleLobby(!toggleLobby);
+    console.log('toglge table ');
     setToggleTable(!toggleTable);
   };
 
   return (
     <div className="table-page">
+      <TableInfo />
       <Lobby
         handleToggle={handleToggle}
         handleTableToggle={handleTableToggle}
         shown={toggleLobby}
       />
-      <CreateTable handleTableToggle={handleTableToggle} shown={toggleTable} />
+      <CreateTable
+        handleToggle={handleToggle}
+        handleTableToggle={handleTableToggle}
+        shown={toggleTable}
+      />
       <Nav handleToggle={handleToggle} />
       <Table />
       <CardAction

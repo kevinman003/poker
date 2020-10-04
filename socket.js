@@ -9,6 +9,7 @@ const { STREETS } = require('./controllers/constants');
 const socketConnection = io => {
   io.on('connection', socket => {
     console.log('New connection', socket.id);
+    // ========== JOINING AND DISCONNECTING ROOMS BELOW =============
     socket.on('join', ({ table, id }, callback) => {
       if (!getTable(table)) addTable(table);
       const currTable = getTable(table);
@@ -22,11 +23,34 @@ const socketConnection = io => {
         callback(players.find(player => player.id === id));
       }
       socket.join(table);
+      socket.emit('updateTable', { currTable });
       io.to(table).emit('updateTable', { currTable });
     });
 
+    socket.on('joinTable', ({ table, currPlayer }, callback) => {
+      const currTable = getTable(table);
+      currTable.addPlayer(currPlayer);
+      socket.join(table);
+      callback(currTable);
+    });
+
+    socket.on('disconnect', ({ table, id }) => {
+      // console.log('ID: ', id);
+      // const currTable = getTable(table);
+      // const players = currTable.getPlayers();
+      // const newPlayers = players.filter(player => player.id !== id);
+      // io.to(table).emit('updatePlayer', { newPlayers });
+      console.log('User left', socket.id);
+    });
+
+    // ========== TABLE ACTIONS BELOW ===========
     socket.on('getTables', ({}, callback) => {
       callback(getAllTables());
+    });
+
+    socket.on('addTable', ({ table, name }, callback) => {
+      addTable(table, name);
+      callback();
     });
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {
@@ -47,6 +71,7 @@ const socketConnection = io => {
       io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
     });
 
+    // ======== GAMEPLAYER SOCKET ACTIONS BELOW ===========
     socket.on('premove', ({ currPlayer, table, move }) => {
       const currTable = getTable(table);
       const player = currTable.getPlayer(currPlayer.id);
@@ -91,15 +116,6 @@ const socketConnection = io => {
       io.to(table).emit('nextTurn', {
         id: currTable.players[currTable.currAction].id,
       });
-    });
-
-    socket.on('disconnect', ({ table, id }) => {
-      // console.log('ID: ', id);
-      // const currTable = getTable(table);
-      // const players = currTable.getPlayers();
-      // const newPlayers = players.filter(player => player.id !== id);
-      // io.to(table).emit('updatePlayer', { newPlayers });
-      console.log('User left', socket.id);
     });
   });
 };

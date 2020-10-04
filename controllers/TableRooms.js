@@ -1,9 +1,9 @@
 const Table = require('./Table');
 
-const tables = {};
+const tables = { play: new Table('play') };
 
-const addTable = id => {
-  tables[id] = new Table(id);
+const addTable = (id, name) => {
+  tables[id] = new Table(id, name);
 };
 
 const getTable = id => {

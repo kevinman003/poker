@@ -7,7 +7,7 @@ const LinkedList = require('../client/src/data/LinkedList');
 // Contains array of total players, community cards
 // TODO complete the switch case
 class Table {
-  constructor(id) {
+  constructor(id, name) {
     this.id = id;
     this.cards = [];
     this.players = [];
@@ -25,21 +25,32 @@ class Table {
     this.isStarted = false;
     this.disabled = false;
     this.name;
-    http.get(
-      'http://names.drycodes.com/1?nameOptions=objects&combine=%202',
-      res => {
-        let data = '';
+    if (name) {
+      this.name = name;
+    } else {
+      const getName = new Promise((resolve, reject) => {
+        http.get(
+          'http://names.drycodes.com/1?nameOptions=objects&combine=%202',
+          res => {
+            let data = '';
 
-        res.on('data', chunk => {
-          data += chunk;
-        });
+            res.on('data', chunk => {
+              data += chunk;
+            });
 
-        res.on('end', () => {
-          const result = JSON.parse(data);
-          this.name = result[0].split('_').join('');
-        });
-      }
-    );
+            res.on('end', () => {
+              const result = JSON.parse(data);
+              this.name = result[0].split('_').join('');
+              resolve(this);
+            });
+
+            res.on('error', () => {
+              reject('error');
+            });
+          }
+        );
+      });
+    }
   }
 
   getPlayers() {
