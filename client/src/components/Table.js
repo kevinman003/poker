@@ -34,7 +34,11 @@ const Table = props => {
       if (name.length > 20) {
         result = name.substring(0, 21) + '...';
       } else result = name;
-      result += ' won with a ';
+      if (pokerTable.winner.cardRank) {
+        result += ' won with a ';
+      } else {
+        result += ' won!';
+      }
     }
     return result;
   };
@@ -78,6 +82,7 @@ const Table = props => {
                 <p className="card-rank">
                   {pokerTable &&
                     pokerTable.winner &&
+                    pokerTable.winner.cardRank &&
                     `${pokerTable.winner.cardRank
                       .replace('_', ' ')
                       .toLowerCase()}!`}

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 const Timer = props => {
-  const { socket, pokerTable, selectedPlayer } = props;
+  const { socket, pokerTable, selectedPlayer, currPlayer } = props;
   const [maxTime, setMaxTime] = React.useState();
   const [timer, setTimer] = React.useState();
   let count = React.useRef();
@@ -18,12 +18,12 @@ const Timer = props => {
       if (timer) {
         if (timer <= 0) {
           clearInterval(count.current);
-          socket.emit('time', { table: pokerTable.id });
+          socket.emit('time', { table: pokerTable.id, currPlayer });
         } else {
-          setTimer(timer - 0.1);
+          setTimer(timer - 0.05);
         }
       }
-    }, 100);
+    }, 50);
   };
 
   React.useEffect(() => {
@@ -38,6 +38,7 @@ const Timer = props => {
 
   React.useEffect(() => {
     if (pokerTable) {
+      console.log('set time');
       const time = pokerTable.time;
       setMaxTime(time);
       setTimer(time);
@@ -57,6 +58,7 @@ const mapStateToProps = state => {
   return {
     pokerTable: state.pokerTable,
     socket: state.socket,
+    currPlayer: state.currPlayer,
   };
 };
 export default connect(mapStateToProps, null)(Timer);

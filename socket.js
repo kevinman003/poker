@@ -74,7 +74,7 @@ const socketConnection = io => {
       io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
     });
 
-    // ======== GAMEPLAYER SOCKET ACTIONS BELOW ===========
+    // ======== GAMEPLAY SOCKET ACTIONS BELOW ===========
     socket.on('premove', ({ currPlayer, table, move }) => {
       const currTable = getTable(table);
       const player = currTable.getPlayer(currPlayer.id);
@@ -95,11 +95,8 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.checkCall(currPlayer.id);
       io.to(table).emit('updateTable', { currTable });
-      console.log('checkcall');
       if (currTable.winner) {
-        console.log('outside timeout');
         setTimeout(() => {
-          console.log('timeout');
           currTable.resetGame();
           io.to(table).emit('updateTable', { currTable });
         }, 2000);
@@ -119,6 +116,16 @@ const socketConnection = io => {
       io.to(table).emit('nextTurn', {
         id: currTable.players[currTable.currAction].id,
       });
+    });
+
+    socket.on('time', ({ table, currPlayer }) => {
+      const currTable = getTable(table);
+      if (currTable.toCall) {
+        currTable.fold(currPlayer.id);
+      } else {
+        currTable.checkCall(currPlayer.id);
+      }
+      io.to(table).emit('updateTable', { currTable });
     });
   });
 };

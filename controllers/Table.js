@@ -24,7 +24,7 @@ class Table {
     this.playerPositions = {};
     this.isStarted = false;
     this.disabled = false;
-    this.time = 1;
+    this.time = 10;
     this.name;
     if (name) {
       this.name = name;
@@ -194,7 +194,6 @@ class Table {
       player.showCards = true;
     });
     this.disabled = true;
-    console.log('won');
   }
 
   resetGame() {
