@@ -1,0 +1,71 @@
+.create-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+}
+
+.create-content {
+  height: 350px;
+  width: 500px;
+  background: #fff;
+  position: absolute;
+  z-index: 101;
+  top: calc(50% + 250px);
+  left: calc(50% - 250px);
+}
+
+.create-table-container {
+  position: relative;
+}
+
+.errors {
+  padding: 20px 0 0 20px;
+  color: #d00;
+  font-weight: 600;
+}
+
+.input {
+  padding: 20px;
+}
+
+.private-game {
+  margin-top: 20px;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}
+
+input {
+  font-family: 'Nunito';
+}
+
+.table-name-input {
+  margin-top: 5px;
+  border-width: 0 0 1px;
+  border-color: $dark-blue;
+  font-size: 1.5rem;
+  padding-bottom: 5px;
+}
+
+.private {
+  margin-top: 10px;
+}
+
+.password-input {
+  margin-left: 5px;
+}
+
+.create-modal-button {
+  width: 100px;
+  left: calc(50% - 50px);
+}
+
+.red {
+  color: #f00;
+}
