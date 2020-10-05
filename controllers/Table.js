@@ -25,6 +25,7 @@ class Table {
     this.isStarted = false;
     this.disabled = false;
     this.time = 10;
+    this.timeCount = 10;
     this.name;
     if (name) {
       this.name = name;
@@ -121,6 +122,7 @@ class Table {
     this.lastAction =
       this.currAction - 1 < 0 ? this.players.length - 1 : this.currAction - 1;
     this.nextAction();
+    this.resetTimer();
   }
 
   checkCall(id) {
@@ -134,6 +136,7 @@ class Table {
     if (this.lastAction === beforeNextAction) {
       this.nextStreet();
     }
+    this.resetTimer();
   }
 
   nextStreet() {
@@ -183,6 +186,7 @@ class Table {
       this.getPlayer(id).playing = false;
       this.nextAction();
     }
+    this.resetTimer();
   }
 
   won(player) {
@@ -194,6 +198,10 @@ class Table {
       player.showCards = true;
     });
     this.disabled = true;
+  }
+
+  resetTimer() {
+    this.timeCount = this.time;
   }
 
   resetGame() {

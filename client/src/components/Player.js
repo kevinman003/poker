@@ -43,7 +43,9 @@ const Player = props => {
     <div>
       {selectedPlayer && (
         <div className={`seat-inner-container`}>
-          {enabled && <Timer selectedPlayer={selectedPlayer} />}
+          {enabled && pokerTable && !pokerTable.winner && (
+            <Timer selectedPlayer={selectedPlayer} />
+          )}
           <div className={`seat ${enabled ? 'player-active' : ''}`}>
             <p className="player-name"> {selectedPlayer.name} </p>
             <div className="player-chips">

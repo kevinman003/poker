@@ -92,12 +92,10 @@ const TablePage = props => {
   }, [currPlayer]);
 
   const handleToggle = () => {
-    console.log('toggle lobyy');
     setToggleLobby(!toggleLobby);
   };
 
   const handleTableToggle = () => {
-    console.log('toglge table ');
     setToggleTable(!toggleTable);
   };
 

@@ -6,6 +6,35 @@ const {
 const Player = require('./controllers/Player');
 const { STREETS } = require('./controllers/constants');
 
+let timer;
+
+const startTimer = (table, currTable, currPlayer, io) => {
+  timer = setInterval(() => {
+    if (currTable.timeCount < 0) {
+      clearInterval(timer);
+      currTable.timeCount = currTable.time;
+      if (currTable.toCall - currPlayer.playedChips) {
+        currTable.fold(currPlayer.id);
+      } else {
+        currTable.checkCall(currPlayer.id);
+      }
+      io.to(table).emit('updateTable', { currTable });
+
+      if (currTable.winner) {
+        clearInterval(timer);
+        setTimeout(() => {
+          currTable.resetGame();
+          io.to(table).emit('updateTable', { currTable });
+          startTimer(table, currTable, currPlayer, io);
+        }, 2000);
+      }
+    } else {
+      io.to(table).emit('time', { time: currTable.timeCount });
+      currTable.timeCount -= 0.1;
+    }
+  }, 100);
+};
+
 const socketConnection = io => {
   io.on('connection', socket => {
     console.log('New connection', socket.id);
@@ -67,6 +96,7 @@ const socketConnection = io => {
       );
       if (seatedPlayers.length === 2) {
         currTable.start();
+        startTimer(table, currTable, currPlayer, io);
         io.to(table).emit('dealCards', { currTable });
       }
 
@@ -120,10 +150,16 @@ const socketConnection = io => {
 
     socket.on('time', ({ table, currPlayer }) => {
       const currTable = getTable(table);
-      if (currTable.toCall) {
+      if (currTable.toCall - currPlayer.playedChips) {
         currTable.fold(currPlayer.id);
       } else {
         currTable.checkCall(currPlayer.id);
+      }
+      if (currTable.winner) {
+        setTimeout(() => {
+          currTable.resetGame();
+          io.to(table).emit('updateTable', { currTable });
+        }, 2000);
       }
       io.to(table).emit('updateTable', { currTable });
     });
