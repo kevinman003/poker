@@ -55,7 +55,7 @@ const Table = props => {
     }
     seatComponents.push(
       <div className="seat-container seat-container-4" key="seat-9">
-        <Player seatNumber={9} key="player-9" />
+        <Player seatNumber={8} key="player-8" />
       </div>
     );
     return seatComponents;

@@ -29,7 +29,7 @@ class Table {
     if (name) {
       this.name = name;
     } else {
-      const getName = new Promise((resolve, reject) => {
+      new Promise((resolve, reject) => {
         http.get(
           'http://names.drycodes.com/1?nameOptions=objects&combine=%202',
           res => {
