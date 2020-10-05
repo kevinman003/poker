@@ -8,8 +8,9 @@ const { STREETS } = require('./controllers/constants');
 
 let timer;
 
-const startTimer = (table, currTable, currPlayer, io) => {
+const startTimer = (table, currTable, io) => {
   timer = setInterval(() => {
+    const currPlayer = currTable.players[currTable.currAction];
     if (currTable.timeCount < 0) {
       clearInterval(timer);
       currTable.timeCount = currTable.time;
@@ -28,7 +29,7 @@ const startTimer = (table, currTable, currPlayer, io) => {
       setTimeout(() => {
         currTable.resetGame();
         io.to(table).emit('updateTable', { currTable });
-        startTimer(table, currTable, currPlayer, io);
+        startTimer(table, currTable, io);
       }, 2000);
     }
   }, 100);
@@ -95,7 +96,7 @@ const socketConnection = io => {
       );
       if (seatedPlayers.length === 2) {
         currTable.start();
-        startTimer(table, currTable, currPlayer, io);
+        startTimer(table, currTable, io);
         io.to(table).emit('dealCards', { currTable });
       }
 
