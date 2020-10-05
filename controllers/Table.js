@@ -76,8 +76,15 @@ class Table {
   }
 
   nextAction() {
-    this.currAction =
-      this.currAction + 1 === this.players.length ? 0 : this.currAction + 1;
+    const activePlayers = this.getActivePlayers();
+    let currIndex = activePlayers.findIndex(
+      player => player.id === this.players[this.currAction].id
+    );
+    currIndex = currIndex + 1 === activePlayers.length ? 0 : currIndex + 1;
+    this.currAction = this.players.findIndex(
+      player => player.id === activePlayers[currIndex].id
+    );
+    console.log(this.currAction);
   }
 
   setToCall(toCall) {
@@ -193,10 +200,11 @@ class Table {
     this.winner = player;
     player.chips += this.chips;
     this.deck.reset();
-
-    this.players.forEach(player => {
-      player.showCards = true;
-    });
+    if (this.street === STREETS.RIVER) {
+      this.players.forEach(player => {
+        player.showCards = true;
+      });
+    }
     this.disabled = true;
   }
 
@@ -205,7 +213,6 @@ class Table {
   }
 
   resetGame() {
-    console.log('reset');
     this.chips = 0;
     this.cards = [];
     this.players.forEach(player => {

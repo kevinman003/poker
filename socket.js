@@ -19,18 +19,17 @@ const startTimer = (table, currTable, currPlayer, io) => {
         currTable.checkCall(currPlayer.id);
       }
       io.to(table).emit('updateTable', { currTable });
-
-      if (currTable.winner) {
-        clearInterval(timer);
-        setTimeout(() => {
-          currTable.resetGame();
-          io.to(table).emit('updateTable', { currTable });
-          startTimer(table, currTable, currPlayer, io);
-        }, 2000);
-      }
     } else {
       io.to(table).emit('time', { time: currTable.timeCount });
       currTable.timeCount -= 0.1;
+    }
+    if (currTable.winner) {
+      clearInterval(timer);
+      setTimeout(() => {
+        currTable.resetGame();
+        io.to(table).emit('updateTable', { currTable });
+        startTimer(table, currTable, currPlayer, io);
+      }, 2000);
     }
   }, 100);
 };
