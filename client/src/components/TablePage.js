@@ -116,7 +116,7 @@ const TablePage = props => {
           currPlayer &&
           pokerTable.players[pokerTable.currAction].id === currPlayer.id
         }
-        enabled={pokerTable && pokerTable.isStarted}
+        enabled={pokerTable && !pokerTable.disabled}
         table={table}
       />
     </div>

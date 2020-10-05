@@ -23,6 +23,7 @@ const Player = props => {
         setEnabled(
           pokerTable &&
             currPlayer &&
+            !pokerTable.disabled &&
             pokerTable.players[pokerTable.currAction].id === seatedPlayer.id
         );
       } else {

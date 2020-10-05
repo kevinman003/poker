@@ -22,8 +22,7 @@ class Table {
     this.winner = null;
     this.blind = 10;
     this.playerPositions = {};
-    this.isStarted = false;
-    this.disabled = false;
+    this.disabled = true;
     this.time = 10;
     this.timeCount = 10;
     this.name;
@@ -84,7 +83,6 @@ class Table {
     this.currAction = this.players.findIndex(
       player => player.id === activePlayers[currIndex].id
     );
-    console.log(this.currAction);
   }
 
   setToCall(toCall) {
@@ -101,7 +99,7 @@ class Table {
   }
 
   start() {
-    this.isStarted = true;
+    this.disabled = false;
     this.players.forEach(player => {
       this.dealPlayerCards(player);
     });
