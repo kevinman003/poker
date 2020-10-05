@@ -125,10 +125,14 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.checkCall(currPlayer.id);
       io.to(table).emit('updateTable', { currTable });
+      console.log('checkcall', currPlayer.id);
+
       if (currTable.winner) {
+        clearInterval(timer);
         setTimeout(() => {
           currTable.resetGame();
           io.to(table).emit('updateTable', { currTable });
+          startTimer(table, currTable, io);
         }, 2000);
       }
     });
