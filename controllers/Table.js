@@ -199,10 +199,12 @@ class Table {
       const winner = activePlayers.filter(player => player.id !== id)[0];
       this.handlePot();
       this.won(winner);
-    } else {
-      this.getPlayer(id).playing = false;
-      this.nextAction();
+    } else if (this.players[this.lastAction].id === id) {
+      this.nextStreet();
     }
+    this.getPlayer(id).playing = false;
+    this.nextAction();
+
     this.resetTimer();
   }
 
@@ -226,8 +228,13 @@ class Table {
     this.chips = 0;
     this.cards = [];
     this.players.forEach(player => {
+      if (player.chips > 0) {
+        player.playing = true;
+        this.deck.dealPlayerCards(player);
+      }
+      this.resetPremove(player);
+      player.cardRank = undefined;
       player.showCards = false;
-      this.deck.dealPlayerCards(player);
     });
     this.bigBlind =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;

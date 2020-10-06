@@ -30,6 +30,14 @@ const CardAction = props => {
     }
   }, [thisTurn]);
 
+  // setting raise slider
+  React.useEffect(() => {
+    if (pokerTable) {
+      setRaise(pokerTable.toCall);
+    }
+  }, [pokerTable]);
+
+  // logic for premoves
   React.useEffect(() => {
     const deactivate = () => {
       const result = {};
@@ -59,10 +67,6 @@ const CardAction = props => {
             socket.emit('fold', { currPlayer, table });
           }
         }
-
-        // socket.emit('stopPremove', { currPlayer, table }, player => {
-        //   setSelectedPlayer(player);
-        // });
       }
       const player = pokerTable.players.find(
         player => player.id === currPlayer.id
@@ -109,9 +113,8 @@ const CardAction = props => {
     if (pokerTable && !pokerTable.disabled) {
       if (thisTurn) {
         let newRaise;
-        console.log('raise:', raise, 'newRaise:', newRaise);
 
-        if (raise < pokerTable.toCall) {
+        if (raise <= pokerTable.toCall) {
           newRaise = pokerTable.toCall + pokerTable.blind;
         }
         socket.emit('raise', {

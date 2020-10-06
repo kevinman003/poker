@@ -22,9 +22,8 @@ const Timer = props => {
 
   React.useEffect(() => {
     if (pokerTable) {
-      const time = pokerTable.timeCount;
-      setMaxTime(time);
-      setTimer(time);
+      setMaxTime(pokerTable.time);
+      setTimer(pokerTable.timeCount);
     }
   }, [pokerTable]);
 
