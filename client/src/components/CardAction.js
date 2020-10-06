@@ -77,11 +77,6 @@ const CardAction = props => {
         socket.emit('checkCall', { currPlayer, table });
       } else {
         socket.emit('premove', { currPlayer, table, move: 'check' });
-        // const result = { check: !active.check };
-        // Object.keys(active).map(key => {
-        //   if (key !== 'check') result[key] = false;
-        // });
-        // setActive(result);
       }
     }
   };
@@ -91,11 +86,7 @@ const CardAction = props => {
       if (thisTurn) {
         socket.emit('fold', { currPlayer, table });
       } else {
-        const result = { fold: !active.fold };
-        Object.keys(active).map(key => {
-          if (key !== 'fold') result[key] = false;
-        });
-        setActive(result);
+        socket.emit('premove', { currPlayer, table, move: 'fold' });
       }
     }
   };
@@ -109,11 +100,7 @@ const CardAction = props => {
           raise,
         });
       } else {
-        const result = { raise: !active.raise };
-        Object.keys(active).map(key => {
-          if (key !== 'raise') result[key] = false;
-        });
-        setActive(result);
+        socket.emit('premove', { currPlayer, table, move: 'raise' });
       }
     }
   };

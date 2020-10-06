@@ -108,6 +108,11 @@ const socketConnection = io => {
     socket.on('premove', ({ currPlayer, table, move }) => {
       const currTable = getTable(table);
       const player = currTable.getPlayer(currPlayer.id);
+      Object.keys(player.premove).map(action => {
+        if (player.premove[action] === move)
+          player.premove[action] = !player.premove[action];
+        else player.premove[action] = false;
+      });
       player.premove[move] = !player.premove[move];
       io.to(table).emit('updateTable', { currTable });
     });
