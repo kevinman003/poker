@@ -94,10 +94,14 @@ const CardAction = props => {
   const handleRaise = (e, raise) => {
     if (pokerTable && !pokerTable.disabled) {
       if (thisTurn) {
+        let newRaise;
+        if (raise < pokerTable.toCall) {
+          newRaise = pokerTable.toCall + pokerTable.blind;
+        }
         socket.emit('raise', {
           currPlayer,
           table,
-          raise,
+          raise: newRaise || raise,
         });
       } else {
         socket.emit('premove', { currPlayer, table, move: 'raise' });
