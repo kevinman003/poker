@@ -114,6 +114,7 @@ const socketConnection = io => {
         else player.premove[action] = false;
       });
       player.premove[move] = !player.premove[move];
+      console.log('curr:', currTable.timeCount);
       io.to(table).emit('updateTable', { currTable });
     });
 
@@ -124,13 +125,14 @@ const socketConnection = io => {
         player.premove[premove] = false;
       });
       cb(player);
+      console.log('stoppremove:', currTable.timeCount);
+      io.to(table).emit('updateTable', { currTable });
     });
 
     socket.on('checkCall', ({ currPlayer, table }) => {
       const currTable = getTable(table);
       currTable.checkCall(currPlayer.id);
       io.to(table).emit('updateTable', { currTable });
-      console.log('checkcall', currPlayer.id);
 
       if (currTable.winner) {
         clearInterval(timer);

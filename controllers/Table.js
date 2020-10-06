@@ -109,6 +109,14 @@ class Table {
     this.resetBlinds();
   }
 
+  resetPremove(player) {
+    player.premove = {
+      check: false,
+      fold: false,
+      raise: false,
+    };
+  }
+
   resetBlinds() {
     this.smallBlind =
       this.bigBlind - 1 < 0 ? this.players.length - 1 : this.bigBlind - 1;
@@ -147,6 +155,10 @@ class Table {
   nextStreet() {
     this.handlePot();
     this.toCall = 0;
+    const activePlayers = this.getActivePlayers();
+    activePlayers.map(player => {
+      this.resetPremove(player);
+    });
     switch (this.street) {
       case STREETS.PREFLOP:
         this.cards = this.deck.dealFlop();
@@ -195,7 +207,6 @@ class Table {
   }
 
   won(player) {
-    console.log('won');
     this.winner = player;
     player.chips += this.chips;
     this.deck.reset();
@@ -212,7 +223,6 @@ class Table {
   }
 
   resetGame() {
-    console.log('reset');
     this.chips = 0;
     this.cards = [];
     this.players.forEach(player => {

@@ -60,9 +60,9 @@ const CardAction = props => {
           }
         }
 
-        socket.emit('stopPremove', { currPlayer, table }, player => {
-          setSelectedPlayer(player);
-        });
+        // socket.emit('stopPremove', { currPlayer, table }, player => {
+        //   setSelectedPlayer(player);
+        // });
       }
       const player = pokerTable.players.find(
         player => player.id === currPlayer.id
@@ -71,30 +71,46 @@ const CardAction = props => {
     }
   }, [pokerTable]);
 
-  const handleCheckCall = e => {
+  const handleCheckCall = () => {
     if (pokerTable && !pokerTable.disabled) {
       if (thisTurn) {
         socket.emit('checkCall', { currPlayer, table });
       } else {
-        socket.emit('premove', { currPlayer, table, move: 'check' });
+        const selectedPlayer = pokerTable.players.find(
+          player => player.id === currPlayer.id
+        );
+        if (selectedPlayer.premove.check) {
+          socket.emit('stopPremove', { currPlayer, table }, () => {});
+        } else {
+          socket.emit('premove', { currPlayer, table, move: 'check' });
+        }
       }
     }
   };
 
-  const handleFold = e => {
+  const handleFold = () => {
     if (pokerTable && !pokerTable.disabled) {
       if (thisTurn) {
         socket.emit('fold', { currPlayer, table });
       } else {
-        socket.emit('premove', { currPlayer, table, move: 'fold' });
+        const selectedPlayer = pokerTable.players.find(
+          player => player.id === currPlayer.id
+        );
+        if (selectedPlayer.premove.fold) {
+          socket.emit('stopPremove', { currPlayer, table }, () => {});
+        } else {
+          socket.emit('premove', { currPlayer, table, move: 'fold' });
+        }
       }
     }
   };
 
-  const handleRaise = (e, raise) => {
+  const handleRaise = () => {
     if (pokerTable && !pokerTable.disabled) {
       if (thisTurn) {
         let newRaise;
+        console.log('raise:', raise, 'newRaise:', newRaise);
+
         if (raise < pokerTable.toCall) {
           newRaise = pokerTable.toCall + pokerTable.blind;
         }
@@ -104,7 +120,14 @@ const CardAction = props => {
           raise: newRaise || raise,
         });
       } else {
-        socket.emit('premove', { currPlayer, table, move: 'raise' });
+        const selectedPlayer = pokerTable.players.find(
+          player => player.id === currPlayer.id
+        );
+        if (selectedPlayer.premove.raise) {
+          socket.emit('stopPremove', { currPlayer, table }, () => {});
+        } else {
+          socket.emit('premove', { currPlayer, table, move: 'raise' });
+        }
       }
     }
   };

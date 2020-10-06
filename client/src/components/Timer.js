@@ -13,20 +13,6 @@ const Timer = props => {
     width: `${(timer / maxTime) * 100}%`,
   };
 
-  const startCount = () => {
-    // count = setTimeout(() => {
-    //   if (timer) {
-    //     if (timer <= 0) {
-    //       clearInterval(count.current);
-    //       setTimer(pokerTable.time);
-    //       socket.emit('time', { table: pokerTable.id, currPlayer });
-    //     } else {
-    //       setTimer(timer - 0.1);
-    //     }
-    //   }
-    // }, 100);
-  };
-
   React.useEffect(() => {
     socket &&
       socket.on('time', ({ time }) => {
@@ -34,19 +20,9 @@ const Timer = props => {
       });
   }, [socket]);
 
-  // React.useEffect(() => {
-  //   if (pokerTable) {
-  //     if (pokerTable.players[pokerTable.currAction].id === selectedPlayer.id)
-  //       startCount();
-  //   }
-  //   return () => {
-  //     clearInterval(count.current);
-  //   };
-  // });
-
   React.useEffect(() => {
     if (pokerTable) {
-      const time = pokerTable.time;
+      const time = pokerTable.timeCount;
       setMaxTime(time);
       setTimer(time);
     }
