@@ -197,6 +197,7 @@ class Table {
         this.street = STREETS.PREFLOP;
         const winner = this.findWinner();
         this.won(winner);
+        this.showCards();
         break;
     }
   }
@@ -233,14 +234,14 @@ class Table {
       });
     }
     this.deck.reset();
-    if (this.street === STREETS.RIVER) {
-      this.players.forEach(player => {
-        player.showCards = true;
-      });
-    }
     this.disabled = true;
   }
 
+  showCards() {
+    this.players.forEach(player => {
+      player.showCards = true;
+    });
+  }
   resetTimer() {
     this.timeCount = this.time;
   }

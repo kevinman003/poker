@@ -46,7 +46,7 @@ const Table = props => {
             .split('_')
             .map(s => s.charAt(0).toUpperCase() + s.slice(1))
             .join(' ');
-        result += cardRank;
+        result += cardRank ? cardRank : '';
       } else {
         winners.slice(0, winners.length - 1).map(player => {
           result += formatName(player.name) + ', ';
