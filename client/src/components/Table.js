@@ -27,8 +27,8 @@ const Table = props => {
     }
   }, [pokerTable]);
 
-  const formatName = name => {
-    return name.length > 20 ? name.substring(0, 21) + '...' : name;
+  const formatName = (name, length) => {
+    return name.length > length ? name.substring(0, length + 1) + '...' : name;
   };
 
   const findWinner = () => {
@@ -37,7 +37,7 @@ const Table = props => {
       const winners = pokerTable.winner;
       if (winners.length === 1) {
         const name = winners[0].name;
-        result += formatName(name);
+        result += formatName(name, 20);
         result += winners[0].cardRank ? ' won with a ' : ' won!';
         const cardRank =
           winners[0].cardRank &&
@@ -49,11 +49,11 @@ const Table = props => {
         result += cardRank ? cardRank : '';
       } else {
         winners.slice(0, winners.length - 1).map(player => {
-          result += formatName(player.name) + ', ';
+          result += formatName(player.name, 10) + ', ';
         });
         result +=
           'and ' +
-          formatName(winners[winners.length - 1].name) +
+          formatName(winners[winners.length - 1].name, 10) +
           ' split the pot!';
       }
     }

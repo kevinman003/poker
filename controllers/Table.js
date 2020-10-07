@@ -230,7 +230,7 @@ class Table {
       players[0].chips += this.chips;
     } else {
       players.map(player => {
-        player.chips += this.chips / players.length;
+        player.chips += Math.floor(this.chips / players.length);
       });
     }
     this.deck.reset();

@@ -39,13 +39,13 @@ const socketConnection = io => {
   io.on('connection', socket => {
     console.log('New connection', socket.id);
     // ========== JOINING AND DISCONNECTING ROOMS BELOW =============
-    socket.on('join', ({ table, id }, callback) => {
+    socket.on('join', ({ table, id, name }, callback) => {
       if (!getTable(table)) addTable(table);
       const currTable = getTable(table);
       const players = currTable.getPlayers();
 
       if (!players.some(player => player.id === id)) {
-        const currPlayer = new Player(`player-${id}`, id);
+        const currPlayer = new Player(name, id);
         currTable.addPlayer(currPlayer);
         callback(currPlayer);
       } else {
@@ -124,7 +124,6 @@ const socketConnection = io => {
         player.premove[premove] = false;
       });
       cb(player);
-      console.log('stoppremove:', currTable.timeCount);
       io.to(table).emit('updateTable', { currTable });
     });
 

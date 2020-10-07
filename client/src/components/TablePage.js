@@ -17,7 +17,7 @@ import TableInfo from './TableInfo';
 import Nav from './Nav';
 import Lobby from './Lobby';
 import CreateTable from './CreateTable';
-
+import CreateName from './CreateName';
 import CardAction from './CardAction';
 import Table from './Table';
 let socket;
@@ -38,14 +38,9 @@ const TablePage = props => {
   const { table } = queryString.parse(location.search);
   const [toggleLobby, setToggleLobby] = React.useState(false);
   const [toggleTable, setToggleTable] = React.useState(false);
+  const [toggleName, setToggleName] = React.useState(false);
 
   React.useEffect(() => {
-    let id;
-    if (localStorage.id) id = localStorage.id;
-    else {
-      id = uuidv4();
-      localStorage.setItem('id', id);
-    }
     socket = io(ENDPOINT);
     addSocket(socket);
     // redirect to another existing table if user goes to /
@@ -59,13 +54,19 @@ const TablePage = props => {
           history.push(`/?table=${redirect}`);
         }
       });
+    } else if (localStorage.id) {
+      socket.emit('join', { table, id: localStorage.id }, player =>
+        setCurrPlayer(player)
+      );
     } else {
-      socket.emit('join', { table, id }, player => setCurrPlayer(player));
+      setToggleName(true);
     }
 
     return () => {
       // TODO: implement functional disconnect
       socket.emit('disconnect', { table, id: localStorage.id });
+      localStorage.removeItem('id');
+
       socket.off();
     };
   }, [location.search]);
@@ -99,6 +100,10 @@ const TablePage = props => {
     setToggleTable(!toggleTable);
   };
 
+  const handleToggleName = () => {
+    setToggleName(!toggleName);
+  };
+
   return (
     <div className="table-page">
       <TableInfo />
@@ -106,6 +111,11 @@ const TablePage = props => {
         handleToggle={handleToggle}
         handleTableToggle={handleTableToggle}
         shown={toggleLobby}
+      />
+      <CreateName
+        shown={toggleName}
+        handleToggleName={handleToggleName}
+        handleToggle={handleToggle}
       />
       <CreateTable handleTableToggle={handleTableToggle} shown={toggleTable} />
       <Nav handleToggle={handleToggle} />
