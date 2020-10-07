@@ -27,17 +27,34 @@ const Table = props => {
     }
   }, [pokerTable]);
 
+  const formatName = name => {
+    return name.length > 20 ? name.substring(0, 21) + '...' : name;
+  };
+
   const findWinner = () => {
-    let result;
-    if (pokerTable && pokerTable.winner) {
-      const name = pokerTable.winner.name;
-      if (name.length > 20) {
-        result = name.substring(0, 21) + '...';
-      } else result = name;
-      if (pokerTable.winner.cardRank) {
-        result += ' won with a ';
+    let result = '';
+    if (pokerTable && pokerTable.winner.length) {
+      const winners = pokerTable.winner;
+      if (winners.length === 1) {
+        const name = winners[0].name;
+        result += formatName(name);
+        result += winners[0].cardRank ? ' won with a ' : ' won!';
+        const cardRank =
+          winners[0].cardRank &&
+          winners[0].cardRank
+            .toLowerCase()
+            .split('_')
+            .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+            .join(' ');
+        result += cardRank;
       } else {
-        result += ' won!';
+        winners.slice(0, winners.length - 1).map(player => {
+          result += formatName(player.name) + ', ';
+        });
+        result +=
+          'and ' +
+          formatName(winners[winners.length - 1].name) +
+          ' split the pot!';
       }
     }
     return result;
@@ -79,14 +96,6 @@ const Table = props => {
             <div className="table-middle">
               <div className="winner-container">
                 {findWinner()}
-                <p className="card-rank">
-                  {pokerTable &&
-                    pokerTable.winner &&
-                    pokerTable.winner.cardRank &&
-                    `${pokerTable.winner.cardRank
-                      .replace('_', ' ')
-                      .toLowerCase()}!`}
-                </p>
                 <div className="pot-container">
                   <Chips value={pokerTable && pokerTable.chips} />
                 </div>

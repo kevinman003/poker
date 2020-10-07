@@ -24,7 +24,7 @@ const startTimer = (table, currTable, io) => {
       io.to(table).emit('time', { time: currTable.timeCount });
       currTable.timeCount -= 0.1;
     }
-    if (currTable.winner) {
+    if (currTable.winner.length) {
       clearInterval(timer);
       setTimeout(() => {
         currTable.resetGame();
@@ -133,7 +133,7 @@ const socketConnection = io => {
       currTable.checkCall(currPlayer.id);
       io.to(table).emit('updateTable', { currTable });
 
-      if (currTable.winner) {
+      if (currTable.winner.length) {
         clearInterval(timer);
         setTimeout(() => {
           currTable.resetGame();
@@ -165,7 +165,7 @@ const socketConnection = io => {
       } else {
         currTable.checkCall(currPlayer.id);
       }
-      if (currTable.winner) {
+      if (currTable.winner.length) {
         setTimeout(() => {
           currTable.resetGame();
           io.to(table).emit('updateTable', { currTable });

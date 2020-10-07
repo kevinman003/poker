@@ -27,7 +27,7 @@ class CardRanker {
       }
     });
     if (bestPlayers.length === 1) {
-      return bestPlayers[0];
+      return bestPlayers;
     } else {
       switch (bestHandRank) {
         case 'STRAIGHT_FLUSH':
@@ -37,14 +37,14 @@ class CardRanker {
           return this.breakTie(bestPlayers);
         case 'TWO_PAIR':
           bestPlayers = this.breakTwoPairTie(bestPlayers);
-          if (bestPlayers.length === 1) return bestPlayers[0];
+          if (bestPlayers.length === 1) return bestPlayers;
           return this.breakTie(bestPlayers);
         case 'FULL_HOUSE':
         case 'QUADS':
         case 'TRIPS':
         case 'PAIR':
           bestPlayers = this.breakPairedTie(bestPlayers, bestHandRank);
-          if (bestPlayers.length === 1) return bestPlayers[0];
+          if (bestPlayers.length === 1) return bestPlayers;
           return this.breakTie(bestPlayers);
         default:
           return {};

@@ -6,12 +6,21 @@ class Deck {
     this.currCard = 0;
     const suits = ['s', 'c', 'h', 'd'];
     this.deck = [];
-    suits.forEach(suit => {
-      for (let i = 2; i <= 14; i++) {
-        this.deck.push(new Card(i, suit));
-      }
-    });
-    this.shuffle();
+    this.deck.push(new Card(5, 'c'));
+    this.deck.push(new Card(6, 'c'));
+    this.deck.push(new Card(5, 'd'));
+    this.deck.push(new Card(6, 'd'));
+    this.deck.push(new Card(8, 's'));
+    this.deck.push(new Card(10, 's'));
+    this.deck.push(new Card(11, 'h'));
+    this.deck.push(new Card(2, 'c'));
+    this.deck.push(new Card(6, 'd'));
+    // suits.forEach(suit => {
+    //   for (let i = 2; i <= 14; i++) {
+    //     this.deck.push(new Card(i, suit));
+    //   }
+    // });
+    // this.shuffle();
   }
 
   shuffle() {

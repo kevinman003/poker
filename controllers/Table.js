@@ -19,7 +19,7 @@ class Table {
     this.lastAction = 0;
     this.currAction = 0;
     this.street = STREETS.PREFLOP;
-    this.winner = null;
+    this.winner = [];
     this.blind = 10;
     this.playerPositions = {};
     this.disabled = true;
@@ -211,7 +211,7 @@ class Table {
   fold(id) {
     const activePlayers = this.getActivePlayers();
     if (activePlayers.length === 2) {
-      const winner = activePlayers.filter(player => player.id !== id)[0];
+      const winner = activePlayers.filter(player => player.id !== id);
       this.handlePot();
       this.won(winner);
     } else if (this.players[this.lastAction].id === id) {
@@ -223,9 +223,15 @@ class Table {
     this.resetTimer();
   }
 
-  won(player) {
-    this.winner = player;
-    player.chips += this.chips;
+  won(players) {
+    this.winner = players;
+    if (players.length === 1) {
+      players[0].chips += this.chips;
+    } else {
+      players.map(player => {
+        player.chips += this.chips / players.length;
+      });
+    }
     this.deck.reset();
     if (this.street === STREETS.RIVER) {
       this.players.forEach(player => {
@@ -253,7 +259,7 @@ class Table {
     });
     this.bigBlind =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
-    this.winner = null;
+    this.winner = [];
     this.resetBlinds();
     this.disabled = false;
   }
