@@ -64,6 +64,13 @@ const Player = props => {
                     selectedPlayer.id === currPlayer.id ||
                     selectedPlayer.showCards
                   }
+                  lost={
+                    pokerTable &&
+                    pokerTable.winner.length &&
+                    !pokerTable.winner.some(
+                      player => player.id === selectedPlayer.id
+                    )
+                  }
                   card={card}
                 />
               );

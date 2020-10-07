@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Card = props => {
-  const { card, className, shown } = props;
+  const { card, className, shown, lost } = props;
   const suitSymbol = {
     c: { symbol: '♣', color: 'black' },
     s: { symbol: '♠', color: 'black' },
@@ -19,7 +19,7 @@ const Card = props => {
     <div
       className={`card card-shown card-${suitSymbol[card.suit].color} ${
         className ? className : ''
-      }`}
+      } ${lost ? 'card-lost' : ''}`}
     >
       <p className="suit-top-left">{suitSymbol[card.suit].symbol}</p>
       <div className="card-value">
