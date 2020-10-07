@@ -40,8 +40,8 @@ class CardRanker {
           if (bestPlayers.length === 1) return bestPlayers;
           return this.breakTie(bestPlayers);
         case 'FULL_HOUSE':
-        case 'QUADS':
-        case 'TRIPS':
+        case 'FOUR_OF_A_KIND':
+        case 'THREE_OF_A_KIND':
         case 'PAIR':
           bestPlayers = this.breakPairedTie(bestPlayers, bestHandRank);
           if (bestPlayers.length === 1) return bestPlayers;
@@ -53,7 +53,7 @@ class CardRanker {
   }
 
   breakPairedTie(bestPlayers, type, times = 0) {
-    const pairType = type !== 'FULL_HOUSE' ? type : 'TRIPS';
+    const pairType = type !== 'FULL_HOUSE' ? type : 'THREE_OF_A_KIND';
     let bestPaired = 0;
     let players = [];
 
@@ -124,11 +124,12 @@ class CardRanker {
       }
       return 'STRAIGHT_FLUSH';
     }
-    if (player.paired['QUADS']) return 'QUADS';
-    if (player.paired['TRIPS'] && player.paired['PAIR']) return 'FULL_HOUSE';
+    if (player.paired['FOUR_OF_A_KIND']) return 'FOUR_OF_A_KIND';
+    if (player.paired['THREE_OF_A_KIND'] && player.paired['PAIR'])
+      return 'FULL_HOUSE';
     if (flush) return 'FLUSH';
     if (straight) return 'STRAIGHT';
-    if (player.paired['TRIPS']) return 'TRIPS';
+    if (player.paired['THREE_OF_A_KIND']) return 'THREE_OF_A_KIND';
     if (player.paired['PAIR'] && player.paired['PAIR'].length >= 2)
       return 'TWO_PAIR';
     if (player.paired['PAIR']) return 'PAIR';
@@ -209,10 +210,10 @@ class CardRanker {
     let bestCards = [];
     Object.keys(groups).forEach(value => {
       let repeats = groups[value];
-      if (repeats === 4) player.paired['QUADS'] = [value];
+      if (repeats === 4) player.paired['FOUR_OF_A_KIND'] = [value];
       if (repeats === 3)
-        player.paired['TRIPS'] = player.paired['TRIPS']
-          ? player.paired['TRIPS'].concat(value)
+        player.paired['THREE_OF_A_KIND'] = player.paired['THREE_OF_A_KIND']
+          ? player.paired['THREE_OF_A_KIND'].concat(value)
           : [value];
       if (repeats === 2)
         player.paired['PAIR'] = player.paired['PAIR']

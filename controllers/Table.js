@@ -256,8 +256,11 @@ class Table {
       }
       this.resetPremove(player);
       player.cardRank = undefined;
+      player.paired = {};
+      player.bestCards = [];
       player.showCards = false;
     });
+
     this.bigBlind =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
     this.winner = [];
