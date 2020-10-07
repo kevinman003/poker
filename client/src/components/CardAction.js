@@ -15,6 +15,7 @@ const CardAction = props => {
   const [selectedPlayer, setSelectedPlayer] = React.useState();
 
   React.useEffect(() => {
+    console.log('thisTurn', thisTurn);
     if (thisTurn) {
       setDisplay({
         check: 'check',
@@ -33,47 +34,50 @@ const CardAction = props => {
   // setting raise slider
   React.useEffect(() => {
     if (pokerTable) {
+      setSelectedPlayer(
+        pokerTable.players.find(player => player.id === currPlayer.id)
+      );
       setRaise(pokerTable.toCall);
     }
   }, [pokerTable]);
 
   // logic for premoves
-  React.useEffect(() => {
-    const deactivate = () => {
-      const result = {};
-      Object.keys(active).map(key => (result[key] = false));
-      setActive(result);
-    };
-    if (pokerTable) {
-      if (
-        pokerTable.players[pokerTable.currAction].id === currPlayer.id &&
-        selectedPlayer
-      ) {
-        const selectedPlayer = pokerTable.players.find(
-          player => player.id === currPlayer.id
-        );
-        if (!pokerTable.winner) {
-          if (
-            (selectedPlayer.premove.check &&
-              !(pokerTable.toCall - selectedPlayer.playedChips)) ||
-            selectedPlayer.premove.raise
-          ) {
-            socket.emit('checkCall', { currPlayer, table });
-          }
-          if (
-            selectedPlayer.premove.fold &&
-            pokerTable.toCall - selectedPlayer.playedChips
-          ) {
-            socket.emit('fold', { currPlayer, table });
-          }
-        }
-      }
-      const player = pokerTable.players.find(
-        player => player.id === currPlayer.id
-      );
-      setSelectedPlayer(player);
-    }
-  }, [pokerTable]);
+  // React.useEffect(() => {
+  //   const deactivate = () => {
+  //     const result = {};
+  //     Object.keys(active).map(key => (result[key] = false));
+  //     setActive(result);
+  //   };
+  //   if (pokerTable) {
+  //     if (
+  //       pokerTable.players[pokerTable.currAction].id === currPlayer.id &&
+  //       selectedPlayer
+  //     ) {
+  //       const selectedPlayer = pokerTable.players.find(
+  //         player => player.id === currPlayer.id
+  //       );
+  //       if (!pokerTable.winner) {
+  //         if (
+  //           (selectedPlayer.premove.check &&
+  //             !(pokerTable.toCall - selectedPlayer.playedChips)) ||
+  //           selectedPlayer.premove.raise
+  //         ) {
+  //           socket.emit('checkCall', { currPlayer, table });
+  //         }
+  //         if (
+  //           selectedPlayer.premove.fold &&
+  //           pokerTable.toCall - selectedPlayer.playedChips
+  //         ) {
+  //           socket.emit('fold', { currPlayer, table });
+  //         }
+  //       }
+  //     }
+  //     const player = pokerTable.players.find(
+  //       player => player.id === currPlayer.id
+  //     );
+  //     setSelectedPlayer(player);
+  //   }
+  // }, [pokerTable]);
 
   const handleCheckCall = () => {
     if (pokerTable && !pokerTable.disabled) {

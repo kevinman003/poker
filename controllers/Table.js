@@ -76,13 +76,28 @@ class Table {
 
   nextAction() {
     const activePlayers = this.getActivePlayers();
-    let currIndex = activePlayers.findIndex(
+    // currIndex: index of player in active player list
+    const currIndex = activePlayers.findIndex(
       player => player.id === this.players[this.currAction].id
     );
-    currIndex = currIndex + 1 === activePlayers.length ? 0 : currIndex + 1;
+    const nextIndex =
+      currIndex + 1 === activePlayers.length ? 0 : currIndex + 1;
+    const nextPlayer = this.players[nextIndex];
     this.currAction = this.players.findIndex(
-      player => player.id === activePlayers[currIndex].id
+      player => player.id === activePlayers[nextIndex].id
     );
+    if (
+      ((nextPlayer.premove.check || nextPlayer.premove.fold) &&
+        !(this.toCall - nextPlayer.playedChips)) ||
+      nextPlayer.premove.raise
+    ) {
+      return this.checkCall(nextPlayer.id);
+    } else if (
+      nextPlayer.premove.fold &&
+      pokerTable.toCall - nextPlayer.playedChips
+    ) {
+      return this.fold(nextPlayer.id);
+    }
   }
 
   setToCall(toCall) {

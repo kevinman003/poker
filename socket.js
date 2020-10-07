@@ -114,7 +114,6 @@ const socketConnection = io => {
         else player.premove[action] = false;
       });
       player.premove[move] = !player.premove[move];
-      console.log('curr:', currTable.timeCount);
       io.to(table).emit('updateTable', { currTable });
     });
 

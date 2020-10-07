@@ -94,7 +94,7 @@ class CardRanker {
         }
       }
       if (bestPlayers.length === 1) {
-        return bestPlayers[0];
+        return bestPlayers;
       }
       index--;
     }
