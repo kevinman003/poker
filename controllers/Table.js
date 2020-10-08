@@ -108,6 +108,15 @@ class Table {
     this.players.push(player);
   }
 
+  removePlayer(id) {
+    this.fold(id);
+    this.players = this.players.filter(player => player.id !== id);
+    Object.keys(this.playerPositions).map(position => {
+      if (this.playerPositions[position] === id)
+        delete this.playerPositions[position];
+    });
+  }
+
   dealPlayerCards(player) {
     const currPlayer = this.players.find(p => p.id === player.id);
     this.deck.dealPlayerCards(currPlayer);
@@ -122,6 +131,10 @@ class Table {
 
     this.bigBlind = Math.floor(Math.random() * this.players.length);
     this.resetBlinds();
+  }
+
+  stop() {
+    this.disabled = true;
   }
 
   resetPremove(player) {
@@ -218,9 +231,11 @@ class Table {
     } else if (this.players[this.lastAction].id === id) {
       this.nextStreet();
     }
-    this.getPlayer(id).playing = false;
-    this.nextAction();
-
+    if (!this.disabled) {
+      const player = this.getPlayer(id);
+      player.playing = false;
+      this.nextAction();
+    }
     this.resetTimer();
   }
 
@@ -250,22 +265,26 @@ class Table {
     this.chips = 0;
     this.cards = [];
     this.players.forEach(player => {
-      if (player.chips > 0) {
-        player.playing = true;
-        this.deck.dealPlayerCards(player);
-      }
-      this.resetPremove(player);
       player.cardRank = undefined;
       player.paired = {};
       player.bestCards = [];
       player.showCards = false;
+      player.holeCards = [];
+      if (player.chips > 0) {
+        player.playing = true;
+        if (this.players.length > 1) this.deck.dealPlayerCards(player);
+      }
+      this.resetPremove(player);
     });
 
     this.bigBlind =
       this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
     this.winner = [];
-    this.resetBlinds();
-    this.disabled = false;
+    console.log('reset game');
+    if (this.players.length > 1) {
+      this.resetBlinds();
+      this.disabled = false;
+    }
   }
 
   findWinner() {

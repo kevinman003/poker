@@ -1,13 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-
+import queryString from 'query-string';
+import { withRouter } from 'react-router-dom';
 import Card from './Card';
 import Timer from './Timer';
 
 const Player = props => {
-  const { seatNumber, currPlayer, socket, pokerTable } = props;
+  const { seatNumber, currPlayer, socket, pokerTable, location } = props;
   const [selectedPlayer, setSelectedPlayer] = React.useState(null);
   const [enabled, setEnabled] = React.useState(false);
+  const { table } = queryString.parse(location.search);
 
   // Display player on seat if it is taken
   React.useEffect(() => {
@@ -34,7 +36,7 @@ const Player = props => {
 
   const handleSit = () => {
     socket.emit('sit', {
-      table: pokerTable.id,
+      table: table,
       currPlayer,
       seatNumber: seatNumber,
     });
@@ -95,4 +97,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, null)(Player);
+export default connect(mapStateToProps, null)(withRouter(Player));

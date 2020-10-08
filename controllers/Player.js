@@ -2,9 +2,9 @@ const uuid = require('uuid');
 
 // Contains hole cards, id, five best cards for determining draws
 class Player {
-  constructor(name, id) {
+  constructor(name, socketId) {
     this.name = name;
-    this.id = id || uuid.v4();
+    this.id = socketId;
     this.holeCards = [];
     this.cardRank = '';
     this.paired = {};

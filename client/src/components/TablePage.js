@@ -54,17 +54,21 @@ const TablePage = props => {
           history.push(`/?table=${redirect}`);
         }
       });
-    } else if (localStorage.id) {
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (localStorage.id) {
+      console.log('join from id ');
       socket.emit('join', { table, id: localStorage.id }, player =>
         setCurrPlayer(player)
       );
     } else {
       setToggleName(true);
     }
-
     return () => {
       // TODO: implement functional disconnect
-      socket.emit('disconnect', { table, id: localStorage.id });
+      socket.emit('disconnect', {});
       localStorage.removeItem('id');
 
       socket.off();
@@ -73,6 +77,7 @@ const TablePage = props => {
 
   React.useEffect(() => {
     socket.on('updateTable', ({ currTable }) => {
+      console.log('players:', currTable.players);
       updatePokerTable(currTable);
     });
   }, [socket, pokerTable]);
@@ -80,6 +85,8 @@ const TablePage = props => {
   React.useEffect(() => {
     socket.on('dealCards', ({ currTable }) => {
       if (currPlayer) {
+        console.log('currplayers:', currTable.players);
+        console.log('currId:', currPlayer.id);
         const player = currTable.players.find(
           player => player.id === currPlayer.id
         );
@@ -123,6 +130,7 @@ const TablePage = props => {
       <CardAction
         thisTurn={
           pokerTable &&
+          !pokerTable.disabled &&
           currPlayer &&
           pokerTable.players[pokerTable.currAction].id === currPlayer.id
         }

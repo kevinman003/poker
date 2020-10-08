@@ -2,6 +2,8 @@ const {
   addTable,
   getTable,
   getAllTables,
+  addPlayer,
+  getPlayerTable,
 } = require('./controllers/TableRooms');
 const Player = require('./controllers/Player');
 const { STREETS } = require('./controllers/constants');
@@ -39,13 +41,18 @@ const socketConnection = io => {
   io.on('connection', socket => {
     console.log('New connection', socket.id);
     // ========== JOINING AND DISCONNECTING ROOMS BELOW =============
-    socket.on('join', ({ table, id, name }, callback) => {
+    socket.on('join', ({ table, name }, callback) => {
+      const id = socket.id;
       if (!getTable(table)) addTable(table);
+      const playerTable = getPlayerTable();
+      if (playerTable[id]) playerTable[id].push(table);
+      else playerTable[id] = [table];
+
       const currTable = getTable(table);
       const players = currTable.getPlayers();
 
       if (!players.some(player => player.id === id)) {
-        const currPlayer = new Player(name, id);
+        const currPlayer = new Player(name, id, socket.id);
         currTable.addPlayer(currPlayer);
         callback(currPlayer);
       } else {
@@ -64,12 +71,25 @@ const socketConnection = io => {
       io.to(table).emit('updateTable', { currTable });
     });
 
-    socket.on('disconnect', ({ table, id }) => {
-      // console.log('ID: ', id);
-      // const currTable = getTable(table);
-      // const players = currTable.getPlayers();
-      // const newPlayers = players.filter(player => player.id !== id);
-      // io.to(table).emit('updatePlayer', { newPlayers });
+    socket.on('disconnect', ({}) => {
+      const playerTable = getPlayerTable();
+      playerTable[socket.id] &&
+        playerTable[socket.id].map(table => {
+          const currTable = getTable(table);
+          currTable.removePlayer(socket.id);
+          io.to(table).emit('updateTable', { currTable });
+          if (currTable.players.length <= 1) {
+            currTable.stop();
+            clearInterval(timer);
+          }
+          if (currTable.winner.length) {
+            clearInterval(timer);
+            setTimeout(() => {
+              currTable.resetGame();
+              io.to(table).emit('updateTable', { currTable });
+            }, 2000);
+          }
+        });
       console.log('User left', socket.id);
     });
 
@@ -135,6 +155,7 @@ const socketConnection = io => {
       if (currTable.winner.length) {
         clearInterval(timer);
         setTimeout(() => {
+          console.log('checked');
           currTable.resetGame();
           io.to(table).emit('updateTable', { currTable });
           startTimer(table, currTable, io);
@@ -152,26 +173,32 @@ const socketConnection = io => {
       const currTable = getTable(table);
       currTable.fold(currPlayer.id);
       io.to(table).emit('updateTable', { currTable });
-      io.to(table).emit('nextTurn', {
-        id: currTable.players[currTable.currAction].id,
-      });
-    });
-
-    socket.on('time', ({ table, currPlayer }) => {
-      const currTable = getTable(table);
-      if (currTable.toCall - currPlayer.playedChips) {
-        currTable.fold(currPlayer.id);
-      } else {
-        currTable.checkCall(currPlayer.id);
-      }
       if (currTable.winner.length) {
+        clearInterval(timer);
         setTimeout(() => {
+          startTimer(table, currTable, io);
           currTable.resetGame();
           io.to(table).emit('updateTable', { currTable });
         }, 2000);
       }
-      io.to(table).emit('updateTable', { currTable });
     });
+
+    // socket.on('time', ({ table, currPlayer }) => {
+    //   const currTable = getTable(table);
+    //   if (currTable.toCall - currPlayer.playedChips) {
+    //     currTable.fold(currPlayer.id);
+    //   } else {
+    //     currTable.checkCall(currPlayer.id);
+    //   }
+    //   if (currTable.winner.length) {
+    //     setTimeout(() => {
+    //       console.log('timed out');
+    //       currTable.resetGame();
+    //       io.to(table).emit('updateTable', { currTable });
+    //     }, 2000);
+    //   }
+    //   io.to(table).emit('updateTable', { currTable });
+    // });
   });
 };
 
