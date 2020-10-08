@@ -10,7 +10,7 @@ class Player {
     this.paired = {};
     this.chips = 500;
     this.playedChips = 0;
-    this.playing = true;
+    this.playing = false;
     this.bestCards = [];
     this.seated = -1;
     this.showCards = false;
