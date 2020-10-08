@@ -9,14 +9,21 @@ import { v4 as uuidv4 } from 'uuid';
 const CreateName = props => {
   const { shown, handleToggleName, socket, setCurrPlayer, location } = props;
   const [name, setName] = React.useState('');
+  const [errors, setErrors] = React.useState([]);
 
   const handlePlayer = () => {
-    const { table } = queryString.parse(location.search);
-    const id = uuidv4();
-    localStorage.setItem('id', id);
-    console.log('name join');
-    socket.emit('join', { table, id, name }, player => setCurrPlayer(player));
-    handleToggleName(false);
+    const createErrors = [];
+    if (!name.length)
+      createErrors.push({ error: 'name', msg: 'Name is required ' });
+    setErrors(createErrors);
+    if (!createErrors.length) {
+      const { table } = queryString.parse(location.search);
+      const id = uuidv4();
+      localStorage.setItem('id', id);
+      console.log('name join');
+      socket.emit('join', { table, id, name }, player => setCurrPlayer(player));
+      handleToggleName(false);
+    }
   };
 
   return (
@@ -26,7 +33,14 @@ const CreateName = props => {
         <div className="create-name-content">
           <div className="modal-title">Create Player</div>
           <div className="input">
-            <div>Name</div>
+            <div className="name-errors">
+              {errors.map(error => {
+                return <p>{error.msg}</p>;
+              })}
+            </div>
+            <div>
+              Name <span className="red">*</span>
+            </div>
             <input
               type="text"
               className="table-name-input"
