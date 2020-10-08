@@ -1,13 +1,24 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { setCurrPlayerAction } from '../actions/pokerTableActions';
+import {
+  setCurrPlayerAction,
+  updatePokerTableAction,
+} from '../actions/pokerTableActions';
 import queryString from 'query-string';
 import { withRouter } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 const CreateName = props => {
-  const { shown, handleToggleName, socket, setCurrPlayer, location } = props;
+  const {
+    shown,
+    handleToggleName,
+    socket,
+    setCurrPlayer,
+    location,
+    pokerTable,
+    updatePokerTable,
+  } = props;
   const [name, setName] = React.useState('');
   const [errors, setErrors] = React.useState([]);
 
@@ -21,7 +32,14 @@ const CreateName = props => {
       const id = uuidv4();
       localStorage.setItem('id', id);
       console.log('name join');
-      socket.emit('join', { table, id, name }, player => setCurrPlayer(player));
+      socket.emit('join', { table, id, name }, player => {
+        setCurrPlayer(player);
+        if (!pokerTable) {
+          socket.emit('getTable', { table }, currTable => {
+            updatePokerTable(currTable);
+          });
+        }
+      });
       handleToggleName(false);
     }
   };
@@ -62,6 +80,7 @@ const CreateName = props => {
 const mapStateToProps = state => {
   return {
     socket: state.socket,
+    pokerTable: state.pokerTable,
   };
 };
 
@@ -69,6 +88,7 @@ const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
       setCurrPlayer: setCurrPlayerAction,
+      updatePokerTable: updatePokerTableAction,
     },
     dispatch
   );

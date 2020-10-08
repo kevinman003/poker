@@ -94,6 +94,11 @@ const socketConnection = io => {
     });
 
     // ========== TABLE ACTIONS BELOW ===========
+    socket.on('getTable', ({ table }, callback) => {
+      const currTable = getTable(table);
+      callback(currTable);
+    });
+
     socket.on('getTables', ({}, callback) => {
       callback(getAllTables());
     });

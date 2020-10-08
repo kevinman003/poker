@@ -25,6 +25,7 @@ class Table {
     this.disabled = true;
     this.time = 10;
     this.timeCount = 10;
+    this.toJoin = [];
     this.name;
     if (name) {
       this.name = name;
@@ -146,11 +147,21 @@ class Table {
   }
 
   resetBlinds() {
+    const activePlayers = this.getActivePlayers();
+    const bigBlindActive = activePlayers.findIndex(
+      player => player.id === this.players[this.bigBlind].id
+    );
+    const setBigBlind =
+      bigBlindActive + 1 === activePlayers.length ? 0 : bigBlindActive + 1;
+    this.bigBlind = this.players.findIndex(
+      player => player.id === activePlayers[setBigBlind]
+    );
+
     this.smallBlind =
-      this.bigBlind - 1 < 0 ? this.players.length - 1 : this.bigBlind - 1;
+      setBigBlind - 1 < 0 ? activePlayers.length - 1 : setBigBlind - 1;
     this.lastAction = this.bigBlind;
     this.currAction =
-      this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
+      this.bigBlind + 1 === activePlayers.length ? 0 : this.bigBlind + 1;
     this.toCall = this.blind;
     this.players[this.smallBlind].addChips(this.blind / 2);
     this.players[this.bigBlind].addChips(this.blind);
@@ -277,8 +288,6 @@ class Table {
       this.resetPremove(player);
     });
 
-    this.bigBlind =
-      this.bigBlind + 1 === this.players.length ? 0 : this.bigBlind + 1;
     this.winner = [];
     console.log('reset game');
     if (this.players.length > 1) {

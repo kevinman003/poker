@@ -77,7 +77,6 @@ const TablePage = props => {
 
   React.useEffect(() => {
     socket.on('updateTable', ({ currTable }) => {
-      console.log('players:', currTable.players);
       updatePokerTable(currTable);
     });
   }, [socket, pokerTable]);
@@ -85,8 +84,6 @@ const TablePage = props => {
   React.useEffect(() => {
     socket.on('dealCards', ({ currTable }) => {
       if (currPlayer) {
-        console.log('currplayers:', currTable.players);
-        console.log('currId:', currPlayer.id);
         const player = currTable.players.find(
           player => player.id === currPlayer.id
         );
