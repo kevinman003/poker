@@ -43,6 +43,7 @@ const socketConnection = io => {
     // ========== JOINING AND DISCONNECTING ROOMS BELOW =============
     socket.on('join', ({ table, name }, callback) => {
       const id = socket.id;
+      console.log('join table:', table);
       if (!getTable(table)) addTable(table);
       const playerTable = getPlayerTable();
       if (playerTable[id]) playerTable[id].push(table);
@@ -100,7 +101,9 @@ const socketConnection = io => {
     });
 
     socket.on('getTables', ({}, callback) => {
-      callback(getAllTables());
+      const tables = getAllTables();
+      Object.keys(tables).map(table => console.log('id: ', table));
+      callback(tables);
     });
 
     socket.on('addTable', ({ table, leaveTable, name }, callback) => {

@@ -36,6 +36,7 @@ const TablePage = props => {
   } = props;
   const ENDPOINT = 'localhost:5000';
   const { table } = queryString.parse(location.search);
+  const [hasRedirected, setHasRedirected] = React.useState(false);
   const [toggleLobby, setToggleLobby] = React.useState(false);
   const [toggleTable, setToggleTable] = React.useState(false);
   const [toggleName, setToggleName] = React.useState(false);
@@ -46,19 +47,23 @@ const TablePage = props => {
     // redirect to another existing table if user goes to /
     if (!table) {
       socket.emit('getTables', {}, tables => {
+        console.log('tables: ', Object.keys(tables));
         if (Object.keys(tables).length > 0) {
           const joinTableIdx = Math.floor(
             Math.random() * Object.keys(tables).length
           );
           const redirect = tables[Object.keys(tables)[joinTableIdx]].id;
+          setHasRedirected(true);
           history.push(`/?table=${redirect}`);
         }
       });
+    } else {
+      setHasRedirected(true);
     }
   }, []);
 
   React.useEffect(() => {
-    if (localStorage.id) {
+    if (localStorage.id && hasRedirected) {
       console.log('join from id ');
       socket.emit('join', { table, id: localStorage.id }, player =>
         setCurrPlayer(player)
