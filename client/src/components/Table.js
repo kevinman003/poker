@@ -7,6 +7,19 @@ import CommunityCards from './CommunityCards';
 
 import { currPlayerReducer } from '../reducers/pokerTableReducer';
 
+// converting between seat number and player className
+const playerSeatMap = {
+  0: 0,
+  1: 1,
+  2: 8,
+  3: 2,
+  4: 7,
+  5: 3,
+  6: 6,
+  7: 4,
+  8: 5,
+};
+
 const Table = props => {
   const { pokerTable, currPlayer } = props;
   const [seats, setSeats] = React.useState([]);
@@ -65,8 +78,11 @@ const Table = props => {
     for (var i = 0; i < 8 / 2; i++) {
       seatComponents.push(
         <div className={`seat-container seat-container-${i}`} key={`seat-${i}`}>
-          <Player seatNumber={i * 2} key={`player-${i * 2}`} />
-          <Player seatNumber={i * 2 + 1} key={`player-${i * 2 + 1}`} />
+          <Player seatNumber={playerSeatMap[i * 2]} key={`player-${i * 2}`} />
+          <Player
+            seatNumber={playerSeatMap[i * 2 + 1]}
+            key={`player-${i * 2 + 1}`}
+          />
         </div>
       );
     }

@@ -1,16 +1,16 @@
-@import './var.scss';
-@import './table.scss';
-@import './tablePage.scss';
-@import './seat.scss';
+@import './_var.scss';
+@import './_table.scss';
+@import './_tablePage.scss';
+@import './_seat.scss';
 @import './_cardActions.scss';
-@import './chips.scss';
-@import './card.scss';
-@import './nav.scss';
-@import './lobby.scss';
-@import './createTable.scss';
-@import './tableInfo.scss';
-@import './timer.scss';
-@import './createName.scss';
+@import './_chips.scss';
+@import './_card.scss';
+@import './_nav.scss';
+@import './_lobby.scss';
+@import './_createTable.scss';
+@import './_tableInfo.scss';
+@import './_timer.scss';
+@import './_createName.scss';
 
 body {
   font-family: 'Nunito', sans-serif;
