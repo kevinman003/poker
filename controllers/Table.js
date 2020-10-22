@@ -2,7 +2,7 @@ const http = require('http');
 const CardRanker = require('./CardRanker');
 const Deck = require('./Deck');
 const { STREETS } = require('./constants');
-const LinkedList = require('../client/src/data/LinkedList');
+const List = require('./structures/List');
 
 // Contains array of total players, community cards
 // TODO complete the switch case
@@ -10,7 +10,7 @@ class Table {
   constructor(id, name) {
     this.id = id;
     this.cards = [];
-    this.players = [];
+    this.players = new List();
     this.toCall = 0;
     this.chips = 0;
     this.deck = new Deck();
@@ -107,7 +107,9 @@ class Table {
 
   seat(id, seatNumber) {
     this.playerPositions[seatNumber] = id;
+    console.log('getting player');
     const player = this.getPlayer(id);
+    console.log('player:', player);
     player.seated = seatNumber;
     const activePlayers = this.getActivePlayers();
     if (activePlayers.length >= 2) {
@@ -118,7 +120,7 @@ class Table {
   }
 
   addPlayer(player) {
-    this.players.push(player);
+    this.players.add(player);
   }
 
   removePlayer(id) {
