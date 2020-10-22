@@ -81,9 +81,8 @@ class Table {
     const currIndex = activePlayers.findIndex(
       player => player.id === this.players[this.currAction].id
     );
-    const nextIndex =
-      currIndex + 1 === activePlayers.length ? 0 : currIndex + 1;
-    const nextPlayer = this.players[nextIndex];
+    let nextIndex = currIndex + 1 === activePlayers.length ? 0 : currIndex + 1;
+    let nextPlayer = this.players[nextIndex];
     this.currAction = this.players.findIndex(
       player => player.id === activePlayers[nextIndex].id
     );
@@ -316,6 +315,7 @@ class Table {
       this.resetBlinds();
       this.disabled = false;
     }
+    this.players.sort((a, b) => (a.seated > b.seated ? 1 : -1));
   }
 
   findWinner() {

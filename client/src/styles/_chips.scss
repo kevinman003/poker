@@ -60,7 +60,7 @@
 }
 
 .chip-position-2 {
-  @include chip-position(37%, auto, auto, 33%);
+  @include chip-position(47%, 30%, auto, auto);
 }
 
 .chip-position-3 {
@@ -68,11 +68,11 @@
 }
 
 .chip-position-4 {
-  @include chip-position(47%, auto, auto, 30%);
+  @include chip-position(auto, 35%, 40%, auto);
 }
 
 .chip-position-5 {
-  @include chip-position(47%, 30%, auto, auto);
+  @include chip-position(auto, 49%, 37%, auto);
 }
 
 .chip-position-6 {
@@ -80,11 +80,11 @@
 }
 
 .chip-position-7 {
-  @include chip-position(auto, 35%, 40%, auto);
+  @include chip-position(47%, auto, auto, 30%);
 }
 
 .chip-position-8 {
-  @include chip-position(auto, 49%, 37%, auto);
+  @include chip-position(37%, auto, auto, 33%);
 }
 
 .chip-label {
