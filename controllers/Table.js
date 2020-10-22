@@ -10,7 +10,8 @@ class Table {
   constructor(id, name) {
     this.id = id;
     this.cards = [];
-    this.players = new List();
+    this.players = []; // for front-end
+    this.playersList = new List(); // for actions
     this.toCall = 0;
     this.chips = 0;
     this.deck = new Deck();
@@ -108,9 +109,7 @@ class Table {
 
   seat(id, seatNumber) {
     this.playerPositions[seatNumber] = id;
-    console.log('getting player');
     const player = this.getPlayer(id);
-    console.log('player:', player);
     player.seated = seatNumber;
     const activePlayers = this.getActivePlayers();
     if (activePlayers.length >= 2) {
@@ -121,7 +120,8 @@ class Table {
   }
 
   addPlayer(player) {
-    this.players.add(player);
+    this.players.push(player);
+    this.playersList.add(player);
   }
 
   removePlayer(id) {

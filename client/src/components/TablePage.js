@@ -81,9 +81,12 @@ const TablePage = props => {
   }, [location.search]);
 
   React.useEffect(() => {
-    socket.on('updateTable', ({ currTable }) => {
-      console.log('curr:', currTable);
-      updatePokerTable(currTable);
+    socket.once('updateTable', ({ currTable }) => {
+      if (Array.isArray(currTable.players)) {
+        console.log(currTable.players);
+        console.log(typeof currTable.players);
+        updatePokerTable(currTable);
+      }
     });
   }, [socket, pokerTable]);
 

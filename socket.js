@@ -7,7 +7,7 @@ const {
 } = require('./controllers/TableRooms');
 const Player = require('./controllers/Player');
 const { STREETS } = require('./controllers/constants');
-
+const _ = require('lodash');
 let timer;
 
 const startTimer = (table, currTable, io) => {
@@ -38,8 +38,12 @@ const startTimer = (table, currTable, io) => {
 };
 
 const updateTable = (io, table, currTable) => {
-  currTable.players = currTable.players.toArray();
-  io.to(table).emit('updateTable', { currTable });
+  currTable.playersList.detach();
+
+  const newTable = _.cloneDeep(currTable);
+  newTable.playersList = undefined;
+
+  io.to(table).emit('updateTable', { currTable: newTable });
 };
 
 const socketConnection = io => {
@@ -65,10 +69,7 @@ const socketConnection = io => {
         callback(players.find(player => player.id === id));
       }
       socket.join(table);
-
-      updateTable(io, table, currTable);
-      currTable.players = currTable.players.toArray();
-      socket.emit('updateTable', { currTable });
+      return updateTable(io, table, currTable);
     });
 
     socket.on('joinTable', ({ table, leaveTable, currPlayer }) => {
@@ -121,22 +122,20 @@ const socketConnection = io => {
     });
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {
-      console.log('socket sit');
-      // const currTable = getTable(table);
-      // console.log('seating');
-      // currTable.seat(currPlayer.id, seatNumber);
-      // console.log('sat');
-      // const seatedPlayers = currTable.players.filter(
-      //   player => player.seated >= 0
-      // );
-      // if (seatedPlayers.length === 2) {
-      //   currTable.start();
-      //   startTimer(table, currTable, io);
-      //   io.to(table).emit('dealCards', { currTable });
-      // }
+      const currTable = getTable(table);
+      console.log(currTable.players);
+      currTable.seat(currPlayer.id, seatNumber);
+      const seatedPlayers = currTable.players.filter(
+        player => player.seated >= 0
+      );
+      if (seatedPlayers.length === 2) {
+        currTable.start();
+        startTimer(table, currTable, io);
+        io.to(table).emit('dealCards', { currTable });
+      }
 
-      // updateTable(io, table, currTable);
-      // io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
+      updateTable(io, table, currTable);
+      io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
     });
 
     // ======== GAMEPLAY SOCKET ACTIONS BELOW ===========

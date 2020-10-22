@@ -7,6 +7,7 @@ const TableInfo = props => {
   const playerInfo = () => {
     let result = '';
     if (pokerTable) {
+      console.log(pokerTable.players);
       const numPlayers = pokerTable.players.filter(player => player.seated >= 0)
         .length;
       result += numPlayers;

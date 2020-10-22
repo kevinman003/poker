@@ -35,7 +35,6 @@ const Player = props => {
   }, [pokerTable]);
 
   const handleSit = () => {
-    console.log('sitting');
     socket.emit('sit', {
       table: table,
       currPlayer,
