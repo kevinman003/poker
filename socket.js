@@ -38,12 +38,7 @@ const startTimer = (table, currTable, io) => {
 };
 
 const updateTable = (io, table, currTable) => {
-  currTable.playersList.detach();
-
-  const newTable = _.cloneDeep(currTable);
-  newTable.playersList = undefined;
-
-  io.to(table).emit('updateTable', { currTable: newTable });
+  io.to(table).emit('updateTable', { currTable });
 };
 
 const socketConnection = io => {

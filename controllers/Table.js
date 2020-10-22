@@ -2,16 +2,17 @@ const http = require('http');
 const CardRanker = require('./CardRanker');
 const Deck = require('./Deck');
 const { STREETS } = require('./constants');
-const List = require('./structures/List');
+const PlayerList = require('./PlayerList');
 
 // Contains array of total players, community cards
 // TODO complete the switch case
+const playerList = new PlayerList();
+// const activePlayerList = new
 class Table {
   constructor(id, name) {
     this.id = id;
     this.cards = [];
     this.players = []; // for front-end
-    this.playersList = new List(); // for actions
     this.toCall = 0;
     this.chips = 0;
     this.deck = new Deck();
@@ -57,7 +58,7 @@ class Table {
   }
 
   getPlayers() {
-    return this.players;
+    return playerList.getPlayers();
   }
 
   // for testing
@@ -69,7 +70,7 @@ class Table {
   }
 
   getPlayer(id) {
-    return this.players.find(player => player.id === id);
+    return playerList.getPlayer(id);
   }
 
   getCards() {
@@ -120,8 +121,8 @@ class Table {
   }
 
   addPlayer(player) {
-    this.players.push(player);
-    this.playersList.add(player);
+    playerList.addPlayer(player);
+    this.players = playerList.getPlayers();
   }
 
   removePlayer(id) {
