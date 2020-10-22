@@ -82,6 +82,7 @@ const TablePage = props => {
 
   React.useEffect(() => {
     socket.on('updateTable', ({ currTable }) => {
+      console.log('curr:', currTable);
       updatePokerTable(currTable);
     });
   }, [socket, pokerTable]);

@@ -21,7 +21,7 @@ const startTimer = (table, currTable, io) => {
       } else {
         currTable.checkCall(currPlayer.id);
       }
-      io.to(table).emit('updateTable', { currTable });
+      updateTable(io, table, currTable);
     } else {
       io.to(table).emit('time', { time: currTable.timeCount });
       currTable.timeCount -= 0.1;
@@ -30,11 +30,16 @@ const startTimer = (table, currTable, io) => {
       clearInterval(timer);
       setTimeout(() => {
         currTable.resetGame();
-        io.to(table).emit('updateTable', { currTable });
+        updateTable(io, table, currTable);
         startTimer(table, currTable, io);
       }, 2000);
     }
   }, 100);
+};
+
+const updateTable = (io, table, currTable) => {
+  currTable.players = currTable.players.toArray();
+  io.to(table).emit('updateTable', { currTable });
 };
 
 const socketConnection = io => {
@@ -60,8 +65,10 @@ const socketConnection = io => {
         callback(players.find(player => player.id === id));
       }
       socket.join(table);
+
+      updateTable(io, table, currTable);
+      currTable.players = currTable.players.toArray();
       socket.emit('updateTable', { currTable });
-      io.to(table).emit('updateTable', { currTable });
     });
 
     socket.on('joinTable', ({ table, leaveTable, currPlayer }) => {
@@ -69,7 +76,7 @@ const socketConnection = io => {
       currTable.addPlayer(currPlayer);
       socket.leave(leaveTable);
       socket.join(table);
-      io.to(table).emit('updateTable', { currTable });
+      updateTable(io, table, currTable);
     });
 
     socket.on('disconnect', ({}) => {
@@ -78,7 +85,7 @@ const socketConnection = io => {
         playerTable[socket.id].map(table => {
           const currTable = getTable(table);
           currTable.removePlayer(socket.id);
-          io.to(table).emit('updateTable', { currTable });
+          updateTable(io, table, currTable);
           if (currTable.players.length <= 1) {
             currTable.stop();
             clearInterval(timer);
@@ -87,7 +94,7 @@ const socketConnection = io => {
             clearInterval(timer);
             setTimeout(() => {
               currTable.resetGame();
-              io.to(table).emit('updateTable', { currTable });
+              updateTable(io, table, currTable);
             }, 2000);
           }
         });
@@ -114,20 +121,22 @@ const socketConnection = io => {
     });
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {
-      const currTable = getTable(table);
-      currTable.seat(currPlayer.id, seatNumber);
+      console.log('socket sit');
+      // const currTable = getTable(table);
+      // console.log('seating');
+      // currTable.seat(currPlayer.id, seatNumber);
+      // console.log('sat');
+      // const seatedPlayers = currTable.players.filter(
+      //   player => player.seated >= 0
+      // );
+      // if (seatedPlayers.length === 2) {
+      //   currTable.start();
+      //   startTimer(table, currTable, io);
+      //   io.to(table).emit('dealCards', { currTable });
+      // }
 
-      const seatedPlayers = currTable.players.filter(
-        player => player.seated >= 0
-      );
-      if (seatedPlayers.length === 2) {
-        currTable.start();
-        startTimer(table, currTable, io);
-        io.to(table).emit('dealCards', { currTable });
-      }
-
-      io.to(table).emit('updateTable', { currTable });
-      io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
+      // updateTable(io, table, currTable);
+      // io.to(table).emit('sit', { seatNumber, id: currPlayer.id });
     });
 
     // ======== GAMEPLAY SOCKET ACTIONS BELOW ===========
@@ -140,7 +149,7 @@ const socketConnection = io => {
         else player.premove[action] = false;
       });
       player.premove[move] = !player.premove[move];
-      io.to(table).emit('updateTable', { currTable });
+      updateTable(io, table, currTable);
     });
 
     socket.on('stopPremove', ({ currPlayer, table }, cb) => {
@@ -150,20 +159,20 @@ const socketConnection = io => {
         player.premove[premove] = false;
       });
       cb(player);
-      io.to(table).emit('updateTable', { currTable });
+      updateTable(io, table, currTable);
     });
 
     socket.on('checkCall', ({ currPlayer, table }) => {
       const currTable = getTable(table);
       currTable.checkCall(currPlayer.id);
-      io.to(table).emit('updateTable', { currTable });
+      updateTable(io, table, currTable);
 
       if (currTable.winner.length) {
         clearInterval(timer);
         setTimeout(() => {
           console.log('checked');
           currTable.resetGame();
-          io.to(table).emit('updateTable', { currTable });
+          updateTable(io, table, currTable);
           startTimer(table, currTable, io);
         }, 2000);
       }
@@ -172,19 +181,19 @@ const socketConnection = io => {
     socket.on('raise', ({ currPlayer, table, raise }) => {
       const currTable = getTable(table);
       currTable.raise(currPlayer.id, parseInt(raise));
-      io.to(table).emit('updateTable', { currTable });
+      updateTable(io, table, currTable);
     });
 
     socket.on('fold', ({ currPlayer, table }) => {
       const currTable = getTable(table);
       currTable.fold(currPlayer.id);
-      io.to(table).emit('updateTable', { currTable });
+      updateTable(io, table, currTable);
       if (currTable.winner.length) {
         clearInterval(timer);
         setTimeout(() => {
           startTimer(table, currTable, io);
           currTable.resetGame();
-          io.to(table).emit('updateTable', { currTable });
+          updateTable(io, table, currTable);
         }, 2000);
       }
     });
@@ -200,10 +209,10 @@ const socketConnection = io => {
     //     setTimeout(() => {
     //       console.log('timed out');
     //       currTable.resetGame();
-    //       io.to(table).emit('updateTable', { currTable });
+    //     updateTable(io, table, currTable)
     //     }, 2000);
     //   }
-    //   io.to(table).emit('updateTable', { currTable });
+    // updateTable(io, table, currTable)
     // });
   });
 };
