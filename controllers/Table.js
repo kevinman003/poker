@@ -73,11 +73,16 @@ class Table {
     return playerList.getPlayer(id);
   }
 
+  getPlayerIndex(id) {
+    return this.players.findIndex(player => player.id === id);
+  }
+
   getCards() {
     return this.cards;
   }
 
   nextAction() {
+<<<<<<< HEAD
     const activePlayers = this.getActivePlayers().filter(
       player => player.holeCards.length
     );
@@ -89,7 +94,13 @@ class Table {
     let nextPlayer = this.players[nextIndex];
     this.currAction = this.players.findIndex(
       player => player.id === activePlayers[nextIndex].id
+=======
+    const nextPlayerId = playerList.nextAction(
+      this.players[this.currAction].id
+>>>>>>> Finish player linked list
     );
+    this.currAction = this.getPlayerIndex(nextPlayerId);
+    const nextPlayer = this.players[this.currAction];
     if (
       ((nextPlayer.premove.check || nextPlayer.premove.fold) &&
         !(this.toCall - nextPlayer.playedChips)) ||
@@ -110,6 +121,8 @@ class Table {
 
   seat(id, seatNumber) {
     this.playerPositions[seatNumber] = id;
+    // TODO implement later
+    // playerList.seat(id);
     const player = this.getPlayer(id);
     player.seated = seatNumber;
     const activePlayers = this.getActivePlayers();
@@ -147,6 +160,7 @@ class Table {
     this.toCall = this.blind;
 
     this.bigBlind = Math.floor(Math.random() * this.players.length);
+
     this.resetBlinds();
   }
 
@@ -164,16 +178,22 @@ class Table {
 
   resetBlinds() {
     console.log('reset blinds');
-    const activePlayers = this.getActivePlayers();
-    const activeBigBlind = activePlayers.findIndex(
-      player => player.id === this.players[this.bigBlind].id
+    const { smallBlind, currAction } = playerList.resetAction(
+      this.players[this.bigBlind].id
     );
+    this.smallBlind = this.getPlayerIndex(smallBlind);
+    this.currAction = this.getPlayerIndex(currAction);
+    // const activePlayers = this.getActivePlayers();
+    // const activeBigBlind = activePlayers.findIndex(
+    //   player => player.id === this.players[this.bigBlind].id
+    // );
 
-    this.smallBlind =
-      activeBigBlind - 1 < 0 ? activePlayers.length - 1 : activeBigBlind - 1;
+    // this.currAction =
+    //   this.bigBlind + 1 === activePlayers.length ? 0 : this.bigBlind + 1;
+    // this.smallBlind =
+    //   activeBigBlind - 1 < 0 ? activePlayers.length - 1 : activeBigBlind - 1;
     this.lastAction = this.bigBlind;
-    this.currAction =
-      this.bigBlind + 1 === activePlayers.length ? 0 : this.bigBlind + 1;
+
     this.toCall = this.blind;
     this.players[this.smallBlind].addChips(this.blind / 2);
     this.players[this.bigBlind].addChips(this.blind);
