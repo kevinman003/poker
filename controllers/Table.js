@@ -76,7 +76,9 @@ class Table {
   }
 
   nextAction() {
-    const activePlayers = this.getActivePlayers();
+    const activePlayers = this.getActivePlayers().filter(
+      player => player.holeCards.length
+    );
     // currIndex: index of player in active player list
     const currIndex = activePlayers.findIndex(
       player => player.id === this.players[this.currAction].id
@@ -172,10 +174,11 @@ class Table {
     this.toCall = this.blind;
     this.players[this.smallBlind].addChips(this.blind / 2);
     this.players[this.bigBlind].addChips(this.blind);
-    console.log('join:', this.toJoin);
     this.toJoin.map(player => {
       const selectedPlayer = this.players.find(p => p.id === player);
-      selectedPlayer.addChips(this.blind);
+      if (!selectedPlayer.chips) {
+        selectedPlayer.addChips(this.blind);
+      }
     });
     this.toJoin = [];
   }
@@ -196,10 +199,10 @@ class Table {
     if (moreChips) {
       player.addChips(moreChips);
     }
-    const beforeNextAction = this.currAction;
-    this.nextAction();
-    if (this.lastAction === beforeNextAction) {
+    if (this.lastAction === this.currAction) {
       this.nextStreet();
+    } else {
+      this.nextAction();
     }
     this.resetTimer();
   }
@@ -257,8 +260,8 @@ class Table {
     }
     if (!this.disabled) {
       const player = this.getPlayer(id);
-      player.playing = false;
       this.nextAction();
+      player.playing = false;
     }
     this.resetTimer();
   }
@@ -286,6 +289,7 @@ class Table {
   }
 
   resetGame() {
+    this.street = STREETS.PREFLOP;
     this.chips = 0;
     this.cards = [];
     this.players.forEach(player => {
