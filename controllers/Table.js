@@ -3,6 +3,7 @@ const CardRanker = require('./CardRanker');
 const Deck = require('./Deck');
 const { STREETS } = require('./constants');
 const PlayerList = require('./PlayerList');
+const { before } = require('lodash');
 
 // Contains array of total players, community cards
 // TODO complete the switch case
@@ -82,22 +83,8 @@ class Table {
   }
 
   nextAction() {
-<<<<<<< HEAD
-    const activePlayers = this.getActivePlayers().filter(
-      player => player.holeCards.length
-    );
-    // currIndex: index of player in active player list
-    const currIndex = activePlayers.findIndex(
-      player => player.id === this.players[this.currAction].id
-    );
-    let nextIndex = currIndex + 1 === activePlayers.length ? 0 : currIndex + 1;
-    let nextPlayer = this.players[nextIndex];
-    this.currAction = this.players.findIndex(
-      player => player.id === activePlayers[nextIndex].id
-=======
     const nextPlayerId = playerList.nextAction(
       this.players[this.currAction].id
->>>>>>> Finish player linked list
     );
     this.currAction = this.getPlayerIndex(nextPlayerId);
     const nextPlayer = this.players[this.currAction];
@@ -222,10 +209,10 @@ class Table {
     if (moreChips) {
       player.addChips(moreChips);
     }
-    if (this.lastAction === this.currAction) {
+    const beforeNextAction = this.currAction;
+    this.nextAction();
+    if (this.lastAction === beforeNextAction) {
       this.nextStreet();
-    } else {
-      this.nextAction();
     }
     this.resetTimer();
   }
@@ -241,12 +228,9 @@ class Table {
       case STREETS.PREFLOP:
         this.cards = this.deck.dealFlop();
         this.street = STREETS.FLOP;
-        this.lastAction =
-          this.getActivePlayers() == 2
-            ? this.smallBlind
-            : this.smallBlind - 1 < 0
-            ? this.players.length - 1
-            : this.smallBlind - 1;
+        this.lastAction = this.getPlayerIndex(
+          playerList.postFlopLastAction(this.players[this.smallBlind].id)
+        );
         break;
       case STREETS.FLOP:
         this.street = STREETS.TURN;

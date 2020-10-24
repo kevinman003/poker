@@ -55,6 +55,19 @@ class PlayerList {
     res.currAction = nextCurr.val.id;
     return res;
   }
+
+  postFlopLastAction(smallBlind) {
+    let curr = this.players.root;
+    while (curr.val.id !== smallBlind) {
+      curr = curr.next;
+    }
+    const activePlayers = this.getPlayers().length;
+    if (activePlayers === 2) {
+      return curr.val.id;
+    } else {
+      return curr.prev.val.id;
+    }
+  }
 }
 
 module.exports = PlayerList;
