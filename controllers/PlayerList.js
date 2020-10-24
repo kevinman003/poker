@@ -57,16 +57,20 @@ class PlayerList {
   }
 
   postFlopLastAction(smallBlind) {
+    const res = {};
     let curr = this.players.root;
     while (curr.val.id !== smallBlind) {
       curr = curr.next;
     }
     const activePlayers = this.getPlayers().length;
     if (activePlayers === 2) {
-      return curr.val.id;
+      res.lastAction = curr.val.id;
+      res.currAction = curr.next.val.id;
     } else {
-      return curr.prev.val.id;
+      res.lastAction = curr.prev.val.id;
+      res.currAction = curr.val.id;
     }
+    return res;
   }
 }
 

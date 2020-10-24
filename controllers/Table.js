@@ -228,9 +228,11 @@ class Table {
       case STREETS.PREFLOP:
         this.cards = this.deck.dealFlop();
         this.street = STREETS.FLOP;
-        this.lastAction = this.getPlayerIndex(
-          playerList.postFlopLastAction(this.players[this.smallBlind].id)
+        const { lastAction, currAction } = playerList.postFlopLastAction(
+          this.players[this.smallBlind].id
         );
+        this.lastAction = this.getPlayerIndex(lastAction);
+        this.currAction = this.getPlayerIndex(currAction);
         break;
       case STREETS.FLOP:
         this.street = STREETS.TURN;
