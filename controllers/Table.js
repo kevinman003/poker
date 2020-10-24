@@ -59,7 +59,7 @@ class Table {
   }
 
   getPlayers() {
-    return playerList.getPlayers();
+    return this.players;
   }
 
   // for testing
@@ -71,7 +71,7 @@ class Table {
   }
 
   getPlayer(id) {
-    return playerList.getPlayer(id);
+    return this.players.find(player => player.id === id);
   }
 
   getPlayerIndex(id) {
@@ -112,6 +112,9 @@ class Table {
     // playerList.seat(id);
     const player = this.getPlayer(id);
     player.seated = seatNumber;
+    playerList.addPlayer(player);
+    playerList.seat(id);
+
     const activePlayers = this.getActivePlayers();
     if (activePlayers.length >= 2) {
       this.toJoin.push(id);
@@ -121,8 +124,7 @@ class Table {
   }
 
   addPlayer(player) {
-    playerList.addPlayer(player);
-    this.players = playerList.getPlayers();
+    this.players.push(player);
   }
 
   removePlayer(id) {
@@ -146,7 +148,7 @@ class Table {
     });
     this.toCall = this.blind;
 
-    this.bigBlind = Math.floor(Math.random() * this.players.length);
+    this.bigBlind = Math.floor(Math.random() * this.getActivePlayers().length);
 
     this.resetBlinds();
   }
@@ -164,21 +166,13 @@ class Table {
   }
 
   resetBlinds() {
-    console.log('reset blinds');
-    const { smallBlind, currAction } = playerList.resetAction(
-      this.players[this.bigBlind].id
+    const { smallBlind, bigBlind, currAction } = playerList.resetAction(
+      this.getActivePlayers()[this.bigBlind].id
     );
     this.smallBlind = this.getPlayerIndex(smallBlind);
     this.currAction = this.getPlayerIndex(currAction);
-    // const activePlayers = this.getActivePlayers();
-    // const activeBigBlind = activePlayers.findIndex(
-    //   player => player.id === this.players[this.bigBlind].id
-    // );
+    this.bigBlind = this.getPlayerIndex(bigBlind);
 
-    // this.currAction =
-    //   this.bigBlind + 1 === activePlayers.length ? 0 : this.bigBlind + 1;
-    // this.smallBlind =
-    //   activeBigBlind - 1 < 0 ? activePlayers.length - 1 : activeBigBlind - 1;
     this.lastAction = this.bigBlind;
 
     this.toCall = this.blind;
@@ -186,7 +180,7 @@ class Table {
     this.players[this.bigBlind].addChips(this.blind);
     this.toJoin.map(player => {
       const selectedPlayer = this.players.find(p => p.id === player);
-      if (!selectedPlayer.chips) {
+      if (!selectedPlayer.playedChips) {
         selectedPlayer.addChips(this.blind);
       }
     });
@@ -314,15 +308,15 @@ class Table {
       this.resetPremove(player);
     });
 
-    const activePlayers = this.getActivePlayers();
-    const bigBlindActive = activePlayers.findIndex(
-      player => player.id === this.players[this.bigBlind].id
-    );
-    const setBigBlind =
-      bigBlindActive + 1 === activePlayers.length ? 0 : bigBlindActive + 1;
-    this.bigBlind = this.players.findIndex(
-      player => player.id === activePlayers[setBigBlind].id
-    );
+    // const activePlayers = this.getActivePlayers();
+    // const bigBlindActive = activePlayers.findIndex(
+    //   player => player.id === this.players[this.bigBlind].id
+    // );
+    // const setBigBlind =
+    //   bigBlindActive + 1 === activePlayers.length ? 0 : bigBlindActive + 1;
+    // this.bigBlind = this.players.findIndex(
+    //   player => player.id === activePlayers[setBigBlind].id
+    // );
     this.winner = [];
     if (this.players.length > 1) {
       this.resetBlinds();

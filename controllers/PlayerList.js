@@ -39,20 +39,25 @@ class PlayerList {
   resetAction(bigBlind) {
     const res = {};
     let curr = this.players.root;
-    while (curr.next != this.root) {
-      if (curr.val.id === bigBlind) break;
+    while (curr.val.id !== bigBlind) {
       curr = curr.next;
     }
-    let smallCurr = curr.prev;
-    while (!smallCurr.val.playing) {
-      smallCurr = smallCurr.prev;
+    // let smallCurr = curr.prev;
+    // while (!smallCurr.val.playing) {
+    //   smallCurr = smallCurr.prev;
+    // }
+    // let nextCurr = curr.next;
+    // while (!nextCurr.val.playing) {
+    //   nextCurr = nextCurr.next;
+    // }
+    if (this.length === 2) {
+      res.smallBlind = curr.val.id;
+      res.currAction = res.smallBlind;
+    } else {
+      res.smallBlind = curr.val.id;
+      res.currAction = curr.next.next.val.id;
     }
-    res.smallBlind = smallCurr.val.id;
-    let nextCurr = curr.next;
-    while (!nextCurr.val.playing) {
-      nextCurr = nextCurr.next;
-    }
-    res.currAction = nextCurr.val.id;
+    res.bigBlind = curr.next.val.id;
     return res;
   }
 
@@ -71,6 +76,51 @@ class PlayerList {
       res.currAction = curr.val.id;
     }
     return res;
+  }
+
+  seat(id) {
+    let curr = this.players.root;
+    if (this.length === 1) return;
+    while (curr.val.id !== id) {
+      curr = curr.next;
+    }
+    if (
+      curr.val.seated > curr.prev.val.seated &&
+      curr.val.seated < curr.next.val.seated
+    )
+      return;
+    let insertNode = this.players.root;
+    while (insertNode.val.seated < curr.val.seated) {
+      insertNode = insertNode.next;
+    }
+    if (this.length > 2) {
+      curr.prev.next = curr.next;
+      curr.next.prev = curr.prev;
+      insertNode.prev.next = curr;
+      curr.next = insertNode;
+    }
+    this.resetRoot();
+  }
+
+  resetRoot() {
+    let curr = this.players.root;
+    let smallestNode = curr;
+    curr = curr.next;
+    while (curr.next !== this.players.root) {
+      if (curr.val.seated < smallestNode.val.seated) {
+        smallestNode = curr;
+      }
+      curr = curr.next;
+    }
+    this.players.root = smallestNode;
+  }
+
+  findNextPlaying(node) {
+    let curr = node;
+    while (!curr.val.playing) {
+      curr = curr.next;
+    }
+    return curr;
   }
 }
 
