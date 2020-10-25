@@ -308,21 +308,11 @@ class Table {
       this.resetPremove(player);
     });
 
-    // const activePlayers = this.getActivePlayers();
-    // const bigBlindActive = activePlayers.findIndex(
-    //   player => player.id === this.players[this.bigBlind].id
-    // );
-    // const setBigBlind =
-    //   bigBlindActive + 1 === activePlayers.length ? 0 : bigBlindActive + 1;
-    // this.bigBlind = this.players.findIndex(
-    //   player => player.id === activePlayers[setBigBlind].id
-    // );
     this.winner = [];
     if (this.players.length > 1) {
       this.resetBlinds();
       this.disabled = false;
     }
-    this.players.sort((a, b) => (a.seated > b.seated ? 1 : -1));
   }
 
   findWinner() {

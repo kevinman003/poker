@@ -33,10 +33,6 @@ const CardAction = props => {
   // setting raise slider and selectedPlayer
   React.useEffect(() => {
     if (pokerTable) {
-      console.log(
-        'list func: ',
-        Object.getOwnPropertyNames(pokerTable.players)
-      );
       setSelectedPlayer(
         pokerTable.players.find(player => player.id === currPlayer.id)
       );

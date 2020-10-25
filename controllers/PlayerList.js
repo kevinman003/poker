@@ -98,6 +98,8 @@ class PlayerList {
       curr.next.prev = curr.prev;
       insertNode.prev.next = curr;
       curr.next = insertNode;
+      curr.prev = insertNode.prev;
+      insertNode.prev = curr;
     }
     this.resetRoot();
   }

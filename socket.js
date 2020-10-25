@@ -55,7 +55,6 @@ const socketConnection = io => {
 
       const currTable = getTable(table);
       const players = currTable.getPlayers();
-      currTable.players.map(p => console.log('position: ', p.name, p.seated));
       if (!players.some(player => player.id === id)) {
         const currPlayer = new Player(name, id, socket.id);
         currTable.addPlayer(currPlayer);
@@ -105,7 +104,6 @@ const socketConnection = io => {
 
     socket.on('getTables', ({}, callback) => {
       const tables = getAllTables();
-      Object.keys(tables).map(table => console.log('id: ', table));
       callback(tables);
     });
 
@@ -164,7 +162,6 @@ const socketConnection = io => {
       if (currTable.winner.length) {
         clearInterval(timer);
         setTimeout(() => {
-          console.log('checked');
           currTable.resetGame();
           updateTable(io, table, currTable);
           startTimer(table, currTable, io);

@@ -47,7 +47,6 @@ const TablePage = props => {
     // redirect to another existing table if user goes to /
     if (!table) {
       socket.emit('getTables', {}, tables => {
-        console.log('tables: ', Object.keys(tables));
         if (Object.keys(tables).length > 0) {
           const joinTableIdx = Math.floor(
             Math.random() * Object.keys(tables).length
@@ -64,7 +63,6 @@ const TablePage = props => {
 
   React.useEffect(() => {
     if (localStorage.id && hasRedirected) {
-      console.log('join from id ');
       socket.emit('join', { table, id: localStorage.id }, player =>
         setCurrPlayer(player)
       );
@@ -83,8 +81,6 @@ const TablePage = props => {
   React.useEffect(() => {
     socket.once('updateTable', ({ currTable }) => {
       if (Array.isArray(currTable.players)) {
-        console.log(currTable.players);
-        console.log(typeof currTable.players);
         updatePokerTable(currTable);
       }
     });

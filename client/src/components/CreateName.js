@@ -31,7 +31,6 @@ const CreateName = props => {
       const { table } = queryString.parse(location.search);
       const id = uuidv4();
       localStorage.setItem('id', id);
-      console.log('name join');
       socket.emit('join', { table, id, name }, player => {
         setCurrPlayer(player);
         if (!pokerTable) {
