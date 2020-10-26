@@ -115,14 +115,13 @@ class PlayerList {
   resetRoot() {
     let curr = this.players.root;
     let smallestNode = curr;
-    curr = curr.next;
     while (curr.next !== this.players.root) {
       if (curr.val.seated < smallestNode.val.seated) {
         smallestNode = curr;
       }
       curr = curr.next;
     }
-    this.players.root = smallestNode;
+    this.players.root = curr.val.seated < smallestNode.val.seated ? curr : smallestNode;
   }
 
   // find next active player (playing === true)
