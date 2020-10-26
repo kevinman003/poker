@@ -86,7 +86,7 @@ class PlayerList {
     }
     if (
       curr.val.seated > curr.prev.val.seated &&
-      curr.val.seated < curr.next.val.seated
+      (curr.val.seated < curr.next.val.seated || curr.next === this.players.root)
     )
       return;
     let insertNode = this.players.root;

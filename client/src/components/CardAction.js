@@ -1,16 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { useStateWithCallbackLazy } from 'use-state-with-callback';
 
 const CardAction = props => {
   const { enabled, thisTurn, socket, currPlayer, table, pokerTable } = props;
   const [raise, setRaise] = React.useState(0);
   const [display, setDisplay] = React.useState({});
-  const [active, setActive] = useStateWithCallbackLazy({
-    check: false,
-    fold: false,
-    raise: false,
-  });
 
   const [selectedPlayer, setSelectedPlayer] = React.useState();
 
