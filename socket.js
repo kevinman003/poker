@@ -21,6 +21,7 @@ const startTimer = (table, currTable, io) => {
       } else {
         currTable.checkCall(currPlayer.id);
       }
+      startTimer(table, currTable, io);
       updateTable(io, table, currTable);
     } else {
       io.to(table).emit('time', { time: currTable.timeCount });
