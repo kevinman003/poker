@@ -79,10 +79,12 @@ const TablePage = props => {
   }, [location.search]);
 
   React.useEffect(() => {
-    socket.once('updateTable', ({ currTable }) => {
-      if (Array.isArray(currTable.players)) {
-        updatePokerTable(currTable);
+    socket.on('updateTable', ({ currTable }) => {
+      if (currPlayer) {
+        const player = currTable.players.find(p => p.id === currPlayer.id);
+        setCurrPlayer(player);
       }
+      updatePokerTable(currTable);
     });
   }, [socket, pokerTable]);
 
@@ -136,7 +138,7 @@ const TablePage = props => {
           currPlayer &&
           pokerTable.players[pokerTable.currAction].id === currPlayer.id
         }
-        enabled={pokerTable && !pokerTable.disabled}
+        enabled={pokerTable && !pokerTable.disabled && currPlayer.playing}
         table={table}
       />
     </div>
