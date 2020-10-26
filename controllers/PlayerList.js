@@ -19,10 +19,6 @@ class PlayerList {
     return this.players.toArray();
   }
 
-  // getActivePlayers() {
-  //   return this.player.filter(player => player.playing);
-  // }
-
   nextAction(id) {
     let curr = this.players.root;
     while (curr.next != this.root) {
@@ -78,6 +74,17 @@ class PlayerList {
     return res;
   }
 
+  // id of smallBlind
+  resetLastAction(id) {
+    let curr = this.players.root;
+    while (curr.val.id !== id) {
+      curr = curr.next;
+    }
+    const nextLastAction = this.findNextPlaying(curr.prev, false);
+    return nextLastAction.val.id;
+  }
+
+  // id of seated person
   seat(id) {
     let curr = this.players.root;
     if (this.length === 1) return;
@@ -104,6 +111,7 @@ class PlayerList {
     this.resetRoot();
   }
 
+  // resets root to smallest seated player
   resetRoot() {
     let curr = this.players.root;
     let smallestNode = curr;
@@ -117,10 +125,15 @@ class PlayerList {
     this.players.root = smallestNode;
   }
 
-  findNextPlaying(node) {
+  // find next active player (playing === true)
+  findNextPlaying(node, next) {
     let curr = node;
     while (!curr.val.playing) {
-      curr = curr.next;
+      if (next) {
+        curr = curr.next;
+      } else {
+        curr = curr.prev;
+      }
     }
     return curr;
   }

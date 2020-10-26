@@ -243,6 +243,8 @@ class Table {
         this.showCards();
         break;
     }
+    const lastActionId = playerList.resetLastAction(this.players[this.smallBlind].id);
+    this.lastAction = this.getPlayerIndex(lastActionId);
   }
 
   handlePot() {
@@ -264,6 +266,7 @@ class Table {
     if (!this.disabled) {
       const player = this.getPlayer(id);
       this.nextAction();
+      player.holeCards = [];
       player.playing = false;
     }
     this.resetTimer();

@@ -116,7 +116,6 @@ const socketConnection = io => {
 
     socket.on('sit', ({ table, currPlayer, seatNumber }) => {
       const currTable = getTable(table);
-      console.log(currTable.players);
       currTable.seat(currPlayer.id, seatNumber);
       const seatedPlayers = currTable.players.filter(
         player => player.seated >= 0
