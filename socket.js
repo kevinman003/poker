@@ -82,14 +82,14 @@ const socketConnection = io => {
           const currTable = getTable(table);
           currTable.removePlayer(socket.id);
           updateTable(io, table, currTable);
-          if (currTable.players.length <= 1) {
-            currTable.stop();
-            clearInterval(timer);
-          }
           if (currTable.winner.length) {
+            currTable.stop();
             clearInterval(timer);
             setTimeout(() => {
               currTable.resetGame();
+              if (currTable.players.length > 1) {
+                startTimer(table, currTable, io);
+              }
               updateTable(io, table, currTable);
             }, 2000);
           }
@@ -163,8 +163,8 @@ const socketConnection = io => {
         clearInterval(timer);
         setTimeout(() => {
           currTable.resetGame();
-          updateTable(io, table, currTable);
           startTimer(table, currTable, io);
+          updateTable(io, table, currTable);
         }, 2000);
       }
     });

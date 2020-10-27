@@ -128,8 +128,10 @@ class Table {
   }
 
   removePlayer(id) {
-    this.fold(id);
     this.players = this.players.filter(player => player.id !== id);
+    this.fold(id);
+    console.log('removing: ', id);
+    playerList.removePlayer(id);
     Object.keys(this.playerPositions).map(position => {
       if (this.playerPositions[position] === id)
         delete this.playerPositions[position];
@@ -255,23 +257,27 @@ class Table {
   }
 
   fold(id) {
+    const player = this.getPlayer(id);
+    if (player) player.playing = false;
     const activePlayers = this.getActivePlayers();
-    if (activePlayers.length === 2) {
-      const winner = activePlayers.filter(player => player.id !== id);
-      this.handlePot();
-      this.won(winner);
-    } else if (this.players[this.lastAction].id === id) {
-      this.nextStreet();
+    if (this.players.length) {
+      if (activePlayers.length === 1) {
+        this.handlePot();
+        this.won(activePlayers);
+      } else if (this.players[this.lastAction].id === id) {
+        this.nextStreet();
+      }
+      if (!this.disabled) {
+        const player = this.getPlayer(id);
+        this.nextAction();
+        player.holeCards = [];
+      }
     }
-    if (!this.disabled) {
-      const player = this.getPlayer(id);
-      this.nextAction();
-      player.holeCards = [];
-      player.playing = false;
-    }
+
     this.resetTimer();
   }
 
+  // players array of players
   won(players) {
     this.winner = players;
     if (players.length === 1) {

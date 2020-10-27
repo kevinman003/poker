@@ -32,20 +32,23 @@ class PlayerList {
     return nextCurr.val.id;
   }
 
+  // removes player with id
+  removePlayer(id) {
+    let curr = this.players.root;
+    while (curr.val.id !== id) {
+      curr = curr.next;
+    }
+    curr.prev.next = curr.next;
+    curr.next.prev = curr.prev;
+    this.players.root = curr.next.val.seated < curr.prev.val.seated ? curr.next : curr.prev;
+  }
+
   resetAction(bigBlind) {
     const res = {};
     let curr = this.players.root;
     while (curr.val.id !== bigBlind) {
       curr = curr.next;
     }
-    // let smallCurr = curr.prev;
-    // while (!smallCurr.val.playing) {
-    //   smallCurr = smallCurr.prev;
-    // }
-    // let nextCurr = curr.next;
-    // while (!nextCurr.val.playing) {
-    //   nextCurr = nextCurr.next;
-    // }
     if (this.length === 2) {
       res.smallBlind = curr.val.id;
       res.currAction = res.smallBlind;
