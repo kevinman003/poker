@@ -225,7 +225,8 @@ class Table {
         this.cards = this.deck.dealFlop();
         this.street = STREETS.FLOP;
         const { lastAction, currAction } = playerList.postFlopLastAction(
-          this.players[this.smallBlind].id
+          this.players[this.smallBlind].id,
+          this.getActivePlayers().length
         );
         this.lastAction = this.getPlayerIndex(lastAction);
         this.currAction = this.getPlayerIndex(currAction);

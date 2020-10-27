@@ -60,13 +60,13 @@ class PlayerList {
     return res;
   }
 
-  postFlopLastAction(smallBlind) {
+  // index of smallBlind and number of activePlayers
+  postFlopLastAction(smallBlind, activePlayers) {
     const res = {};
     let curr = this.players.root;
     while (curr.val.id !== smallBlind) {
       curr = curr.next;
     }
-    const activePlayers = this.getPlayers().length;
     if (activePlayers === 2) {
       res.lastAction = curr.val.id;
       res.currAction = curr.next.val.id;
@@ -77,14 +77,17 @@ class PlayerList {
     return res;
   }
 
-  // id of smallBlind
-  resetLastAction(id) {
-    let curr = this.players.root;
-    while (curr.val.id !== id) {
-      curr = curr.next;
+  // id of smallBlind and number of activePlayers
+  resetLastAction(id, activePlayers) {
+    if (activePlayers > 2) {
+      let curr = this.players.root;
+      while (curr.val.id !== id) {
+        curr = curr.next;
+      }
+      const nextLastAction = this.findNextPlaying(curr.prev, false);
+      return nextLastAction.val.id;
     }
-    const nextLastAction = this.findNextPlaying(curr.prev, false);
-    return nextLastAction.val.id;
+    return id;
   }
 
   // id of seated person
