@@ -21,6 +21,7 @@ class Table {
     this.smallBlind = 0;
     this.lastAction = 0;
     this.currAction = 0;
+    this.button = -1;
     this.street = STREETS.PREFLOP;
     this.winner = [];
     this.blind = 10;
@@ -156,6 +157,7 @@ class Table {
   }
 
   stop() {
+    this.button = -1;
     this.disabled = true;
   }
 
@@ -168,12 +170,13 @@ class Table {
   }
 
   resetBlinds() {
-    const { smallBlind, bigBlind, currAction } = playerList.resetAction(
+    const { smallBlind, bigBlind, currAction, button } = playerList.resetAction(
       this.getActivePlayers()[this.bigBlind].id
     );
     this.smallBlind = this.getPlayerIndex(smallBlind);
     this.currAction = this.getPlayerIndex(currAction);
     this.bigBlind = this.getPlayerIndex(bigBlind);
+    this.button = this.getPlayerIndex(button);
 
     this.lastAction = this.bigBlind;
 
@@ -246,7 +249,7 @@ class Table {
         this.showCards();
         break;
     }
-    const lastActionId = playerList.resetLastAction(this.players[this.smallBlind].id);
+    const lastActionId = playerList.resetLastAction(this.players[this.smallBlind].id, this.getActivePlayers().length);
     this.lastAction = this.getPlayerIndex(lastActionId);
   }
 

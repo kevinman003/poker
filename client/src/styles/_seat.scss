@@ -111,3 +111,17 @@
   border: 2px solid $active;
   filter: drop-shadow(1px 3px 5px rgba(255, 185, 33, 0.7));
 }
+
+.dealer-button {
+  background-color: $dark-blue;
+  height: 30px;
+  width: 30px;
+  border-radius: 100%;
+  line-height: 30px;
+  text-align: center;
+  color: #FFF;
+  border: 2px solid #eee;
+  position: absolute;
+  top: -15px;
+  right: -15px;
+}

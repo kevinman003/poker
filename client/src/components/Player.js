@@ -78,6 +78,7 @@ const Player = props => {
               );
             })}
           </div>
+          {pokerTable && pokerTable.button >= 0 && pokerTable.players[pokerTable.button].id === selectedPlayer.id && <div className="dealer-button"> D </div>}
         </div>
       )}
       {currPlayer && !selectedPlayer && currPlayer.seated < 0 && (

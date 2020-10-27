@@ -52,9 +52,11 @@ class PlayerList {
     if (this.length === 2) {
       res.smallBlind = curr.val.id;
       res.currAction = res.smallBlind;
+      res.button = res.smallBlind;
     } else {
       res.smallBlind = curr.val.id;
       res.currAction = curr.next.next.val.id;
+      res.button = curr.prev.val.id;
     }
     res.bigBlind = curr.next.val.id;
     return res;
