@@ -92,6 +92,15 @@ class PlayerList {
     return id;
   }
 
+  // id of first player
+  firstAllIn(id) {
+    let curr = this.players.root;
+    while (curr.val.allIn) {
+      curr = curr.next;
+    }
+    return curr.val.id;
+  }
+
   // id of seated person
   seat(id) {
     let curr = this.players.root;

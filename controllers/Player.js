@@ -19,6 +19,7 @@ class Player {
       fold: false,
       raise: false,
     };
+    this.allIn = false;
   }
 
   addCards(cards) {

@@ -31,6 +31,7 @@ class Table {
     this.timeCount = 10;
     this.toJoin = [];
     this.name;
+    this.allIn = false;
     if (name) {
       this.name = name;
     } else {
@@ -182,7 +183,7 @@ class Table {
 
     this.toCall = this.blind;
     this.players[this.smallBlind].addChips(this.blind / 2);
-    this.players[this.bigBlind].addChips(this.blind);
+  this.players[this.bigBlind].addChips(this.blind);
     this.toJoin.map(player => {
       const selectedPlayer = this.players.find(p => p.id === player);
       if (!selectedPlayer.playedChips) {
@@ -205,8 +206,13 @@ class Table {
   checkCall(id) {
     const player = this.getPlayer(id);
     const moreChips = this.toCall - player.playedChips;
-    if (moreChips) {
-      player.addChips(moreChips);
+    const diffChips = moreChips  > player.chips ? player.chips : moreChips; 
+    if (diffChips) {
+      player.addChips(diffChips);
+    }
+    if (!player.chips) {
+      player.premove.raise = true;
+      player.allIn = true;
     }
     const beforeNextAction = this.currAction;
     this.nextAction();
@@ -216,16 +222,25 @@ class Table {
     this.resetTimer();
   }
 
+  dealFlop() {
+    this.cards = (this.deck.dealFlop());
+  }
+
+  dealOneCard() {
+    this.cards.push(this.deck.dealOneCard());
+  }
   nextStreet() {
     this.handlePot();
     this.toCall = 0;
     const activePlayers = this.getActivePlayers();
     activePlayers.map(player => {
-      this.resetPremove(player);
+      if (player.chips) {
+        this.resetPremove(player);
+      }
     });
     switch (this.street) {
       case STREETS.PREFLOP:
-        this.cards = this.deck.dealFlop();
+        this.dealFlop();
         this.street = STREETS.FLOP;
         const { lastAction, currAction } = playerList.postFlopLastAction(
           this.players[this.smallBlind].id,
@@ -236,19 +251,26 @@ class Table {
         break;
       case STREETS.FLOP:
         this.street = STREETS.TURN;
-        this.cards.push(this.deck.dealOneCard());
+        this.dealOneCard();
         break;
       case STREETS.TURN:
         this.street = STREETS.RIVER;
-        this.cards.push(this.deck.dealOneCard());
+        this.dealOneCard();
         break;
       case STREETS.RIVER:
         this.street = STREETS.PREFLOP;
-        const winner = this.findWinner();
-        this.won(winner);
         this.showCards();
         break;
     }
+    if (this.street !== STREETS.RIVER) {
+      if (this.players.filter(player => !player.allIn).length === 1) {
+        this.allIn = true;
+      } else if (this.players[this.currAction].allIn) {
+        const currAction = playerList.firstAllIn(this.players[this.currAction].id);
+        this.currAction = this.getPlayerIndex(currAction);
+      }
+    }
+
     const lastActionId = playerList.resetLastAction(this.players[this.smallBlind].id, this.getActivePlayers().length);
     this.lastAction = this.getPlayerIndex(lastActionId);
   }
@@ -307,6 +329,7 @@ class Table {
   resetGame() {
     this.street = STREETS.PREFLOP;
     this.chips = 0;
+    this.allIn = false;
     this.cards = [];
     this.players.forEach(player => {
       player.cardRank = undefined;
@@ -330,7 +353,7 @@ class Table {
 
   findWinner() {
     const ranker = new CardRanker(this.getActivePlayers(), this.cards);
-    return ranker.findWinner();
+    this.won(ranker.findWinner());
   }
 }
 

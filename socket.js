@@ -27,6 +27,9 @@ const startTimer = (table, currTable, io) => {
       io.to(table).emit('time', { time: currTable.timeCount });
       currTable.timeCount -= 0.1;
     }
+    if (currTable.allIn) {
+      clearInterval(timer);
+    }
     if (currTable.winner.length) {
       clearInterval(timer);
       setTimeout(() => {
@@ -40,6 +43,41 @@ const startTimer = (table, currTable, io) => {
 
 const updateTable = (io, table, currTable) => {
   io.to(table).emit('updateTable', { currTable });
+};
+
+const showCards = (table, currTable, io, streets) => {
+  const street = streets.shift();
+  if (street) {
+    const timer = setInterval(() => {
+      clearInterval(timer);
+      currTable.dealOneCard();
+      if (street === STREETS.RIVER) {
+        currTable.findWinner();
+          setTimeout(() => {
+            startTimer(table, currTable, io);
+            currTable.resetGame();
+            updateTable(io, table, currTable);
+          }, 2000);
+      } else {
+        showCards(table, currTable, io, streets);
+      }
+      updateTable(io, table, currTable);
+
+    }, 1000);
+  }
+};
+
+const handleAllIn = (table, currTable, io) => {
+  let streets = [];
+  switch(currTable.street) {
+    case STREETS.FLOP:
+      streets = [STREETS.TURN, STREETS.RIVER];
+      break;
+    case STREETS.TURN:
+      streets = [STREETS.RIVER];
+      break;
+  }
+  showCards(table, currTable, io, streets);
 };
 
 const socketConnection = io => {
@@ -167,6 +205,10 @@ const socketConnection = io => {
           updateTable(io, table, currTable);
         }, 2000);
       }
+
+      if(currTable.allIn) {
+        handleAllIn(table, currTable, io);
+      }
     });
 
     socket.on('raise', ({ currPlayer, table, raise }) => {
@@ -186,6 +228,9 @@ const socketConnection = io => {
           currTable.resetGame();
           updateTable(io, table, currTable);
         }, 2000);
+      }
+      if (currTable.allIn) {
+        handleAllIn(table, currTable, io);
       }
     });
 
