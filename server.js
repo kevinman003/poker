@@ -5,15 +5,12 @@ const socketio = require('socket.io');
 const http = require('http');
 const path = require('path');
 
-const router = require('./routes');
 // const TableRooms = require('./controllers/TableRooms');
 
 const app = express();
 
 // Middleware
 app.use(cors());
-
-app.use(router);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
