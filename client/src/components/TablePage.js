@@ -2,11 +2,11 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
-  updatePokerTableAction,
-  addSocketAction,
-  setCurrPlayerAction,
-  addHoleCardsAction,
-  sitPlayerAction,
+	updatePokerTableAction,
+	addSocketAction,
+	setCurrPlayerAction,
+	addHoleCardsAction,
+	sitPlayerAction,
 } from '../actions/pokerTableActions';
 
 import queryString from 'query-string';
@@ -23,145 +23,149 @@ import Table from './Table';
 let socket;
 
 const TablePage = props => {
-  const {
-    pokerTable,
-    addSocket,
-    updatePokerTable,
-    currPlayer,
-    setCurrPlayer,
-    addHoleCards,
-    sitPlayer,
-    location,
-    history,
-  } = props;
-  const ENDPOINT = 'localhost:5000';
-  const { table } = queryString.parse(location.search);
-  const [hasRedirected, setHasRedirected] = React.useState(false);
-  const [toggleLobby, setToggleLobby] = React.useState(false);
-  const [toggleTable, setToggleTable] = React.useState(false);
-  const [toggleName, setToggleName] = React.useState(false);
+	const {
+		pokerTable,
+		addSocket,
+		updatePokerTable,
+		currPlayer,
+		setCurrPlayer,
+		addHoleCards,
+		sitPlayer,
+		location,
+		history,
+	} = props;
+	const ENDPOINT =
+		process.env.NODE_ENV === 'development'
+			? 'localhost:5000'
+			: 'https://qpoker.herokuapp.com/';
+	const { table } = queryString.parse(location.search);
+	const [hasRedirected, setHasRedirected] = React.useState(false);
+	const [toggleLobby, setToggleLobby] = React.useState(false);
+	const [toggleTable, setToggleTable] = React.useState(false);
+	const [toggleName, setToggleName] = React.useState(false);
 
-  React.useEffect(() => {
-    socket = io(ENDPOINT);
-    addSocket(socket);
-    // redirect to another existing table if user goes to /
-    if (!table) {
-      socket.emit('getTables', {}, tables => {
-        if (Object.keys(tables).length > 0) {
-          const joinTableIdx = Math.floor(
-            Math.random() * Object.keys(tables).length
-          );
-          const redirect = tables[Object.keys(tables)[joinTableIdx]].id;
-          setHasRedirected(true);
-          history.push(`/?table=${redirect}`);
-        }
-      });
-    } else {
-      setHasRedirected(true);
-    }
-  }, []);
+	React.useEffect(() => {
+		socket = io(ENDPOINT);
+		addSocket(socket);
+		// redirect to another existing table if user goes to /
+		if (!table) {
+			socket.emit('getTables', {}, tables => {
+				if (Object.keys(tables).length > 0) {
+					const joinTableIdx = Math.floor(
+						Math.random() * Object.keys(tables).length
+					);
+					const redirect = tables[Object.keys(tables)[joinTableIdx]].id;
+					setHasRedirected(true);
+					history.push(`/?table=${redirect}`);
+				}
+			});
+		} else {
+			setHasRedirected(true);
+		}
+	}, []);
 
-  React.useEffect(() => {
-    if (localStorage.id && hasRedirected) {
-      socket.emit('join', { table, id: localStorage.id }, player =>
-        setCurrPlayer(player)
-      );
-    } else {
-      setToggleName(true);
-    }
-    return () => {
-      // TODO: implement functional disconnect
-      socket.emit('disconnect', {});
-      localStorage.removeItem('id');
+	React.useEffect(() => {
+		if (localStorage.id && hasRedirected) {
+			socket.emit('join', { table, id: localStorage.id }, player =>
+				setCurrPlayer(player)
+			);
+		} else {
+			setToggleName(true);
+		}
+		return () => {
+			// TODO: implement functional disconnect
+			socket.emit('disconnect', {});
+			localStorage.removeItem('id');
 
-      socket.off();
-    };
-  }, [location.search]);
+			socket.off();
+		};
+	}, [location.search]);
 
-  React.useEffect(() => {
-    socket.on('updateTable', ({ currTable }) => {
-      if (currPlayer) {
-        const player = currTable.players.find(p => p.id === currPlayer.id);
-        setCurrPlayer(player);
-      }
-      updatePokerTable(currTable);
-    });
-  }, [socket, pokerTable]);
+	React.useEffect(() => {
+		socket.on('updateTable', ({ currTable }) => {
+			if (currPlayer) {
+				const player = currTable.players.find(p => p.id === currPlayer.id);
+				setCurrPlayer(player);
+			}
+			updatePokerTable(currTable);
+		});
+	}, [socket, pokerTable]);
 
-  React.useEffect(() => {
-    socket.on('dealCards', ({ currTable }) => {
-      if (currPlayer) {
-        const player = currTable.players.find(
-          player => player.id === currPlayer.id
-        );
-        addHoleCards(player.holeCards);
-      }
-    });
+	React.useEffect(() => {
+		socket.on('dealCards', ({ currTable }) => {
+			if (currPlayer) {
+				const player = currTable.players.find(
+					player => player.id === currPlayer.id
+				);
+				addHoleCards(player.holeCards);
+			}
+		});
 
-    socket.on('sit', ({ seatNumber, id }) => {
-      if (currPlayer && currPlayer.id === id) sitPlayer(seatNumber);
-    });
-  }, [currPlayer]);
+		socket.on('sit', ({ seatNumber, id }) => {
+			if (currPlayer && currPlayer.id === id) sitPlayer(seatNumber);
+		});
+	}, [currPlayer]);
 
-  const handleToggle = () => {
-    setToggleLobby(!toggleLobby);
-  };
+	const handleToggle = () => {
+		setToggleLobby(!toggleLobby);
+	};
 
-  const handleTableToggle = () => {
-    setToggleTable(!toggleTable);
-  };
+	const handleTableToggle = () => {
+		setToggleTable(!toggleTable);
+	};
 
-  const handleToggleName = () => {
-    setToggleName(!toggleName);
-  };
+	const handleToggleName = () => {
+		setToggleName(!toggleName);
+	};
 
-  return (
-    <div className="table-page">
-      <TableInfo />
-      <Lobby
-        handleToggle={handleToggle}
-        handleTableToggle={handleTableToggle}
-        shown={toggleLobby}
-      />
-      <CreateName
-        shown={toggleName}
-        handleToggleName={handleToggleName}
-        handleToggle={handleToggle}
-      />
-      <CreateTable handleTableToggle={handleTableToggle} shown={toggleTable} />
-      <Nav handleToggle={handleToggle} />
-      <Table />
-      <CardAction
-        thisTurn={
-          pokerTable &&
-          !pokerTable.disabled &&
-          currPlayer &&
-          pokerTable.players[pokerTable.currAction].id === currPlayer.id
-        }
-        enabled={pokerTable && !pokerTable.disabled && currPlayer.playing}
-        table={table}
-      />
-    </div>
-  );
+	return (
+		<div className='table-page'>
+			<TableInfo />
+			<Lobby
+				handleToggle={handleToggle}
+				handleTableToggle={handleTableToggle}
+				shown={toggleLobby}
+			/>
+			<CreateName
+				shown={toggleName}
+				handleToggleName={handleToggleName}
+				handleToggle={handleToggle}
+			/>
+			<CreateTable handleTableToggle={handleTableToggle} shown={toggleTable} />
+			<Nav handleToggle={handleToggle} />
+			<Table />
+			<CardAction
+				thisTurn={
+					pokerTable &&
+					!pokerTable.disabled &&
+					currPlayer &&
+					pokerTable.players[pokerTable.currAction].id === currPlayer.id
+				}
+				enabled={pokerTable && !pokerTable.disabled && currPlayer.playing}
+				table={table}
+			/>
+		</div>
+	);
 };
 
 const mapStateToProps = state => {
-  return {
-    pokerTable: state.pokerTable,
-    currPlayer: state.currPlayer,
-  };
+	return {
+		pokerTable: state.pokerTable,
+		currPlayer: state.currPlayer,
+	};
 };
 
 const mapDispatchToProps = dispatch => {
-  return bindActionCreators(
-    {
-      updatePokerTable: updatePokerTableAction,
-      addSocket: addSocketAction,
-      setCurrPlayer: setCurrPlayerAction,
-      addHoleCards: addHoleCardsAction,
-      sitPlayer: sitPlayerAction,
-    },
-    dispatch
-  );
+	return bindActionCreators(
+		{
+			updatePokerTable: updatePokerTableAction,
+			addSocket: addSocketAction,
+			setCurrPlayer: setCurrPlayerAction,
+			addHoleCards: addHoleCardsAction,
+			sitPlayer: sitPlayerAction,
+		},
+		dispatch
+	);
 };
+
 export default connect(mapStateToProps, mapDispatchToProps)(TablePage);
