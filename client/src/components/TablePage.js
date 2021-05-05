@@ -11,10 +11,9 @@ import {
 
 import queryString from 'query-string';
 import io from 'socket.io-client';
-import { v4 as uuidv4 } from 'uuid';
 
-import TableInfo from './TableInfo';
-import Nav from './Nav';
+// import TableInfo from './TableInfo';
+// import Nav from './Nav';
 import Lobby from './Lobby';
 import CreateTable from './CreateTable';
 import CreateName from './CreateName';
@@ -62,7 +61,7 @@ const TablePage = props => {
 		} else {
 			setHasRedirected(true);
 		}
-	}, []);
+	}, [ENDPOINT, addSocket, history, table]);
 
 	React.useEffect(() => {
 		if (localStorage.id && hasRedirected) {
@@ -79,7 +78,7 @@ const TablePage = props => {
 
 			socket.off();
 		};
-	}, [location.search]);
+	}, [location.search, hasRedirected, setCurrPlayer, table]);
 
 	React.useEffect(() => {
 		socket.on('updateTable', ({ currTable }) => {
@@ -89,7 +88,7 @@ const TablePage = props => {
 			}
 			updatePokerTable(currTable);
 		});
-	}, [socket, pokerTable]);
+	}, [pokerTable, currPlayer, setCurrPlayer, updatePokerTable]);
 
 	React.useEffect(() => {
 		socket.on('dealCards', ({ currTable }) => {
@@ -104,7 +103,7 @@ const TablePage = props => {
 		socket.on('sit', ({ seatNumber, id }) => {
 			if (currPlayer && currPlayer.id === id) sitPlayer(seatNumber);
 		});
-	}, [currPlayer]);
+	}, [currPlayer, addHoleCards, sitPlayer]);
 
 	const handleToggle = () => {
 		setToggleLobby(!toggleLobby);
@@ -120,7 +119,7 @@ const TablePage = props => {
 
 	return (
 		<div className='table-page'>
-			<TableInfo />
+			{/* <TableInfo /> */}
 			<Lobby
 				handleToggle={handleToggle}
 				handleTableToggle={handleTableToggle}
@@ -132,7 +131,8 @@ const TablePage = props => {
 				handleToggle={handleToggle}
 			/>
 			<CreateTable handleTableToggle={handleTableToggle} shown={toggleTable} />
-			<Nav handleToggle={handleToggle} />
+			{/* TODO: Handle join/leave lobby */}
+			{/* <Nav handleToggle={handleToggle} /> */}
 			<Table />
 			<CardAction
 				thisTurn={
